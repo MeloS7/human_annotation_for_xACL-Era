@@ -1069,6 +1069,7 @@ function renderScoreCards() {
     options.append(makeScoreButton(key, "uncertain", t("uncertain"), t("presenceUncertain")));
     card.append(options);
     const details = element("details", "score-scale-details");
+    details.open = true;
     const summary = element("summary", "", t("scoreScale"));
     const list = element("ol", "score-scale-list");
     for (let score = 1; score <= 5; score += 1) {
