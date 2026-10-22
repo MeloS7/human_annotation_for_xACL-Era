@@ -1,0 +1,731 @@
+{
+  "algorithm": {
+    "areas_with_extra_early": 5,
+    "description": "For each area, rank SHA256(seed+'|extra-early|'+area); the first five areas receive 2 early and 1 late paper, the remaining five receive 1 early and 2 late. Within each period-area cell rank SHA256(seed+'|'+period+'|'+area+'|'+paper_id), take the quota, then order the 30 selected IDs by SHA256(seed+'|order|'+paper_id). Ties break by ID.",
+    "total_per_area": 3,
+    "version": "sha256-stratified-v1"
+  },
+  "dataset_id": "revisionlens-alignment30-v1",
+  "input_sha256": {
+    "catalog": "275c9df42bf821321afd5bffd1a790b927fb020003a8d1f673ffb9c9f757490f",
+    "selected_mirror": "0ffeaf2bf3435738bc3e0ca936424663d156d95f73ba6b2a9e02a81364e64e58"
+  },
+  "release_pointer": {
+    "bytes": 7133,
+    "path": "metadata/formal600_reference_finalization_20261020/current-publication-v1.json",
+    "sha256": "a1915dc9f1fe9b0ca35db2de7cab4d9fafca1042be03e37638e23ee3bb78b4b4"
+  },
+  "rubric_version": "alignment-rubric-v1",
+  "schema": "revisionlens.alignment30.selection.v1",
+  "seed": "RevisionLens-Alignment30-20261021-v1",
+  "selected": [
+    {
+      "actual_event_id": "acl2025",
+      "area_code": "C01",
+      "area_name": "Multimodality and Language Grounding",
+      "compiled_pdf_ref": {
+        "bytes": 4046849,
+        "generated": true,
+        "pages": 18,
+        "path": ".runtime/formal600_repair_20261019/compile/fontconfig-all600-v2/papers/2025.acl-long.636/2501.01377v2/8571094507c4bb395c08d59132bad24cc0026d01d1f87ca52887174fb6b14b21/work/output/__revisionlens_build_hyperref_xetex__.pdf",
+        "sha256": "624f9756540b93bdc07341b13c04e25cf1e8c231e54afcac23a434792fa71b52"
+      },
+      "paper_id": "2025.acl-long.636",
+      "period": "late",
+      "sample_id": "RL01",
+      "selected_vN": "2501.01377v2",
+      "source_archive_ref": {
+        "bytes": 3411091,
+        "path": ".runtime/six_edition_audit_20261014/network-cache/objects/f716a25f75e93c438d0c04999d11fc4e12a168af9f595be17f10f9cd4387c2fd/9e1fd2ceb591adb3ba92949c26a3212b091198ac028603c00d9ddfb9dd3fdd0c/8571094507c4bb395c08d59132bad24cc0026d01d1f87ca52887174fb6b14b21.body",
+        "sha256": "8571094507c4bb395c08d59132bad24cc0026d01d1f87ca52887174fb6b14b21"
+      }
+    },
+    {
+      "actual_event_id": "emnlp2020",
+      "area_code": "A04",
+      "area_name": "Text Generation and Summarization",
+      "compiled_pdf_ref": {
+        "bytes": 243425,
+        "generated": true,
+        "pages": 17,
+        "path": ".runtime/formal600_repair_20261019/compile/fontconfig-all600-v2/papers/2020.emnlp-main.647/2004.14900v1/0c9595265b720df9922e9acb141f112cb8bde42a32b54e5572e0e616688334ba/work/output/__revisionlens_authored_bbl_direct_input_v1__.pdf",
+        "sha256": "07dab6782246f546fb0d1dd40339faf2ee98eccb8704f69a0a6ddc6fff859bde"
+      },
+      "paper_id": "2020.emnlp-main.647",
+      "period": "early",
+      "sample_id": "RL02",
+      "selected_vN": "2004.14900v1",
+      "source_archive_ref": {
+        "bytes": 111855,
+        "path": ".runtime/six_edition_audit_20261014/network-cache/objects/a654857361c3b4d3fc0ff08359583b547b5044d2b39d0d81ddcbfd375aee8839/33e5b06013587fd34172764804d56b5cadb203dd35bbf040399c9047725d6547/0c9595265b720df9922e9acb141f112cb8bde42a32b54e5572e0e616688334ba.body",
+        "sha256": "0c9595265b720df9922e9acb141f112cb8bde42a32b54e5572e0e616688334ba"
+      }
+    },
+    {
+      "actual_event_id": "naacl2025",
+      "area_code": "A02",
+      "area_name": "Information Extraction and Retrieval",
+      "compiled_pdf_ref": {
+        "bytes": 1429611,
+        "generated": true,
+        "pages": 21,
+        "path": ".runtime/formal600_quality_20261020/reference-cohort-worker/attempts/native71-p18-r5-20261020/papers/2025.naacl-long.431/2409.18110v2/9c32fe7275e36c2c390fd65b3d129218f6d6f04623562933bef4e00c382d5428/passes/pass-03/output-state/__revisionlens_native_v2__.pdf",
+        "sha256": "b433c4bfbac189e0c89f10631dd0ecb0e129b8da66a97235bc9cc90379aaa95a"
+      },
+      "paper_id": "2025.naacl-long.431",
+      "period": "late",
+      "sample_id": "RL03",
+      "selected_vN": "2409.18110v2",
+      "source_archive_ref": {
+        "bytes": 9342470,
+        "path": ".runtime/six_edition_audit_20261014/network-cache/objects/43ff5e1789d186c6ef286dce4b675d645baaaa3720e63d435c74f201a15c3836/c3f75c190048ca57f1fdc0230d47ccea99f6a2649616e4a190c5cfc6efcddbef/9c32fe7275e36c2c390fd65b3d129218f6d6f04623562933bef4e00c382d5428.body",
+        "sha256": "9c32fe7275e36c2c390fd65b3d129218f6d6f04623562933bef4e00c382d5428"
+      }
+    },
+    {
+      "actual_event_id": "emnlp2020",
+      "area_code": "A07",
+      "area_name": "Semantics, Inference, and Text Classification",
+      "compiled_pdf_ref": {
+        "bytes": 130603,
+        "generated": true,
+        "pages": 13,
+        "path": ".runtime/formal600_repair_20261019/compile/fontconfig-all600-v2/papers/2020.emnlp-main.292/2009.07964v4/2dcb450514ff4d8c8f959f2be942473aa6636a52f1a16787f75f54166607366c/work/output/__revisionlens_authored_bbl_direct_input_v1__.pdf",
+        "sha256": "5192b4f1073be20a49dc4ab8dd8ab4241d976ec0d41933e364555ebd1ae67932"
+      },
+      "paper_id": "2020.emnlp-main.292",
+      "period": "early",
+      "sample_id": "RL04",
+      "selected_vN": "2009.07964v4",
+      "source_archive_ref": {
+        "bytes": 8593437,
+        "path": ".runtime/six_edition_audit_20261014/network-cache/objects/ae872c2451f74bb77a3438b8e6be91d16c9c8fb30200f67d7f396426413c6d0b/d3024985e69c8ae75a5367ac9a135dafc7634c2600db6ccbb996c225af881268/2dcb450514ff4d8c8f959f2be942473aa6636a52f1a16787f75f54166607366c.body",
+        "sha256": "2dcb450514ff4d8c8f959f2be942473aa6636a52f1a16787f75f54166607366c"
+      }
+    },
+    {
+      "actual_event_id": "emnlp2020",
+      "area_code": "C01",
+      "area_name": "Multimodality and Language Grounding",
+      "compiled_pdf_ref": {
+        "bytes": 4581903,
+        "generated": true,
+        "pages": 23,
+        "path": ".runtime/formal600_repair_20261019/compile/fontconfig-all600-v2/papers/2020.emnlp-main.356/2010.07954v1/8e4f5d4be518375381a5ffe12dde401936fc306e0160bb5bbda96ed660fbab23/work/output/__revisionlens_authored_bbl_direct_input_v1__.pdf",
+        "sha256": "ccf2f5946b2ed0b345f7a0ed041d696c0d71ecde02f810ce8cb6f89ce31381b2"
+      },
+      "paper_id": "2020.emnlp-main.356",
+      "period": "early",
+      "sample_id": "RL05",
+      "selected_vN": "2010.07954v1",
+      "source_archive_ref": {
+        "bytes": 5682925,
+        "path": ".runtime/six_edition_audit_20261014/network-cache/objects/59f8fa3e06709530b757c90e43c427fdfccada4fdb1652cbb2c7086d056eebb9/3c25cd4dbc000582c250831ee55a66ad829fd55aaa514566f90ad77cf2bc3135/8e4f5d4be518375381a5ffe12dde401936fc306e0160bb5bbda96ed660fbab23.body",
+        "sha256": "8e4f5d4be518375381a5ffe12dde401936fc306e0160bb5bbda96ed660fbab23"
+      }
+    },
+    {
+      "actual_event_id": "acl2021",
+      "area_code": "A09",
+      "area_name": "Language Resources and Evaluation",
+      "compiled_pdf_ref": {
+        "bytes": 240931,
+        "generated": true,
+        "pages": 19,
+        "path": ".runtime/formal600_repair_20261019/compile/fontconfig-all600-v2/papers/2021.acl-long.213/2105.07903v1/f2b6ac868df4a5840e5000a1ac3f88d0f01eb7ca5248e304944ebf42f4719cba/work/output/__revisionlens_authored_bbl_direct_input_v1__.pdf",
+        "sha256": "656cddfe45cef74b759de3a08a7d26f692fdfe40984cfd6780e55066242f099c"
+      },
+      "paper_id": "2021.acl-long.213",
+      "period": "early",
+      "sample_id": "RL06",
+      "selected_vN": "2105.07903v1",
+      "source_archive_ref": {
+        "bytes": 5457257,
+        "path": ".runtime/six_edition_audit_20261014/network-cache/objects/d7b479e845a3d7d125247813b645acbec9d74c68c0f5af8e8dd0b713428aac17/fbc3dce4bebd546f2d95329648b7bb9b383c5a8b749f3001ad2b17f957ba5ac6/f2b6ac868df4a5840e5000a1ac3f88d0f01eb7ca5248e304944ebf42f4719cba.body",
+        "sha256": "f2b6ac868df4a5840e5000a1ac3f88d0f01eb7ca5248e304944ebf42f4719cba"
+      }
+    },
+    {
+      "actual_event_id": "acl2018",
+      "area_code": "A04",
+      "area_name": "Text Generation and Summarization",
+      "compiled_pdf_ref": {
+        "bytes": 139114,
+        "generated": true,
+        "pages": 11,
+        "path": ".runtime/formal600_repair_20261019/compile/fontconfig-all600-v2/papers/P18-1150/1805.02473v3/bf2f6de9743bdd95408827b6bcd746cbb03a5e073492a9b531f28ecb11457785/work/output/__revisionlens_authored_bbl_direct_input_v1__.pdf",
+        "sha256": "22d9bd2f496c41015ab64566ea72f0c6eb1e1a367ee78bcb6afdd0929d40b752"
+      },
+      "paper_id": "P18-1150",
+      "period": "early",
+      "sample_id": "RL07",
+      "selected_vN": "1805.02473v3",
+      "source_archive_ref": {
+        "bytes": 140252,
+        "path": ".runtime/six_edition_audit_20261014/network-cache/objects/71b7333843fd51291a410dd5d1530fbf50beb1f092878b121df5ddef6d611b99/3a8bf08c44400c3c98cc9bd38c6f9daef1543839277dc945a5639d6ac991ee28/bf2f6de9743bdd95408827b6bcd746cbb03a5e073492a9b531f28ecb11457785.body",
+        "sha256": "bf2f6de9743bdd95408827b6bcd746cbb03a5e073492a9b531f28ecb11457785"
+      }
+    },
+    {
+      "actual_event_id": "acl2018",
+      "area_code": "A03",
+      "area_name": "Question Answering",
+      "compiled_pdf_ref": {
+        "bytes": 227699,
+        "generated": true,
+        "pages": 14,
+        "path": ".runtime/formal600_repair_20261019/compile/fontconfig-all600-v2/papers/P18-1177/1805.05942v1/58f6d976ab56e39a0206d82b604f7e3c02f5815935261863276bf9d25c0479cc/work/output/__revisionlens_authored_bbl_direct_input_v1__.pdf",
+        "sha256": "ecb19a52552b69a06d2499adc674ac11a25e04ec5f95992f9a16b59f1c8b8e85"
+      },
+      "paper_id": "P18-1177",
+      "period": "early",
+      "sample_id": "RL08",
+      "selected_vN": "1805.05942v1",
+      "source_archive_ref": {
+        "bytes": 443883,
+        "path": ".runtime/six_edition_audit_20261014/network-cache/objects/517b701a77618920de7b7215927ab2b3b4a97ea201c46e805f187be9f99b2640/e4613735b994849fa26314aad011251e022c2e9089e60c1810ca749e87f46722/58f6d976ab56e39a0206d82b604f7e3c02f5815935261863276bf9d25c0479cc.body",
+        "sha256": "58f6d976ab56e39a0206d82b604f7e3c02f5815935261863276bf9d25c0479cc"
+      }
+    },
+    {
+      "actual_event_id": "naacl2025",
+      "area_code": "A09",
+      "area_name": "Language Resources and Evaluation",
+      "compiled_pdf_ref": {
+        "bytes": 3640349,
+        "generated": true,
+        "pages": 21,
+        "path": ".runtime/formal600_repair_20261019/compile/recovery-6980309-known-repairs9-v1/papers/2025.naacl-long.633/2502.06111v2/2a5c9fca209e6ad673015b69a03b98e25e0804fe67b84903b1a7f7b9b8edbe6a/work/output/__revisionlens_authored_bbl_direct_input_v1__.pdf",
+        "sha256": "1ae03ca9bdedb2003040fc2d14fb7a980b66c85c34d2f55ceaa6dab84e8f1e78"
+      },
+      "paper_id": "2025.naacl-long.633",
+      "period": "late",
+      "sample_id": "RL09",
+      "selected_vN": "2502.06111v2",
+      "source_archive_ref": {
+        "bytes": 5266079,
+        "path": ".runtime/six_edition_audit_20261014/network-cache/objects/9c92ca38d7ae9de02b612a86b23999fbd8760eccc2a93062dd8df8a9cfda3d8f/2566d7bfea2614bf5ef3433cf1899151ec9e2f99205d87b829137d124196ff97/2a5c9fca209e6ad673015b69a03b98e25e0804fe67b84903b1a7f7b9b8edbe6a.body",
+        "sha256": "2a5c9fca209e6ad673015b69a03b98e25e0804fe67b84903b1a7f7b9b8edbe6a"
+      }
+    },
+    {
+      "actual_event_id": "emnlp2020",
+      "area_code": "A10",
+      "area_name": "Model Analysis and Interpretability",
+      "compiled_pdf_ref": {
+        "bytes": 311795,
+        "generated": true,
+        "pages": 12,
+        "path": ".runtime/formal600_repair_20261019/compile/fontconfig-all600-v2/papers/2020.emnlp-main.554/2004.14601v3/a2e29834f78286f4da5fa6c48ff994bbdfa2177b68368a977d07042b02f9dcb2/work/output/__revisionlens_authored_bbl_direct_input_v1__.pdf",
+        "sha256": "54d5ec05d95f00ea00d3523ba6bcf0e3ee71cc14cb86a7bccff847cf80b6f2fb"
+      },
+      "paper_id": "2020.emnlp-main.554",
+      "period": "early",
+      "sample_id": "RL10",
+      "selected_vN": "2004.14601v3",
+      "source_archive_ref": {
+        "bytes": 314379,
+        "path": ".runtime/six_edition_audit_20261014/network-cache/objects/3233e3f0bcbd235392f66f30daf6ef8b17efb388a52147955d711c7406d00116/3ce8937cfab7b8791c06f20c1e06d16a16aa1d630fc348e4af9394ea98c9ea2c/a2e29834f78286f4da5fa6c48ff994bbdfa2177b68368a977d07042b02f9dcb2.body",
+        "sha256": "a2e29834f78286f4da5fa6c48ff994bbdfa2177b68368a977d07042b02f9dcb2"
+      }
+    },
+    {
+      "actual_event_id": "emnlp2020",
+      "area_code": "A07",
+      "area_name": "Semantics, Inference, and Text Classification",
+      "compiled_pdf_ref": {
+        "bytes": 245911,
+        "generated": true,
+        "pages": 15,
+        "path": ".runtime/formal600_repair_20261019/compile/fontconfig-all600-v2/papers/2020.emnlp-main.613/2009.12303v4/9121b143407ee0e7212b901d36ac8a905ba0d743efcbf6645c86001a1d689e5c/work/output/__revisionlens_authored_bbl_direct_input_v1__.pdf",
+        "sha256": "365c65e84904b9bcec9e40be8442d26b3a00c782f4b903a38c4d031e80cd9049"
+      },
+      "paper_id": "2020.emnlp-main.613",
+      "period": "early",
+      "sample_id": "RL11",
+      "selected_vN": "2009.12303v4",
+      "source_archive_ref": {
+        "bytes": 343914,
+        "path": ".runtime/six_edition_audit_20261014/network-cache/objects/100e003893ac375346b3d8216515618d5de5b3caca997f0c022e4fede2e5e4d4/b358db16384861019722268b58d2adc2c710301db197abee7462c63d9dce1758/9121b143407ee0e7212b901d36ac8a905ba0d743efcbf6645c86001a1d689e5c.body",
+        "sha256": "9121b143407ee0e7212b901d36ac8a905ba0d743efcbf6645c86001a1d689e5c"
+      }
+    },
+    {
+      "actual_event_id": "naacl2025",
+      "area_code": "A03",
+      "area_name": "Question Answering",
+      "compiled_pdf_ref": {
+        "bytes": 14398638,
+        "generated": true,
+        "pages": 26,
+        "path": ".runtime/formal600_quality_20261020/reference-cohort-worker/attempts/native71-p18-r5-20261020/papers/2025.naacl-long.477/2209.08199v4/3f7d49ab87a945e9d17dca2289985a45accf2750ef333850c9c0b774057195e1/passes/pass-03/output-state/__revisionlens_native_v2__.pdf",
+        "sha256": "42841323d2895ad1f30956103548468eea8c6234a040d5882caebfb81367da2c"
+      },
+      "paper_id": "2025.naacl-long.477",
+      "period": "late",
+      "sample_id": "RL12",
+      "selected_vN": "2209.08199v4",
+      "source_archive_ref": {
+        "bytes": 14439771,
+        "path": ".runtime/six_edition_audit_20261014/network-cache/objects/1d11689c797dbcc4f9681feb12250ff3206b2132bcd4125b2369ec2840261a57/662c7dc7c2f9a2847f5c34c9e5be756bf99ad2cb5c0e28dbbafe3af20b3c1c14/3f7d49ab87a945e9d17dca2289985a45accf2750ef333850c9c0b774057195e1.body",
+        "sha256": "3f7d49ab87a945e9d17dca2289985a45accf2750ef333850c9c0b774057195e1"
+      }
+    },
+    {
+      "actual_event_id": "eacl2024",
+      "area_code": "A01",
+      "area_name": "Machine Translation and Cross-Lingual NLP",
+      "compiled_pdf_ref": {
+        "bytes": 2252837,
+        "generated": true,
+        "pages": 20,
+        "path": ".runtime/formal600_repair_20261019/compile/fontconfig-all600-v2/papers/2024.eacl-long.177/2402.02099v1/01494ef9e15e64c603bc232729ac11f5e4ea378eb98630fe8251b0978d77ea04/work/output/__revisionlens_authored_bbl_direct_input_v1__.pdf",
+        "sha256": "39b7d6577feeb72880ac24e904efd95b09ba1fc6d0d51e0eed67bf9f9781706b"
+      },
+      "paper_id": "2024.eacl-long.177",
+      "period": "late",
+      "sample_id": "RL13",
+      "selected_vN": "2402.02099v1",
+      "source_archive_ref": {
+        "bytes": 5767851,
+        "path": ".runtime/six_edition_audit_20261014/network-cache/objects/57eed89215e1ce1aa0cc02878e40bcdffb0a285687c7eaa45fc2489726c0db36/f27c7366d8b1263b744f22fa5a3c171be30ec76e5db82504711b4b253a92c88e/01494ef9e15e64c603bc232729ac11f5e4ea378eb98630fe8251b0978d77ea04.body",
+        "sha256": "01494ef9e15e64c603bc232729ac11f5e4ea378eb98630fe8251b0978d77ea04"
+      }
+    },
+    {
+      "actual_event_id": "emnlp2020",
+      "area_code": "A01",
+      "area_name": "Machine Translation and Cross-Lingual NLP",
+      "compiled_pdf_ref": {
+        "bytes": 1154053,
+        "generated": true,
+        "pages": 13,
+        "path": ".runtime/formal600_quality_20261020/reference-cohort-worker/attempts/native71-p18-r5-20261020/papers/2020.emnlp-main.359/2010.03017v1/88e67f9844662fe3d53761f58aeb8786d2e0d9b8e9e43a988a8398f9f31fd2e7/passes/pass-03/output-state/__revisionlens_native_v2__.pdf",
+        "sha256": "7ada605f9898a79e365665ef8da21876dec94684a59a7ee5ed902e5d8cebb565"
+      },
+      "paper_id": "2020.emnlp-main.359",
+      "period": "early",
+      "sample_id": "RL14",
+      "selected_vN": "2010.03017v1",
+      "source_archive_ref": {
+        "bytes": 850168,
+        "path": ".runtime/six_edition_audit_20261014/network-cache/objects/89162bac942413cac0a0abfbb5507227111dc80f9e6a11f36a333571cc9beb61/b195af23f28bac310f3f72426d839e26579accde9b5b0d592dc3b84fba78d01f/88e67f9844662fe3d53761f58aeb8786d2e0d9b8e9e43a988a8398f9f31fd2e7.body",
+        "sha256": "88e67f9844662fe3d53761f58aeb8786d2e0d9b8e9e43a988a8398f9f31fd2e7"
+      }
+    },
+    {
+      "actual_event_id": "naacl2025",
+      "area_code": "A08",
+      "area_name": "Machine Learning for NLP and Language Modeling",
+      "compiled_pdf_ref": {
+        "bytes": 596599,
+        "generated": true,
+        "pages": 31,
+        "path": ".runtime/formal600_repair_20261019/compile/recovery-6980309-remaining66-v1/papers/2025.naacl-long.605/2405.00200v2/e16bf072250a85e8072056a2b7bb15ef1e9b671fb08f0c6b6bf822cfc5555974/work/output/__revisionlens_authored_bbl_direct_input_v1__.pdf",
+        "sha256": "2dce246b513658f71cb6e0a21d6d326aad7317ed154bb1701d5c34ca4728321f"
+      },
+      "paper_id": "2025.naacl-long.605",
+      "period": "late",
+      "sample_id": "RL15",
+      "selected_vN": "2405.00200v2",
+      "source_archive_ref": {
+        "bytes": 403079,
+        "path": ".runtime/six_edition_audit_20261014/network-cache/objects/449fc2bd4f08ef294bc94d9e5b9e6e3ef3187dcf0c36a192a6505a0375f34538/0465c176cfcf602400ded14328ebc5635d9273d7816812234edb5290807934b4/e16bf072250a85e8072056a2b7bb15ef1e9b671fb08f0c6b6bf822cfc5555974.body",
+        "sha256": "e16bf072250a85e8072056a2b7bb15ef1e9b671fb08f0c6b6bf822cfc5555974"
+      }
+    },
+    {
+      "actual_event_id": "naacl2025",
+      "area_code": "A04",
+      "area_name": "Text Generation and Summarization",
+      "compiled_pdf_ref": {
+        "bytes": 991026,
+        "generated": true,
+        "pages": 19,
+        "path": ".runtime/formal600_repair_20261019/compile/fontconfig-all600-v2/papers/2025.naacl-long.494/2412.08795v2/590df9ddd41789391ad197200b44bc80308582fbbf1874206e02bb4d80e9cc47/work/output/__revisionlens_authored_bbl_direct_input_v1__.pdf",
+        "sha256": "e04e08f27a8385ffb371ff7e4acad610ecac247e90b7350b1ff658790f1eb36e"
+      },
+      "paper_id": "2025.naacl-long.494",
+      "period": "late",
+      "sample_id": "RL16",
+      "selected_vN": "2412.08795v2",
+      "source_archive_ref": {
+        "bytes": 963616,
+        "path": ".runtime/six_edition_audit_20261014/network-cache/objects/2e8d6cbfc079e70c746c10e1f96778743524a31d0b5acc3af711a5cd69cd5815/3284d9cd91c1d84e13605c27fcade5c8a751e10ba7efcf1a53ffdb09f8133e5b/590df9ddd41789391ad197200b44bc80308582fbbf1874206e02bb4d80e9cc47.body",
+        "sha256": "590df9ddd41789391ad197200b44bc80308582fbbf1874206e02bb4d80e9cc47"
+      }
+    },
+    {
+      "actual_event_id": "acl2025",
+      "area_code": "A10",
+      "area_name": "Model Analysis and Interpretability",
+      "compiled_pdf_ref": {
+        "bytes": 2898414,
+        "generated": true,
+        "pages": 23,
+        "path": ".runtime/formal600_quality_20261020/reference-cohort-worker/attempts/native71-p18-r5-20261020/papers/2025.acl-long.71/2501.08292v1/60a6d51465423f4fbaadab5c6f46c21835bd6d54134bec1d9183b7859a7f3a39/passes/pass-03/output-state/__revisionlens_native_v2__.pdf",
+        "sha256": "cc67ea3e83c7ef992f597c4bc7967b913e246ba6681db88ad4c678f8be34fd1f"
+      },
+      "paper_id": "2025.acl-long.71",
+      "period": "late",
+      "sample_id": "RL17",
+      "selected_vN": "2501.08292v1",
+      "source_archive_ref": {
+        "bytes": 7459107,
+        "path": ".runtime/six_edition_audit_20261014/network-cache/objects/00aa199f50a5d233b4ab9a066e116f66561c5f7bfc2f51d7085e48754dfabf3d/de4027068479c161efe647c1a8f077184790f63af70a0a5769714f72c1a374b3/60a6d51465423f4fbaadab5c6f46c21835bd6d54134bec1d9183b7859a7f3a39.body",
+        "sha256": "60a6d51465423f4fbaadab5c6f46c21835bd6d54134bec1d9183b7859a7f3a39"
+      }
+    },
+    {
+      "actual_event_id": "naacl2025",
+      "area_code": "A03",
+      "area_name": "Question Answering",
+      "compiled_pdf_ref": {
+        "bytes": 11938751,
+        "generated": true,
+        "pages": 21,
+        "path": ".runtime/formal600_repair_20261019/compile/fontconfig-all600-v2/papers/2025.naacl-long.579/2410.22211v2/297f07e3d14b110651b15fb9836bc9e32637ce2b65f7ce627c455381d4b3c0b6/work/output/__revisionlens_authored_bbl_direct_input_v1__.pdf",
+        "sha256": "604d70f1b25f17f097adc193fde8e0e72a88cf2f546ab20e9d635cfb87ca1f50"
+      },
+      "paper_id": "2025.naacl-long.579",
+      "period": "late",
+      "sample_id": "RL18",
+      "selected_vN": "2410.22211v2",
+      "source_archive_ref": {
+        "bytes": 11854487,
+        "path": ".runtime/six_edition_audit_20261014/network-cache/objects/f414559888471901f9c209dde1a7276ff16d8dd8c3532b6e85dd342427bae6be/6d8646c684e9a2c58ba844dac8ce9dcdaf8d91c3016ae86aa3295b84970ee9bb/297f07e3d14b110651b15fb9836bc9e32637ce2b65f7ce627c455381d4b3c0b6.body",
+        "sha256": "297f07e3d14b110651b15fb9836bc9e32637ce2b65f7ce627c455381d4b3c0b6"
+      }
+    },
+    {
+      "actual_event_id": "naacl2018",
+      "area_code": "C01",
+      "area_name": "Multimodality and Language Grounding",
+      "compiled_pdf_ref": {
+        "bytes": 650893,
+        "generated": true,
+        "pages": 12,
+        "path": ".runtime/formal600_repair_20261019/compile/fontconfig-all600-v2/papers/N18-1200/1809.08761v1/4bc6cbcb3e23c84cc760e656f8ae3a2d02f76e6ed79ea8be201236f4a7e929d9/work/output/__revisionlens_authored_bbl_direct_input_v1__.pdf",
+        "sha256": "bd09fec305d579fb900a7fa3784721f9ca01d9fe470c3e8f7c840033a2a3cd42"
+      },
+      "paper_id": "N18-1200",
+      "period": "early",
+      "sample_id": "RL19",
+      "selected_vN": "1809.08761v1",
+      "source_archive_ref": {
+        "bytes": 613090,
+        "path": ".runtime/six_edition_audit_20261014/network-cache/objects/f9c02205e0fcba7aa8129e7241db9fb15389643d9be73ca143e988a0d3ca807a/25dd8b1048b9186e7f56a097d08cff34f22a68f202aff8782ff554c3c0bd0cca/4bc6cbcb3e23c84cc760e656f8ae3a2d02f76e6ed79ea8be201236f4a7e929d9.body",
+        "sha256": "4bc6cbcb3e23c84cc760e656f8ae3a2d02f76e6ed79ea8be201236f4a7e929d9"
+      }
+    },
+    {
+      "actual_event_id": "emnlp2020",
+      "area_code": "A02",
+      "area_name": "Information Extraction and Retrieval",
+      "compiled_pdf_ref": {
+        "bytes": 255737,
+        "generated": true,
+        "pages": 11,
+        "path": ".runtime/formal600_repair_20261019/compile/fontconfig-all600-v2/papers/2020.emnlp-main.592/2004.12126v2/6b3bb57f0c525f301dfa496a4831f7acb2d7f11ada940a9a9c73bbb1da3e172b/work/output/__revisionlens_authored_bbl_direct_input_v1__.pdf",
+        "sha256": "464e7e899a3f00868790fa69b9f3452eb88458ff598729d3cf798f5afdea1589"
+      },
+      "paper_id": "2020.emnlp-main.592",
+      "period": "early",
+      "sample_id": "RL20",
+      "selected_vN": "2004.12126v2",
+      "source_archive_ref": {
+        "bytes": 403353,
+        "path": ".runtime/six_edition_audit_20261014/network-cache/objects/d4381abb6fc6c06ae0cb64c786f85204c45b3227c0151b316be7679ada5dd983/111fa40f6d2da0603b7e067a0ab6d71b7bf268f5ff18794022678ef672d9a1c4/6b3bb57f0c525f301dfa496a4831f7acb2d7f11ada940a9a9c73bbb1da3e172b.body",
+        "sha256": "6b3bb57f0c525f301dfa496a4831f7acb2d7f11ada940a9a9c73bbb1da3e172b"
+      }
+    },
+    {
+      "actual_event_id": "acl2018",
+      "area_code": "A09",
+      "area_name": "Language Resources and Evaluation",
+      "compiled_pdf_ref": {
+        "bytes": 214711,
+        "generated": true,
+        "pages": 11,
+        "path": ".runtime/formal600_repair_20261019/compile/fontconfig-all600-v2/papers/P18-1127/1804.11225v2/c0f0b9cf464c07f96f1d8000df26abd22d92b5379ec2f01e3cce24c9352ea7d7/work/output/__revisionlens_authored_bbl_direct_input_v1__.pdf",
+        "sha256": "460b5efea1c487664894dbef513429d90938de9c68ddddf156e3909a36901676"
+      },
+      "paper_id": "P18-1127",
+      "period": "early",
+      "sample_id": "RL21",
+      "selected_vN": "1804.11225v2",
+      "source_archive_ref": {
+        "bytes": 135976,
+        "path": ".runtime/six_edition_audit_20261014/network-cache/objects/9977c943de4ad027d04adb34740d6655e2eb544f9214f1c6da232b9a81258e39/275053b771c15e009fc319603bef643e4026ab794d356b3d1a188496d57f7170/c0f0b9cf464c07f96f1d8000df26abd22d92b5379ec2f01e3cce24c9352ea7d7.body",
+        "sha256": "c0f0b9cf464c07f96f1d8000df26abd22d92b5379ec2f01e3cce24c9352ea7d7"
+      }
+    },
+    {
+      "actual_event_id": "acl2025",
+      "area_code": "A05",
+      "area_name": "Dialogue, Discourse, and Pragmatics",
+      "compiled_pdf_ref": {
+        "bytes": 8322812,
+        "generated": true,
+        "pages": 16,
+        "path": ".runtime/formal600_quality_20261020/reference-cohort-worker/attempts/native71-p18-r5-20261020/papers/2025.acl-long.1016/2503.13975v2/d4d9d84028449658a84e11c2258126fe139129485c29c7143197c6a8355791d4/passes/pass-03/output-state/__revisionlens_native_v2__.pdf",
+        "sha256": "38d0552f445a88220bd3feaf037322b3aa908a208f6f4ca2cd646c3b6bcdb6ec"
+      },
+      "paper_id": "2025.acl-long.1016",
+      "period": "late",
+      "sample_id": "RL22",
+      "selected_vN": "2503.13975v2",
+      "source_archive_ref": {
+        "bytes": 5118021,
+        "path": ".runtime/six_edition_audit_20261014/network-cache/objects/d6d8fca95d21a5c4830bc41b89b885cd21474da628780f2f5a4147898b5827d3/58c01ec0aece697e887d3dcebb4fa42f3cd62ac2d4428893a24f5e08b598189a/d4d9d84028449658a84e11c2258126fe139129485c29c7143197c6a8355791d4.body",
+        "sha256": "d4d9d84028449658a84e11c2258126fe139129485c29c7143197c6a8355791d4"
+      }
+    },
+    {
+      "actual_event_id": "naacl2025",
+      "area_code": "A02",
+      "area_name": "Information Extraction and Retrieval",
+      "compiled_pdf_ref": {
+        "bytes": 636149,
+        "generated": true,
+        "pages": 18,
+        "path": ".runtime/formal600_repair_20261019/compile/fontconfig-all600-v2/papers/2025.naacl-long.597/2403.15246v3/394eb1ea74d5554404096e9f93d027849a7e45279583ec5a389d9d780afcbb0e/work/output/__revisionlens_authored_bbl_direct_input_v1__.pdf",
+        "sha256": "70709d83f9b9f630041a37eacf38ef3d91185abd81da9cb21d3e3bbd457539b9"
+      },
+      "paper_id": "2025.naacl-long.597",
+      "period": "late",
+      "sample_id": "RL23",
+      "selected_vN": "2403.15246v3",
+      "source_archive_ref": {
+        "bytes": 618783,
+        "path": ".runtime/six_edition_audit_20261014/network-cache/objects/638f021937db49223b3cb5aba9defb365688b07962e05b5199aa73a2c75891d4/3d6b46275d9207cb14a0236802560324c8b3ee19fa084d6c1375bf82d0b11c85/394eb1ea74d5554404096e9f93d027849a7e45279583ec5a389d9d780afcbb0e.body",
+        "sha256": "394eb1ea74d5554404096e9f93d027849a7e45279583ec5a389d9d780afcbb0e"
+      }
+    },
+    {
+      "actual_event_id": "acl2026",
+      "area_code": "A01",
+      "area_name": "Machine Translation and Cross-Lingual NLP",
+      "compiled_pdf_ref": {
+        "bytes": 419944,
+        "generated": true,
+        "pages": 15,
+        "path": ".runtime/formal600_repair_20261019/compile/fontconfig-all600-v2/papers/2026.acl-long.1657/2601.10925v3/1055dda5bb2ea567b01018aeb3db92772a6fcba9422191de44639c11151fdc50/work/output/__revisionlens_authored_bbl_direct_input_v1__.pdf",
+        "sha256": "b3f837a16e25441028ec73003ab967f8162009cb31f672a1601f9147d97f8e21"
+      },
+      "paper_id": "2026.acl-long.1657",
+      "period": "late",
+      "sample_id": "RL24",
+      "selected_vN": "2601.10925v3",
+      "source_archive_ref": {
+        "bytes": 275402,
+        "path": ".runtime/six_edition_audit_20261014/network-cache/objects/8a8b6b92e6728932cf802c581c26f1cf26064eff8b279ea151a3c69950dc3da7/4a799ae678982ca4227010a975846b6a44cbbbca3c828b80d987db04d5a88831/1055dda5bb2ea567b01018aeb3db92772a6fcba9422191de44639c11151fdc50.body",
+        "sha256": "1055dda5bb2ea567b01018aeb3db92772a6fcba9422191de44639c11151fdc50"
+      }
+    },
+    {
+      "actual_event_id": "naacl2025",
+      "area_code": "A07",
+      "area_name": "Semantics, Inference, and Text Classification",
+      "compiled_pdf_ref": {
+        "bytes": 298738,
+        "generated": true,
+        "pages": 13,
+        "path": ".runtime/formal600_repair_20261019/compile/fontconfig-all600-v2/papers/2025.naacl-long.385/2502.04960v1/7fa5d7f0bfc0c1bc1a3745b7af74aafaef654d527d1d45f874dc44188a9fe340/work/output/__revisionlens_authored_bbl_direct_input_v1__.pdf",
+        "sha256": "8520fcbbd1913b18e53504e0de0f6171615c310955fbf1ca287913887c50d3c2"
+      },
+      "paper_id": "2025.naacl-long.385",
+      "period": "late",
+      "sample_id": "RL25",
+      "selected_vN": "2502.04960v1",
+      "source_archive_ref": {
+        "bytes": 285256,
+        "path": ".runtime/six_edition_audit_20261014/network-cache/objects/52eeb12aac611b4642fa1c441042f5d07a3de794163d237de4ffa8858b757790/a32aacfb1e39f93d8d2074db6e985942a5c8733419dd819b987d27491da4c513/7fa5d7f0bfc0c1bc1a3745b7af74aafaef654d527d1d45f874dc44188a9fe340.body",
+        "sha256": "7fa5d7f0bfc0c1bc1a3745b7af74aafaef654d527d1d45f874dc44188a9fe340"
+      }
+    },
+    {
+      "actual_event_id": "acl2021",
+      "area_code": "A10",
+      "area_name": "Model Analysis and Interpretability",
+      "compiled_pdf_ref": {
+        "bytes": 1034124,
+        "generated": true,
+        "pages": 12,
+        "path": ".runtime/formal600_repair_20261019/compile/fontconfig-all600-v2/papers/2021.acl-long.94/2106.01269v1/d93fe7e3738ee9a80830e198cf6dd706bf27cc790f8e9b56a7b2f8e60f910613/work/output/__revisionlens_authored_bbl_direct_input_v1__.pdf",
+        "sha256": "cebd28d4af9c4358a4c9a4b6f806d4ba426651c2641df2e9e07896a40a53d06d"
+      },
+      "paper_id": "2021.acl-long.94",
+      "period": "early",
+      "sample_id": "RL26",
+      "selected_vN": "2106.01269v1",
+      "source_archive_ref": {
+        "bytes": 6551099,
+        "path": ".runtime/six_edition_audit_20261014/network-cache/objects/1067abeb3f67ab2176d9aa39920c63c3914ff5179f0eb888d0ffd1eeea8a25a9/1f6ec76e084160307d2f642fcdaa11634c8187ccc4d7eb783b5f7bf16414cce5/d93fe7e3738ee9a80830e198cf6dd706bf27cc790f8e9b56a7b2f8e60f910613.body",
+        "sha256": "d93fe7e3738ee9a80830e198cf6dd706bf27cc790f8e9b56a7b2f8e60f910613"
+      }
+    },
+    {
+      "actual_event_id": "acl2025",
+      "area_code": "A08",
+      "area_name": "Machine Learning for NLP and Language Modeling",
+      "compiled_pdf_ref": {
+        "bytes": 1220670,
+        "generated": true,
+        "pages": 51,
+        "path": ".runtime/formal600_repair_20261019/compile/fontconfig-all600-v2/papers/2025.acl-long.1409/2503.10542v3/b9702c245ef9d116fbe0c5601007b0e2b858de66c0ab5f3a7b77bc9025cc69dd/work/output/__revisionlens_authored_bbl_direct_input_v1__.pdf",
+        "sha256": "9a4f8a2c9adf73c97976b02bccf82cfae11a7e270f55543e02c9e9ea8a3e09fd"
+      },
+      "paper_id": "2025.acl-long.1409",
+      "period": "late",
+      "sample_id": "RL27",
+      "selected_vN": "2503.10542v3",
+      "source_archive_ref": {
+        "bytes": 1626958,
+        "path": ".runtime/six_edition_audit_20261014/network-cache/objects/c76ccc8e00b42a422166efc760073bde59fcdbffc6ef996f68f2d5d7342de346/3653750e28222f6aaf859bca09f0f3988cdab6aee247a24b375b4b98034fbe4f/b9702c245ef9d116fbe0c5601007b0e2b858de66c0ab5f3a7b77bc9025cc69dd.body",
+        "sha256": "b9702c245ef9d116fbe0c5601007b0e2b858de66c0ab5f3a7b77bc9025cc69dd"
+      }
+    },
+    {
+      "actual_event_id": "eacl2024",
+      "area_code": "A05",
+      "area_name": "Dialogue, Discourse, and Pragmatics",
+      "compiled_pdf_ref": {
+        "bytes": 840616,
+        "generated": true,
+        "pages": 18,
+        "path": ".runtime/formal600_repair_20261019/compile/fontconfig-all600-v2/papers/2024.eacl-long.16/2402.06509v1/bde50f1634bcf8144e8b42171071e92e7dd9655babbfc11a16258dbb500e35f1/work/output/__revisionlens_authored_bbl_direct_input_v1__.pdf",
+        "sha256": "05827e4632a4d00393bf85c81255727e2bab2a792cb13f3f5683dbafdb1d6081"
+      },
+      "paper_id": "2024.eacl-long.16",
+      "period": "late",
+      "sample_id": "RL28",
+      "selected_vN": "2402.06509v1",
+      "source_archive_ref": {
+        "bytes": 8880175,
+        "path": ".runtime/six_edition_audit_20261014/network-cache/objects/bc8dc3747f41d1f6754dc50094b9369ceee303b2a21400800e8f115d41cbd93b/de5acd3407ac856179d8ba5fca020e0b27e05ad9224d6524b3d5ad7fa7f12c85/bde50f1634bcf8144e8b42171071e92e7dd9655babbfc11a16258dbb500e35f1.body",
+        "sha256": "bde50f1634bcf8144e8b42171071e92e7dd9655babbfc11a16258dbb500e35f1"
+      }
+    },
+    {
+      "actual_event_id": "acl2021",
+      "area_code": "A08",
+      "area_name": "Machine Learning for NLP and Language Modeling",
+      "compiled_pdf_ref": {
+        "bytes": 558740,
+        "generated": true,
+        "pages": 12,
+        "path": ".runtime/formal600_repair_20261019/compile/unused-bclogo-repair-v1/papers/2021.acl-long.512/2106.07400v3/3a23e93b893125db9f47fda8dbcd998cb05113266400127df48808a704fc7e09/work/output/__revisionlens_authored_bbl_direct_input_v1__.pdf",
+        "sha256": "023eae10b9da8083ff375cc9d944f8a43b213f6693eeee21e00dfdc6e149e6fd"
+      },
+      "paper_id": "2021.acl-long.512",
+      "period": "early",
+      "sample_id": "RL29",
+      "selected_vN": "2106.07400v3",
+      "source_archive_ref": {
+        "bytes": 6472217,
+        "path": ".runtime/six_edition_audit_20261014/network-cache/objects/e714333d21255569284bf2b40bbcb064587d11cd719e23a310fed8c765b9959b/ae18626c71e83d12b874cd970578273a06ca7f1a9f022d025cf3f79cd834ee21/3a23e93b893125db9f47fda8dbcd998cb05113266400127df48808a704fc7e09.body",
+        "sha256": "3a23e93b893125db9f47fda8dbcd998cb05113266400127df48808a704fc7e09"
+      }
+    },
+    {
+      "actual_event_id": "acl2021",
+      "area_code": "A05",
+      "area_name": "Dialogue, Discourse, and Pragmatics",
+      "compiled_pdf_ref": {
+        "bytes": 3175196,
+        "generated": true,
+        "pages": 22,
+        "path": ".runtime/formal600_repair_20261019/compile/fontconfig-all600-v2/papers/2021.acl-long.439/2101.00151v2/ad5c4a4a9a7215bada0acfe9c890930c31499a0a32669e327ede0369016b3b74/work/output/__revisionlens_authored_bbl_direct_input_v1__.pdf",
+        "sha256": "8c8169adc52b0f24d1cdf8e3ea115289bec780b8df2a937d37cb935f9f479fa8"
+      },
+      "paper_id": "2021.acl-long.439",
+      "period": "early",
+      "sample_id": "RL30",
+      "selected_vN": "2101.00151v2",
+      "source_archive_ref": {
+        "bytes": 16666277,
+        "path": ".runtime/six_edition_audit_20261014/network-cache/objects/d3ebe129dd16d7e0417782bdac20975e294e2087cdf81159ce3cb8a50bf0acdb/68bcaa648a7ea073fdf7d0bdbc1986a1f3628aa25a5aaef55f400977914449cc/ad5c4a4a9a7215bada0acfe9c890930c31499a0a32669e327ede0369016b3b74.body",
+        "sha256": "ad5c4a4a9a7215bada0acfe9c890930c31499a0a32669e327ede0369016b3b74"
+      }
+    }
+  ],
+  "selection_counts": {
+    "areas": {
+      "A01": 3,
+      "A02": 3,
+      "A03": 3,
+      "A04": 3,
+      "A05": 3,
+      "A07": 3,
+      "A08": 3,
+      "A09": 3,
+      "A10": 3,
+      "C01": 3
+    },
+    "areas_by_period": {
+      "early": {
+        "A01": 1,
+        "A02": 1,
+        "A03": 1,
+        "A04": 2,
+        "A05": 1,
+        "A07": 2,
+        "A08": 1,
+        "A09": 2,
+        "A10": 2,
+        "C01": 2
+      },
+      "late": {
+        "A01": 2,
+        "A02": 2,
+        "A03": 2,
+        "A04": 1,
+        "A05": 2,
+        "A07": 1,
+        "A08": 2,
+        "A09": 1,
+        "A10": 1,
+        "C01": 1
+      }
+    },
+    "areas_with_extra_early": [
+      "A04",
+      "A07",
+      "A09",
+      "A10",
+      "C01"
+    ],
+    "papers": 30,
+    "period_area_quotas": {
+      "early": {
+        "A01": 1,
+        "A02": 1,
+        "A03": 1,
+        "A04": 2,
+        "A05": 1,
+        "A07": 2,
+        "A08": 1,
+        "A09": 2,
+        "A10": 2,
+        "C01": 2
+      },
+      "late": {
+        "A01": 2,
+        "A02": 2,
+        "A03": 2,
+        "A04": 1,
+        "A05": 2,
+        "A07": 1,
+        "A08": 2,
+        "A09": 1,
+        "A10": 1,
+        "C01": 1
+      }
+    },
+    "periods": {
+      "early": 15,
+      "late": 15
+    }
+  }
+}

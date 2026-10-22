@@ -1,0 +1,13 @@
+{
+  "attempts": 1,
+  "bytes": 1125998,
+  "final_url": "https://aclanthology.org/2025.naacl-long.494.pdf",
+  "pages": 19,
+  "paper_id": "2025.naacl-long.494",
+  "reference_edition": "Canonical Anthology PDF served at retrieval time; original-versus-corrected publication edition not separately verified",
+  "retrieved_at": "2026-10-21T20:16:20Z",
+  "sample_id": "RL16",
+  "schema": "revisionlens.alignment30.official-pdf-receipt.v1",
+  "sha256": "1fd5b8ff2aefc24c743e76e6a719615e2e9dafe32c36c6d6f375ae9f8ad93146",
+  "url": "https://aclanthology.org/2025.naacl-long.494.pdf"
+}

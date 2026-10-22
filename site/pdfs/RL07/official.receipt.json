@@ -1,0 +1,13 @@
+{
+  "attempts": 1,
+  "bytes": 753745,
+  "final_url": "https://aclanthology.org/P18-1150.pdf",
+  "pages": 11,
+  "paper_id": "P18-1150",
+  "reference_edition": "Canonical Anthology PDF served at retrieval time; original-versus-corrected publication edition not separately verified",
+  "retrieved_at": "2026-10-21T20:16:10Z",
+  "sample_id": "RL07",
+  "schema": "revisionlens.alignment30.official-pdf-receipt.v1",
+  "sha256": "5dc111ffe32051d48998cb47398f1d843f316dd72d2b7b3c8dfb4f4951d6b2a3",
+  "url": "https://aclanthology.org/P18-1150.pdf"
+}

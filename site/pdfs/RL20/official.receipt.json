@@ -1,0 +1,13 @@
+{
+  "attempts": 1,
+  "bytes": 437935,
+  "final_url": "https://aclanthology.org/2020.emnlp-main.592.pdf",
+  "pages": 10,
+  "paper_id": "2020.emnlp-main.592",
+  "reference_edition": "Canonical Anthology PDF served at retrieval time; original-versus-corrected publication edition not separately verified",
+  "retrieved_at": "2026-10-21T20:16:24Z",
+  "sample_id": "RL20",
+  "schema": "revisionlens.alignment30.official-pdf-receipt.v1",
+  "sha256": "0fab7e21a4909e56cd8cc564d4bfa1750849daca4241130061c3d45ae8ac179d",
+  "url": "https://aclanthology.org/2020.emnlp-main.592.pdf"
+}

@@ -1,0 +1,13 @@
+{
+  "attempts": 1,
+  "bytes": 690480,
+  "final_url": "https://aclanthology.org/2025.naacl-long.597.pdf",
+  "pages": 17,
+  "paper_id": "2025.naacl-long.597",
+  "reference_edition": "Canonical Anthology PDF served at retrieval time; original-versus-corrected publication edition not separately verified",
+  "retrieved_at": "2026-10-21T20:16:28Z",
+  "sample_id": "RL23",
+  "schema": "revisionlens.alignment30.official-pdf-receipt.v1",
+  "sha256": "3e36751c6838373533385085a6ae06b3ffc59f14e326097a72e6e0ada905428e",
+  "url": "https://aclanthology.org/2025.naacl-long.597.pdf"
+}

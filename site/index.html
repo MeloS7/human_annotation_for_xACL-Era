@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>xACL-Era · PDF alignment annotation</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./vendor/supabase/supabase.js"></script>
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <div class="app-shell" id="top">
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="xACL-Era home">
+        <span class="brand-mark" aria-hidden="true">R</span>
+        <span class="brand-copy">
+          <span class="eyebrow" data-i18n="eyebrow">RESEARCH ANNOTATION</span>
+          <strong>xACL-Era</strong>
+        </span>
+      </a>
+      <div class="topbar-context">
+        <span class="context-label" data-i18n="studyLabel">Study</span>
+        <span id="dataset-title" class="dataset-title">Loading study…</span>
+      </div>
+      <div class="topbar-actions">
+        <div class="save-indicator is-hidden" id="save-status" role="status" aria-live="polite">
+          <span class="save-dot" aria-hidden="true"></span>
+          <span id="save-status-text" data-i18n="connecting">Connecting…</span>
+        </div>
+        <div class="language-switch" role="group" aria-label="Language">
+          <button type="button" class="language-button is-active" data-language="en" aria-pressed="true">EN</button>
+          <button type="button" class="language-button" data-language="zh" aria-pressed="false">中文</button>
+        </div>
+      </div>
+    </header>
+
+    <main id="login-screen" class="login-screen" aria-labelledby="login-title">
+      <section class="login-card">
+        <div class="login-mark" aria-hidden="true">x</div>
+        <p class="login-eyebrow" data-i18n="loginKicker">RESEARCH ANNOTATION</p>
+        <h1 id="login-title" data-i18n="loginTitle">Create or resume your annotation profile</h1>
+        <p class="login-description" data-i18n="loginDescription">Choose a pseudonymous nickname. A private recovery code lets you resume on another device.</p>
+        <section id="current-profile-panel" class="current-profile-panel is-hidden" aria-labelledby="current-profile-title">
+          <p id="current-profile-title" class="current-profile-title" data-i18n="currentProfileTitle">A profile is already available on this device</p>
+          <p class="current-profile-name"><span data-i18n="currentProfileLabel">Continue as</span> <strong id="current-profile-nickname">—</strong></p>
+          <p class="current-profile-hint" data-i18n="currentProfileHint">Continue uses this device session. You need your recovery code to restore the profile elsewhere; it cannot be shown again.</p>
+          <button id="continue-profile" class="button button-primary button-full" type="button" disabled data-i18n="continueProfile">Continue on this device</button>
+          <button id="use-another-profile" class="button button-quiet" type="button" disabled data-i18n="useAnotherProfile">Use another profile</button>
+        </section>
+        <section id="login-mode-panel" aria-label="Profile options">
+          <div class="login-mode-switch" role="group" aria-label="Profile options">
+            <button id="mode-create-profile" class="login-mode-button is-active" type="button" data-login-mode="create" aria-pressed="true" data-i18n="createProfileMode">Create profile</button>
+            <button id="mode-restore-profile" class="login-mode-button" type="button" data-login-mode="restore" aria-pressed="false" data-i18n="restoreProfileMode">Restore on another device</button>
+          </div>
+          <p id="login-id-hint" class="login-id-hint" data-i18n="loginIdHint">Use a nickname, not your real name or email.</p>
+          <form id="annotator-login-form" novalidate>
+            <label for="annotator-id" data-i18n="annotatorId">Nickname</label>
+            <input id="annotator-id" type="text" maxlength="64" autocomplete="off" autocapitalize="off" spellcheck="false" required aria-describedby="login-id-hint login-error" data-i18n-placeholder="annotatorPlaceholder" placeholder="Choose a nickname">
+            <label id="annotator-code-label" class="is-hidden" for="annotator-code" data-i18n="recoveryCodeLabel">Personal recovery code</label>
+            <input id="annotator-code" class="is-hidden" type="password" maxlength="64" autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="recovery-code-hint login-error" data-i18n-placeholder="recoveryCodePlaceholder" placeholder="Paste your recovery code">
+            <p id="recovery-code-hint" class="login-id-hint is-hidden" data-i18n="recoveryCodeHint">Enter the 64-character code saved when your profile was created.</p>
+            <button id="load-session" class="button button-primary button-full" type="submit" disabled data-i18n="createProfileButton">Create profile</button>
+          </form>
+        </section>
+        <section id="recovery-code-panel" class="recovery-code-panel is-hidden" aria-labelledby="recovery-code-title">
+          <h2 id="recovery-code-title" data-i18n="recoveryCodeTitle">Save your recovery code</h2>
+          <p data-i18n="recoveryCodeIntro">This code is shown once. Save it somewhere private before continuing; it is needed to restore your profile on another device.</p>
+          <p class="recovery-code-name"><span data-i18n="recoveryNicknameLabel">Nickname</span>: <strong id="recovery-code-nickname">—</strong></p>
+          <div class="recovery-code-box"><code id="recovery-code-display">—</code></div>
+          <button id="download-recovery-code" class="button button-secondary button-full" type="button" data-i18n="downloadRecoveryCode">Download recovery code</button>
+          <label class="recovery-ack-label"><input id="recovery-code-saved" type="checkbox"><span data-i18n="recoveryCodeAck">I saved this code somewhere private.</span></label>
+          <button id="continue-after-recovery" class="button button-primary button-full" type="button" disabled data-i18n="continueToStudy">Continue to the study</button>
+        </section>
+        <p id="login-error" class="login-error is-hidden" role="alert" aria-live="assertive"></p>
+        <div class="login-status-row">
+          <span id="login-spinner" class="spinner login-spinner" aria-hidden="true"></span>
+          <p id="login-status" role="status" aria-live="polite" data-i18n="preparingStudy">Preparing the study…</p>
+        </div>
+        <button id="retry-startup" class="button button-quiet is-hidden" type="button" data-i18n="retrySetup">Retry loading study</button>
+        <p class="login-privacy" data-i18n="loginPrivacy">Your nickname identifies your private annotation record. The recovery code is not stored in the annotation file.</p>
+      </section>
+    </main>
+
+    <div class="app-body is-hidden" id="annotation-app" aria-label="Annotation workspace">
+      <aside class="sidebar" aria-label="Paper navigation">
+        <div class="sidebar-heading">
+          <div>
+            <p class="eyebrow" data-i18n="sampleSet">SAMPLE SET</p>
+            <h1><span data-i18n="papers">Papers</span> <span id="paper-total" class="count-pill">—</span></h1>
+          </div>
+          <span id="completion-count" class="completion-count">0 / 0</span>
+        </div>
+        <div class="progress-track" role="progressbar" aria-label="Completed papers" aria-valuemin="0" aria-valuemax="30" aria-valuenow="0" id="completion-progress">
+          <span id="completion-progress-bar"></span>
+        </div>
+        <div class="sidebar-filters">
+          <label class="search-field">
+            <span class="sr-only" data-i18n="searchPapers">Search papers</span>
+            <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.7" cy="8.7" r="5.7"></circle><path d="m13 13 4 4"></path></svg>
+            <input id="paper-search" type="search" autocomplete="off" data-i18n-placeholder="searchPlaceholder" placeholder="Search title or ID">
+          </label>
+          <div class="filter-row">
+            <label class="select-field"><span class="sr-only" data-i18n="period">Period</span>
+              <select id="period-filter"><option value="all" data-i18n="allPeriods">All periods</option><option value="early" data-i18n="early">Early</option><option value="late" data-i18n="late">Late</option></select>
+            </label>
+            <label class="select-field"><span class="sr-only" data-i18n="reviewStatus">Review status</span>
+              <select id="status-filter"><option value="all" data-i18n="allStatuses">All status</option><option value="not_started" data-i18n="notStarted">Not started</option><option value="draft" data-i18n="draft">Draft</option><option value="completed" data-i18n="completed">Completed</option></select>
+            </label>
+          </div>
+        </div>
+        <nav id="paper-list" class="paper-list" aria-label="Papers"></nav>
+        <div class="sidebar-footer">
+          <p class="privacy-note"><span aria-hidden="true">●</span> <span data-i18n="privateNote">Annotations are stored privately in the project database. Export a JSON copy when finished.</span></p>
+        </div>
+      </aside>
+
+      <main id="main-content" class="main-content" aria-label="Annotation workspace">
+        <section id="workspace" class="workspace" aria-live="off">
+          <div class="workspace-toolbar">
+            <div class="toolbar-context">
+              <span class="toolbar-label" data-i18n="currentPaper">CURRENT PAPER</span>
+              <span id="session-annotator" class="annotator-chip">—</span>
+            </div>
+            <div class="toolbar-actions">
+              <button id="import-button" class="button button-quiet" type="button" data-i18n="importJson" disabled>Import JSON</button>
+              <button id="export-button" class="button button-quiet" type="button" data-i18n="exportJson" disabled>Export JSON</button>
+              <button id="save-button" class="button button-primary" type="button" data-i18n="saveNow" disabled>Save now</button>
+              <button id="switch-annotator" class="button button-quiet" type="button" data-i18n="switchAnnotator">Switch annotator</button>
+              <input id="import-file" class="sr-only" type="file" accept="application/json,.json">
+            </div>
+          </div>
+
+          <section id="all-complete-banner" class="all-complete-banner is-hidden" role="status" aria-live="polite"></section>
+
+          <section class="paper-heading" aria-labelledby="active-paper-title">
+            <div class="paper-heading-main">
+              <div class="paper-kickers"><span id="active-period" class="period-chip">—</span><span id="active-area" class="area-chip">—</span></div>
+              <h2 id="active-paper-title">—</h2>
+              <p id="active-paper-subtitle" class="paper-subtitle">—</p>
+            </div>
+            <div class="paper-stepper">
+              <button id="previous-paper" class="button button-quiet" type="button" data-i18n="previousPaper">← Previous</button>
+              <span id="paper-position" class="paper-position">—</span>
+              <button id="next-paper" class="button button-quiet" type="button" data-i18n="nextPaper">Next →</button>
+            </div>
+          </section>
+
+          <section class="comparison-section" aria-labelledby="comparison-title">
+            <div class="section-heading">
+              <div><span class="section-kicker" data-i18n="compareLabel">COMPARE THE TWO VERSIONS</span><h3 id="comparison-title" data-i18n="pdfComparison">PDF comparison</h3></div>
+              <div class="comparison-actions">
+                <span class="scope-note"><span class="scope-dot" aria-hidden="true"></span><span data-i18n="targetOnlyScore">Score the compiled PDF; use the official PDF as reference</span></span>
+                <button id="focus-viewers" class="button button-quiet focus-button" type="button" aria-pressed="false" data-i18n="expandViewers">Expand viewers</button>
+              </div>
+            </div>
+            <aside id="publication-notice" class="publication-notice" role="note" aria-labelledby="publication-notice-title">
+              <span class="publication-notice-mark" aria-hidden="true">i</span>
+              <p><strong id="publication-notice-title">Allowed publication differences</strong><span id="publication-notice-text">Publisher-added headers and footers, conference information, copyright notices, page numbers, and publisher identifiers may differ without an alignment penalty.</span></p>
+            </aside>
+            <div class="viewer-grid" id="viewer-grid">
+              <section class="pdf-panel pdf-panel-target" id="compiled-viewer" aria-label="Compiled arXiv PDF">
+                <div class="pdf-panel-header">
+                  <div class="pdf-panel-label"><span class="pdf-side-number">01</span><div><span class="pdf-role" data-i18n="targetPdf">TARGET PDF</span><h4 data-i18n="compiledArxiv">Compiled arXiv LaTeX</h4></div></div>
+                  <a class="open-pdf-link" data-pdf-open="compiled" href="#" target="_blank" rel="noopener noreferrer" aria-disabled="true"><span data-i18n="openNewTab">Open in new tab</span><span aria-hidden="true">↗</span></a>
+                </div>
+                <div class="pdf-controls">
+                  <div class="page-controls"><button type="button" data-viewer-action="prev" data-viewer="compiled" class="control-button" aria-label="Previous target page">‹</button><label><span data-i18n="page">Page</span><input type="number" min="1" value="1" data-page-input="compiled" aria-label="Target PDF page"></label><span class="page-count">/ <span data-page-count="compiled">—</span></span><button type="button" data-viewer-action="next" data-viewer="compiled" class="control-button" aria-label="Next target page">›</button></div>
+                  <div class="zoom-controls"><button type="button" data-viewer-action="zoom-out" data-viewer="compiled" class="control-button" aria-label="Zoom out">−</button><span data-zoom-label="compiled">Fit</span><button type="button" data-viewer-action="zoom-in" data-viewer="compiled" class="control-button" aria-label="Zoom in">+</button><button type="button" data-viewer-action="fit" data-viewer="compiled" class="fit-button" data-i18n="fit">Fit</button></div>
+                </div>
+                <div class="pdf-stage" data-stage="compiled" tabindex="0" aria-label="Compiled target PDF pages">
+                  <div class="pdf-placeholder" data-placeholder="compiled"><span class="placeholder-icon" aria-hidden="true">PDF</span><p data-i18n="pdfWait">PDF will appear when you select a paper.</p></div>
+                  <canvas data-canvas="compiled" class="pdf-canvas is-hidden" role="img" aria-label="Rendered compiled PDF page"></canvas>
+                  <div class="pdf-error is-hidden" data-error="compiled" role="alert"></div>
+                </div>
+                <div class="pdf-panel-footer"><span data-pdf-meta="compiled">Page count pending</span><span data-pdf-hash="compiled">SHA-256 —</span></div>
+              </section>
+
+              <section class="pdf-panel pdf-panel-reference" id="official-viewer" aria-label="Official conference PDF">
+                <div class="pdf-panel-header">
+                  <div class="pdf-panel-label"><span class="pdf-side-number">02</span><div><span class="pdf-role pdf-role-reference" data-i18n="referencePdf">REFERENCE PDF</span><h4 data-i18n="officialConference">Official conference PDF</h4></div></div>
+                  <a class="open-pdf-link" data-pdf-open="official" href="#" target="_blank" rel="noopener noreferrer" aria-disabled="true"><span data-i18n="openNewTab">Open in new tab</span><span aria-hidden="true">↗</span></a>
+                </div>
+                <div class="pdf-controls">
+                  <div class="page-controls"><button type="button" data-viewer-action="prev" data-viewer="official" class="control-button" aria-label="Previous reference page">‹</button><label><span data-i18n="page">Page</span><input type="number" min="1" value="1" data-page-input="official" aria-label="Reference PDF page"></label><span class="page-count">/ <span data-page-count="official">—</span></span><button type="button" data-viewer-action="next" data-viewer="official" class="control-button" aria-label="Next reference page">›</button></div>
+                  <div class="zoom-controls"><button type="button" data-viewer-action="zoom-out" data-viewer="official" class="control-button" aria-label="Zoom out">−</button><span data-zoom-label="official">Fit</span><button type="button" data-viewer-action="zoom-in" data-viewer="official" class="control-button" aria-label="Zoom in">+</button><button type="button" data-viewer-action="fit" data-viewer="official" class="fit-button" data-i18n="fit">Fit</button></div>
+                </div>
+                <div class="pdf-stage" data-stage="official" tabindex="0" aria-label="Official reference PDF pages">
+                  <div class="pdf-placeholder" data-placeholder="official"><span class="placeholder-icon" aria-hidden="true">PDF</span><p data-i18n="pdfWait">PDF will appear when you select a paper.</p></div>
+                  <canvas data-canvas="official" class="pdf-canvas is-hidden" role="img" aria-label="Rendered official PDF page"></canvas>
+                  <div class="pdf-error is-hidden" data-error="official" role="alert"></div>
+                </div>
+                <div class="pdf-panel-footer"><span data-pdf-meta="official">Page count pending</span><span data-pdf-hash="official">SHA-256 —</span></div>
+              </section>
+            </div>
+            <p id="viewer-library-error" class="inline-alert is-hidden" role="alert"></p>
+          </section>
+
+          <section class="annotation-section" aria-labelledby="annotation-title">
+            <div class="section-heading annotation-heading">
+              <div><span class="section-kicker" data-i18n="rubricLabel">FIXED RUBRIC</span><h3 id="annotation-title" data-i18n="annotationTitle">Alignment annotation</h3></div>
+              <div class="rubric-version" id="rubric-version">—</div>
+            </div>
+            <div class="rubric-scope-card" aria-labelledby="guidance-title">
+              <span class="scope-icon" aria-hidden="true">i</span>
+              <div>
+                <strong id="guidance-title">Quick guidance</strong>
+                <p id="guidance-scope">—</p>
+                <ul id="guidance-quick-rules" class="guidance-quick-rules"></ul>
+                <details id="guidance-details" class="guidance-details">
+                  <summary id="guidance-details-title">Detailed guidance</summary>
+                  <div id="guidance-expanded-items" class="guidance-expanded-items"></div>
+                  <p class="guidance-revision"><span data-i18n="guidanceRevisionLabel">Guidance revision</span> <code id="guidance-revision">—</code></p>
+                </details>
+              </div>
+            </div>
+            <div class="presence-card" id="presence-card">
+              <div class="presence-intro"><div><h4 data-i18n="itemPresence">Item presence</h4><p data-i18n="presenceHelp">For each item, record whether it appears in each PDF. N/A is allowed only when both are absent.</p></div><span class="presence-badge" data-i18n="required">Required</span></div>
+              <div id="presence-grid" class="presence-grid"></div>
+            </div>
+            <div id="rubric-scoring" class="rubric-scoring"></div>
+            <div class="annotation-details-grid">
+              <fieldset class="flags-card"><legend data-i18n="flagsTitle">Separate difference flags</legend><p class="field-description" data-i18n="flagsHelp">Use flags for differences outside the main alignment score or for a major issue.</p><div id="flag-list" class="flag-list"></div></fieldset>
+              <div class="evidence-card">
+                <label for="evidence"><span data-i18n="evidenceTitle">Evidence and page references</span><span class="required-hint" data-i18n="evidenceWhenRequired">Required for differences, uncertainty, or flags</span></label>
+                <textarea id="evidence" rows="5" maxlength="12000" data-i18n-placeholder="evidencePlaceholder" placeholder="Record page numbers and concise evidence for differences or uncertainty."></textarea>
+                <div class="textarea-foot"><span data-i18n="evidenceNoNeed">For a fully aligned rating, a short rationale is still helpful.</span><span id="evidence-count">0 / 12000</span></div>
+              </div>
+              <div class="notes-card">
+                <label for="notes"><span data-i18n="notesTitle">Private annotator notes</span><span class="optional-hint" data-i18n="optional">Optional</span></label>
+                <textarea id="notes" rows="5" maxlength="12000" data-i18n-placeholder="notesPlaceholder" placeholder="Add notes for your own review."></textarea>
+                <div class="textarea-foot"><span data-i18n="notesHelp">These notes are included in your annotation output.</span><span id="notes-count">0 / 12000</span></div>
+              </div>
+            </div>
+            <div class="completion-card">
+              <div class="completion-check-wrap"><label class="check-label"><input id="reviewed-full-scope" type="checkbox"><span class="check-custom" aria-hidden="true"></span><span><strong data-i18n="fullScopeTitle">I reviewed the full available main-body scope</strong><small data-i18n="fullScopeHelp">Read both PDFs throughout the main paper, including all available pages and relevant figures, tables, and equations. Record appendix or reference-list differences with flags.</small></span></label></div>
+              <div class="completion-actions"><div id="validation-message" class="validation-message" role="status" aria-live="polite"></div><button id="complete-review" class="button button-complete" type="button" data-i18n="markComplete">Mark paper complete</button></div>
+            </div>
+          </section>
+
+          <footer class="workspace-footer"><span data-i18n="footerNotice">The official PDF is a comparison reference. Scores apply to the compiled arXiv PDF.</span><span id="last-saved">—</span></footer>
+        </section>
+      </main>
+    </div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "attempts": 1,
+  "bytes": 534079,
+  "final_url": "https://aclanthology.org/2026.acl-long.1657.pdf",
+  "pages": 15,
+  "paper_id": "2026.acl-long.1657",
+  "reference_edition": "Canonical Anthology PDF served at retrieval time; original-versus-corrected publication edition not separately verified",
+  "retrieved_at": "2026-10-21T20:16:29Z",
+  "sample_id": "RL24",
+  "schema": "revisionlens.alignment30.official-pdf-receipt.v1",
+  "sha256": "35519da725505a92b21c7d5e86a6405e402aae2255bfeac4f227e477c31f12fc",
+  "url": "https://aclanthology.org/2026.acl-long.1657.pdf"
+}

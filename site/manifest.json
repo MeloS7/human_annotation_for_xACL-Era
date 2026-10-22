@@ -1,0 +1,790 @@
+{
+  "dataset_id": "revisionlens-alignment30-v1",
+  "papers": [
+    {
+      "actual_event_id": "acl2025",
+      "area_code": "C01",
+      "area_name": "Multimodality and Language Grounding",
+      "compiled_pdf": {
+        "bytes": 4046849,
+        "pages": 18,
+        "path": "pdfs/RL01/compiled.pdf",
+        "sha256": "624f9756540b93bdc07341b13c04e25cf1e8c231e54afcac23a434792fa71b52"
+      },
+      "official_pdf": {
+        "bytes": 4226177,
+        "final_url": "https://aclanthology.org/2025.acl-long.636.pdf",
+        "pages": 18,
+        "path": "pdfs/RL01/official.pdf",
+        "reference_edition": "Canonical Anthology PDF served at retrieval time; original-versus-corrected publication edition not separately verified",
+        "retrieved_at": "2026-10-21T20:16:04Z",
+        "sha256": "291c4644583b18610afcde7d2bf8024ad448c7677d44c85db4a77e5815c331f0",
+        "url": "https://aclanthology.org/2025.acl-long.636.pdf"
+      },
+      "paper_id": "2025.acl-long.636",
+      "period": "late",
+      "sample_id": "RL01",
+      "selected_vN": "2501.01377v2",
+      "title": "Improving Medical Large Vision-Language Models with Abnormal-Aware Feedback"
+    },
+    {
+      "actual_event_id": "emnlp2020",
+      "area_code": "A04",
+      "area_name": "Text Generation and Summarization",
+      "compiled_pdf": {
+        "bytes": 243425,
+        "pages": 17,
+        "path": "pdfs/RL02/compiled.pdf",
+        "sha256": "07dab6782246f546fb0d1dd40339faf2ee98eccb8704f69a0a6ddc6fff859bde"
+      },
+      "official_pdf": {
+        "bytes": 491877,
+        "final_url": "https://aclanthology.org/2020.emnlp-main.647.pdf",
+        "pages": 17,
+        "path": "pdfs/RL02/official.pdf",
+        "reference_edition": "Canonical Anthology PDF served at retrieval time; original-versus-corrected publication edition not separately verified",
+        "retrieved_at": "2026-10-21T20:16:05Z",
+        "sha256": "d7cbfb6be9a320362d798fe6a0fd835f07ca1cb09399c1388cc103e0549842b5",
+        "url": "https://aclanthology.org/2020.emnlp-main.647.pdf"
+      },
+      "paper_id": "2020.emnlp-main.647",
+      "period": "early",
+      "sample_id": "RL02",
+      "selected_vN": "2004.14900v1",
+      "title": "MLSUM: The Multilingual Summarization Corpus"
+    },
+    {
+      "actual_event_id": "naacl2025",
+      "area_code": "A02",
+      "area_name": "Information Extraction and Retrieval",
+      "compiled_pdf": {
+        "bytes": 1429611,
+        "pages": 21,
+        "path": "pdfs/RL03/compiled.pdf",
+        "sha256": "b433c4bfbac189e0c89f10631dd0ecb0e129b8da66a97235bc9cc90379aaa95a"
+      },
+      "official_pdf": {
+        "bytes": 1448108,
+        "final_url": "https://aclanthology.org/2025.naacl-long.431.pdf",
+        "pages": 21,
+        "path": "pdfs/RL03/official.pdf",
+        "reference_edition": "Canonical Anthology PDF served at retrieval time; original-versus-corrected publication edition not separately verified",
+        "retrieved_at": "2026-10-21T20:16:06Z",
+        "sha256": "bd2019fce1061e89fc5b005082bff24e514dbdab23868ab7e48406c0cbb41ced",
+        "url": "https://aclanthology.org/2025.naacl-long.431.pdf"
+      },
+      "paper_id": "2025.naacl-long.431",
+      "period": "late",
+      "sample_id": "RL03",
+      "selected_vN": "2409.18110v2",
+      "title": "Open-World Evaluation for Retrieving Diverse Perspectives"
+    },
+    {
+      "actual_event_id": "emnlp2020",
+      "area_code": "A07",
+      "area_name": "Semantics, Inference, and Text Classification",
+      "compiled_pdf": {
+        "bytes": 130603,
+        "pages": 13,
+        "path": "pdfs/RL04/compiled.pdf",
+        "sha256": "5192b4f1073be20a49dc4ab8dd8ab4241d976ec0d41933e364555ebd1ae67932"
+      },
+      "official_pdf": {
+        "bytes": 339786,
+        "final_url": "https://aclanthology.org/2020.emnlp-main.292.pdf",
+        "pages": 12,
+        "path": "pdfs/RL04/official.pdf",
+        "reference_edition": "Canonical Anthology PDF served at retrieval time; original-versus-corrected publication edition not separately verified",
+        "retrieved_at": "2026-10-21T20:16:06Z",
+        "sha256": "374d9263623b3a7924d8955c4dac5c4eb30e77b6f02e29ef29291f2bbfd76f76",
+        "url": "https://aclanthology.org/2020.emnlp-main.292.pdf"
+      },
+      "paper_id": "2020.emnlp-main.292",
+      "period": "early",
+      "sample_id": "RL04",
+      "selected_vN": "2009.07964v4",
+      "title": "Tasty Burgers, Soggy Fries: Probing Aspect Robustness in Aspect-Based Sentiment Analysis"
+    },
+    {
+      "actual_event_id": "emnlp2020",
+      "area_code": "C01",
+      "area_name": "Multimodality and Language Grounding",
+      "compiled_pdf": {
+        "bytes": 4581903,
+        "pages": 23,
+        "path": "pdfs/RL05/compiled.pdf",
+        "sha256": "ccf2f5946b2ed0b345f7a0ed041d696c0d71ecde02f810ce8cb6f89ce31381b2"
+      },
+      "official_pdf": {
+        "bytes": 11044643,
+        "final_url": "https://aclanthology.org/2020.emnlp-main.356.pdf",
+        "pages": 21,
+        "path": "pdfs/RL05/official.pdf",
+        "reference_edition": "Canonical Anthology PDF served at retrieval time; original-versus-corrected publication edition not separately verified",
+        "retrieved_at": "2026-10-21T20:16:08Z",
+        "sha256": "c9e0c0bfeeb2726fcbb8d318b66b01863e01a808de502bbefae3ebadcadbbe0b",
+        "url": "https://aclanthology.org/2020.emnlp-main.356.pdf"
+      },
+      "paper_id": "2020.emnlp-main.356",
+      "period": "early",
+      "sample_id": "RL05",
+      "selected_vN": "2010.07954v1",
+      "title": "Room-Across-Room: Multilingual Vision-and-Language Navigation with Dense Spatiotemporal Grounding"
+    },
+    {
+      "actual_event_id": "acl2021",
+      "area_code": "A09",
+      "area_name": "Language Resources and Evaluation",
+      "compiled_pdf": {
+        "bytes": 240931,
+        "pages": 19,
+        "path": "pdfs/RL06/compiled.pdf",
+        "sha256": "656cddfe45cef74b759de3a08a7d26f692fdfe40984cfd6780e55066242f099c"
+      },
+      "official_pdf": {
+        "bytes": 523163,
+        "final_url": "https://aclanthology.org/2021.acl-long.213.pdf",
+        "pages": 17,
+        "path": "pdfs/RL06/official.pdf",
+        "reference_edition": "Canonical Anthology PDF served at retrieval time; original-versus-corrected publication edition not separately verified",
+        "retrieved_at": "2026-10-21T20:16:09Z",
+        "sha256": "57cbe9b9ca164a1dad64c451435e8990c02a710a20ac5efcd7431ca080527b2c",
+        "url": "https://aclanthology.org/2021.acl-long.213.pdf"
+      },
+      "paper_id": "2021.acl-long.213",
+      "period": "early",
+      "sample_id": "RL06",
+      "selected_vN": "2105.07903v1",
+      "title": "Factoring Statutory Reasoning as Language Understanding Challenges"
+    },
+    {
+      "actual_event_id": "acl2018",
+      "area_code": "A04",
+      "area_name": "Text Generation and Summarization",
+      "compiled_pdf": {
+        "bytes": 139114,
+        "pages": 11,
+        "path": "pdfs/RL07/compiled.pdf",
+        "sha256": "22d9bd2f496c41015ab64566ea72f0c6eb1e1a367ee78bcb6afdd0929d40b752"
+      },
+      "official_pdf": {
+        "bytes": 753745,
+        "final_url": "https://aclanthology.org/P18-1150.pdf",
+        "pages": 11,
+        "path": "pdfs/RL07/official.pdf",
+        "reference_edition": "Canonical Anthology PDF served at retrieval time; original-versus-corrected publication edition not separately verified",
+        "retrieved_at": "2026-10-21T20:16:10Z",
+        "sha256": "5dc111ffe32051d48998cb47398f1d843f316dd72d2b7b3c8dfb4f4951d6b2a3",
+        "url": "https://aclanthology.org/P18-1150.pdf"
+      },
+      "paper_id": "P18-1150",
+      "period": "early",
+      "sample_id": "RL07",
+      "selected_vN": "1805.02473v3",
+      "title": "A Graph-to-Sequence Model for AMR-to-Text Generation"
+    },
+    {
+      "actual_event_id": "acl2018",
+      "area_code": "A03",
+      "area_name": "Question Answering",
+      "compiled_pdf": {
+        "bytes": 227699,
+        "pages": 14,
+        "path": "pdfs/RL08/compiled.pdf",
+        "sha256": "ecb19a52552b69a06d2499adc674ac11a25e04ec5f95992f9a16b59f1c8b8e85"
+      },
+      "official_pdf": {
+        "bytes": 469876,
+        "final_url": "https://aclanthology.org/P18-1177.pdf",
+        "pages": 11,
+        "path": "pdfs/RL08/official.pdf",
+        "reference_edition": "Canonical Anthology PDF served at retrieval time; original-versus-corrected publication edition not separately verified",
+        "retrieved_at": "2026-10-21T20:16:11Z",
+        "sha256": "8983858c5ef045ba78a48a9a16b59b58abb6a5faf84f95a3810956f07dd5a99c",
+        "url": "https://aclanthology.org/P18-1177.pdf"
+      },
+      "paper_id": "P18-1177",
+      "period": "early",
+      "sample_id": "RL08",
+      "selected_vN": "1805.05942v1",
+      "title": "Harvesting Paragraph-level Question-Answer Pairs from Wikipedia"
+    },
+    {
+      "actual_event_id": "naacl2025",
+      "area_code": "A09",
+      "area_name": "Language Resources and Evaluation",
+      "compiled_pdf": {
+        "bytes": 3640349,
+        "pages": 21,
+        "path": "pdfs/RL09/compiled.pdf",
+        "sha256": "1ae03ca9bdedb2003040fc2d14fb7a980b66c85c34d2f55ceaa6dab84e8f1e78"
+      },
+      "official_pdf": {
+        "bytes": 4057329,
+        "final_url": "https://aclanthology.org/2025.naacl-long.633.pdf",
+        "pages": 19,
+        "path": "pdfs/RL09/official.pdf",
+        "reference_edition": "Canonical Anthology PDF served at retrieval time; original-versus-corrected publication edition not separately verified",
+        "retrieved_at": "2026-10-21T20:16:12Z",
+        "sha256": "4c3157ca0e6cba5cd20984cb618b7d476557336aecc80d63500447d7786d6525",
+        "url": "https://aclanthology.org/2025.naacl-long.633.pdf"
+      },
+      "paper_id": "2025.naacl-long.633",
+      "period": "late",
+      "sample_id": "RL09",
+      "selected_vN": "2502.06111v2",
+      "title": "CSR-Bench: Benchmarking LLM Agents in Deployment of Computer Science Research Repositories"
+    },
+    {
+      "actual_event_id": "emnlp2020",
+      "area_code": "A10",
+      "area_name": "Model Analysis and Interpretability",
+      "compiled_pdf": {
+        "bytes": 311795,
+        "pages": 12,
+        "path": "pdfs/RL10/compiled.pdf",
+        "sha256": "54d5ec05d95f00ea00d3523ba6bcf0e3ee71cc14cb86a7bccff847cf80b6f2fb"
+      },
+      "official_pdf": {
+        "bytes": 493957,
+        "final_url": "https://aclanthology.org/2020.emnlp-main.554.pdf",
+        "pages": 11,
+        "path": "pdfs/RL10/official.pdf",
+        "reference_edition": "Canonical Anthology PDF served at retrieval time; original-versus-corrected publication edition not separately verified",
+        "retrieved_at": "2026-10-21T20:16:13Z",
+        "sha256": "fbdcb30586d51f41cbe598c18822d60364e9b5bdaec9c66e886bfde9de1fd355",
+        "url": "https://aclanthology.org/2020.emnlp-main.554.pdf"
+      },
+      "paper_id": "2020.emnlp-main.554",
+      "period": "early",
+      "sample_id": "RL10",
+      "selected_vN": "2004.14601v3",
+      "title": "Learning Music Helps You Read: Using Transfer to Study Linguistic Structure in Language Models"
+    },
+    {
+      "actual_event_id": "emnlp2020",
+      "area_code": "A07",
+      "area_name": "Semantics, Inference, and Text Classification",
+      "compiled_pdf": {
+        "bytes": 245911,
+        "pages": 15,
+        "path": "pdfs/RL11/compiled.pdf",
+        "sha256": "365c65e84904b9bcec9e40be8442d26b3a00c782f4b903a38c4d031e80cd9049"
+      },
+      "official_pdf": {
+        "bytes": 548805,
+        "final_url": "https://aclanthology.org/2020.emnlp-main.613.pdf",
+        "pages": 14,
+        "path": "pdfs/RL11/official.pdf",
+        "reference_edition": "Canonical Anthology PDF served at retrieval time; original-versus-corrected publication edition not separately verified",
+        "retrieved_at": "2026-10-21T20:16:14Z",
+        "sha256": "7093a4a57947edb0d0ce710bd4aa260afd3d4bf694dfac27a19d8d6949c633e7",
+        "url": "https://aclanthology.org/2020.emnlp-main.613.pdf"
+      },
+      "paper_id": "2020.emnlp-main.613",
+      "period": "early",
+      "sample_id": "RL11",
+      "selected_vN": "2009.12303v4",
+      "title": "Towards Debiasing NLU Models from Unknown Biases"
+    },
+    {
+      "actual_event_id": "naacl2025",
+      "area_code": "A03",
+      "area_name": "Question Answering",
+      "compiled_pdf": {
+        "bytes": 14398638,
+        "pages": 26,
+        "path": "pdfs/RL12/compiled.pdf",
+        "sha256": "42841323d2895ad1f30956103548468eea8c6234a040d5882caebfb81367da2c"
+      },
+      "official_pdf": {
+        "bytes": 14437289,
+        "final_url": "https://aclanthology.org/2025.naacl-long.477.pdf",
+        "pages": 26,
+        "path": "pdfs/RL12/official.pdf",
+        "reference_edition": "Canonical Anthology PDF served at retrieval time; original-versus-corrected publication edition not separately verified",
+        "retrieved_at": "2026-10-21T20:16:16Z",
+        "sha256": "efda5a32838dcf8977371bc4f8da76687be7c0e8f56ccee4979990e4b63c73c9",
+        "url": "https://aclanthology.org/2025.naacl-long.477.pdf"
+      },
+      "paper_id": "2025.naacl-long.477",
+      "period": "late",
+      "sample_id": "RL12",
+      "selected_vN": "2209.08199v4",
+      "title": "ScreenQA: Large-Scale Question-Answer Pairs Over Mobile App Screenshots"
+    },
+    {
+      "actual_event_id": "eacl2024",
+      "area_code": "A01",
+      "area_name": "Machine Translation and Cross-Lingual NLP",
+      "compiled_pdf": {
+        "bytes": 2252837,
+        "pages": 20,
+        "path": "pdfs/RL13/compiled.pdf",
+        "sha256": "39b7d6577feeb72880ac24e904efd95b09ba1fc6d0d51e0eed67bf9f9781706b"
+      },
+      "official_pdf": {
+        "bytes": 2465369,
+        "final_url": "https://aclanthology.org/2024.eacl-long.177.pdf",
+        "pages": 20,
+        "path": "pdfs/RL13/official.pdf",
+        "reference_edition": "Canonical Anthology PDF served at retrieval time; original-versus-corrected publication edition not separately verified",
+        "retrieved_at": "2026-10-21T20:16:17Z",
+        "sha256": "bbdf3d39483e2ca66c51e9c3def5de38316158d0d6411560491f534d0fb7d852",
+        "url": "https://aclanthology.org/2024.eacl-long.177.pdf"
+      },
+      "paper_id": "2024.eacl-long.177",
+      "period": "late",
+      "sample_id": "RL13",
+      "selected_vN": "2402.02099v1",
+      "title": "Analyzing the Evaluation of Cross-Lingual Knowledge Transfer in Multilingual Language Models"
+    },
+    {
+      "actual_event_id": "emnlp2020",
+      "area_code": "A01",
+      "area_name": "Machine Translation and Cross-Lingual NLP",
+      "compiled_pdf": {
+        "bytes": 1154053,
+        "pages": 13,
+        "path": "pdfs/RL14/compiled.pdf",
+        "sha256": "7ada605f9898a79e365665ef8da21876dec94684a59a7ee5ed902e5d8cebb565"
+      },
+      "official_pdf": {
+        "bytes": 1340467,
+        "final_url": "https://aclanthology.org/2020.emnlp-main.359.pdf",
+        "pages": 13,
+        "path": "pdfs/RL14/official.pdf",
+        "reference_edition": "Canonical Anthology PDF served at retrieval time; original-versus-corrected publication edition not separately verified",
+        "retrieved_at": "2026-10-21T20:16:18Z",
+        "sha256": "d188229ed264bc41c59d3a49995e8db77b775ad41e6fbcbba9173c6cd4d47824",
+        "url": "https://aclanthology.org/2020.emnlp-main.359.pdf"
+      },
+      "paper_id": "2020.emnlp-main.359",
+      "period": "early",
+      "sample_id": "RL14",
+      "selected_vN": "2010.03017v1",
+      "title": "On Negative Interference in Multilingual Models: Findings and A Meta-Learning Treatment"
+    },
+    {
+      "actual_event_id": "naacl2025",
+      "area_code": "A08",
+      "area_name": "Machine Learning for NLP and Language Modeling",
+      "compiled_pdf": {
+        "bytes": 596599,
+        "pages": 31,
+        "path": "pdfs/RL15/compiled.pdf",
+        "sha256": "2dce246b513658f71cb6e0a21d6d326aad7317ed154bb1701d5c34ca4728321f"
+      },
+      "official_pdf": {
+        "bytes": 748236,
+        "final_url": "https://aclanthology.org/2025.naacl-long.605.pdf",
+        "pages": 31,
+        "path": "pdfs/RL15/official.pdf",
+        "reference_edition": "Canonical Anthology PDF served at retrieval time; original-versus-corrected publication edition not separately verified",
+        "retrieved_at": "2026-10-21T20:16:19Z",
+        "sha256": "5128fd8724107834443657520ab486e54d8d366e638f57a5baf9d8ccddc2c3a5",
+        "url": "https://aclanthology.org/2025.naacl-long.605.pdf"
+      },
+      "paper_id": "2025.naacl-long.605",
+      "period": "late",
+      "sample_id": "RL15",
+      "selected_vN": "2405.00200v2",
+      "title": "In-Context Learning with Long-Context Models: An In-Depth Exploration"
+    },
+    {
+      "actual_event_id": "naacl2025",
+      "area_code": "A04",
+      "area_name": "Text Generation and Summarization",
+      "compiled_pdf": {
+        "bytes": 991026,
+        "pages": 19,
+        "path": "pdfs/RL16/compiled.pdf",
+        "sha256": "e04e08f27a8385ffb371ff7e4acad610ecac247e90b7350b1ff658790f1eb36e"
+      },
+      "official_pdf": {
+        "bytes": 1125998,
+        "final_url": "https://aclanthology.org/2025.naacl-long.494.pdf",
+        "pages": 19,
+        "path": "pdfs/RL16/official.pdf",
+        "reference_edition": "Canonical Anthology PDF served at retrieval time; original-versus-corrected publication edition not separately verified",
+        "retrieved_at": "2026-10-21T20:16:20Z",
+        "sha256": "1fd5b8ff2aefc24c743e76e6a719615e2e9dafe32c36c6d6f375ae9f8ad93146",
+        "url": "https://aclanthology.org/2025.naacl-long.494.pdf"
+      },
+      "paper_id": "2025.naacl-long.494",
+      "period": "late",
+      "sample_id": "RL16",
+      "selected_vN": "2412.08795v2",
+      "title": "Coverage-based Fairness in Multi-document Summarization"
+    },
+    {
+      "actual_event_id": "acl2025",
+      "area_code": "A10",
+      "area_name": "Model Analysis and Interpretability",
+      "compiled_pdf": {
+        "bytes": 2898414,
+        "pages": 23,
+        "path": "pdfs/RL17/compiled.pdf",
+        "sha256": "cc67ea3e83c7ef992f597c4bc7967b913e246ba6681db88ad4c678f8be34fd1f"
+      },
+      "official_pdf": {
+        "bytes": 2945202,
+        "final_url": "https://aclanthology.org/2025.acl-long.71.pdf",
+        "pages": 24,
+        "path": "pdfs/RL17/official.pdf",
+        "reference_edition": "Canonical Anthology PDF served at retrieval time; original-versus-corrected publication edition not separately verified",
+        "retrieved_at": "2026-10-21T20:16:21Z",
+        "sha256": "8d9e65f8d2ddc85b84517884a242e9889eed637ed30359106485a023561f3569",
+        "url": "https://aclanthology.org/2025.acl-long.71.pdf"
+      },
+      "paper_id": "2025.acl-long.71",
+      "period": "late",
+      "sample_id": "RL17",
+      "selected_vN": "2501.08292v1",
+      "title": "HALoGEN: Fantastic LLM Hallucinations and Where to Find Them"
+    },
+    {
+      "actual_event_id": "naacl2025",
+      "area_code": "A03",
+      "area_name": "Question Answering",
+      "compiled_pdf": {
+        "bytes": 11938751,
+        "pages": 21,
+        "path": "pdfs/RL18/compiled.pdf",
+        "sha256": "604d70f1b25f17f097adc193fde8e0e72a88cf2f546ab20e9d635cfb87ca1f50"
+      },
+      "official_pdf": {
+        "bytes": 12234143,
+        "final_url": "https://aclanthology.org/2025.naacl-long.579.pdf",
+        "pages": 20,
+        "path": "pdfs/RL18/official.pdf",
+        "reference_edition": "Canonical Anthology PDF served at retrieval time; original-versus-corrected publication edition not separately verified",
+        "retrieved_at": "2026-10-21T20:16:22Z",
+        "sha256": "c4f10877d0b54fe5552f4084681360ade9087a4202158c8d291773ef120583bf",
+        "url": "https://aclanthology.org/2025.naacl-long.579.pdf"
+      },
+      "paper_id": "2025.naacl-long.579",
+      "period": "late",
+      "sample_id": "RL18",
+      "selected_vN": "2410.22211v2",
+      "title": "ProMQA: Question Answering Dataset for Multimodal Procedural Activity Understanding"
+    },
+    {
+      "actual_event_id": "naacl2018",
+      "area_code": "C01",
+      "area_name": "Multimodality and Language Grounding",
+      "compiled_pdf": {
+        "bytes": 650893,
+        "pages": 12,
+        "path": "pdfs/RL19/compiled.pdf",
+        "sha256": "bd09fec305d579fb900a7fa3784721f9ca01d9fe470c3e8f7c840033a2a3cd42"
+      },
+      "official_pdf": {
+        "bytes": 10311049,
+        "final_url": "https://aclanthology.org/N18-1200.pdf",
+        "pages": 11,
+        "path": "pdfs/RL19/official.pdf",
+        "reference_edition": "Canonical Anthology PDF served at retrieval time; original-versus-corrected publication edition not separately verified",
+        "retrieved_at": "2026-10-21T20:16:24Z",
+        "sha256": "22f8b3d0005bba290f307de0779c3d05a45534c6ab157442fd8bedcb5befc287",
+        "url": "https://aclanthology.org/N18-1200.pdf"
+      },
+      "paper_id": "N18-1200",
+      "period": "early",
+      "sample_id": "RL19",
+      "selected_vN": "1809.08761v1",
+      "title": "Speaker Naming in Movies"
+    },
+    {
+      "actual_event_id": "emnlp2020",
+      "area_code": "A02",
+      "area_name": "Information Extraction and Retrieval",
+      "compiled_pdf": {
+        "bytes": 255737,
+        "pages": 11,
+        "path": "pdfs/RL20/compiled.pdf",
+        "sha256": "464e7e899a3f00868790fa69b9f3452eb88458ff598729d3cf798f5afdea1589"
+      },
+      "official_pdf": {
+        "bytes": 437935,
+        "final_url": "https://aclanthology.org/2020.emnlp-main.592.pdf",
+        "pages": 10,
+        "path": "pdfs/RL20/official.pdf",
+        "reference_edition": "Canonical Anthology PDF served at retrieval time; original-versus-corrected publication edition not separately verified",
+        "retrieved_at": "2026-10-21T20:16:24Z",
+        "sha256": "0fab7e21a4909e56cd8cc564d4bfa1750849daca4241130061c3d45ae8ac179d",
+        "url": "https://aclanthology.org/2020.emnlp-main.592.pdf"
+      },
+      "paper_id": "2020.emnlp-main.592",
+      "period": "early",
+      "sample_id": "RL20",
+      "selected_vN": "2004.12126v2",
+      "title": "A Rigorous Study on Named Entity Recognition: Can Fine-tuning Pretrained Model Lead to the Promised Land?"
+    },
+    {
+      "actual_event_id": "acl2018",
+      "area_code": "A09",
+      "area_name": "Language Resources and Evaluation",
+      "compiled_pdf": {
+        "bytes": 214711,
+        "pages": 11,
+        "path": "pdfs/RL21/compiled.pdf",
+        "sha256": "460b5efea1c487664894dbef513429d90938de9c68ddddf156e3909a36901676"
+      },
+      "official_pdf": {
+        "bytes": 450816,
+        "final_url": "https://aclanthology.org/P18-1127.pdf",
+        "pages": 11,
+        "path": "pdfs/RL21/official.pdf",
+        "reference_edition": "Canonical Anthology PDF served at retrieval time; original-versus-corrected publication edition not separately verified",
+        "retrieved_at": "2026-10-21T20:16:25Z",
+        "sha256": "ca12c0fae1648d53fd5da31edee54dbd6d371bf63941cf97d66fc1abd9d2e784",
+        "url": "https://aclanthology.org/P18-1127.pdf"
+      },
+      "paper_id": "P18-1127",
+      "period": "early",
+      "sample_id": "RL21",
+      "selected_vN": "1804.11225v2",
+      "title": "Automatic Metric Validation for Grammatical Error Correction"
+    },
+    {
+      "actual_event_id": "acl2025",
+      "area_code": "A05",
+      "area_name": "Dialogue, Discourse, and Pragmatics",
+      "compiled_pdf": {
+        "bytes": 8322812,
+        "pages": 16,
+        "path": "pdfs/RL22/compiled.pdf",
+        "sha256": "38d0552f445a88220bd3feaf037322b3aa908a208f6f4ca2cd646c3b6bcdb6ec"
+      },
+      "official_pdf": {
+        "bytes": 8338240,
+        "final_url": "https://aclanthology.org/2025.acl-long.1016.pdf",
+        "pages": 16,
+        "path": "pdfs/RL22/official.pdf",
+        "reference_edition": "Canonical Anthology PDF served at retrieval time; original-versus-corrected publication edition not separately verified",
+        "retrieved_at": "2026-10-21T20:16:27Z",
+        "sha256": "66bf7a2f78598ae409326cff50f08c2366f15086fb35313fb4574109eb767b15",
+        "url": "https://aclanthology.org/2025.acl-long.1016.pdf"
+      },
+      "paper_id": "2025.acl-long.1016",
+      "period": "late",
+      "sample_id": "RL22",
+      "selected_vN": "2503.13975v2",
+      "title": "Navigating Rifts in Human-LLM Grounding: Study and Benchmark"
+    },
+    {
+      "actual_event_id": "naacl2025",
+      "area_code": "A02",
+      "area_name": "Information Extraction and Retrieval",
+      "compiled_pdf": {
+        "bytes": 636149,
+        "pages": 18,
+        "path": "pdfs/RL23/compiled.pdf",
+        "sha256": "70709d83f9b9f630041a37eacf38ef3d91185abd81da9cb21d3e3bbd457539b9"
+      },
+      "official_pdf": {
+        "bytes": 690480,
+        "final_url": "https://aclanthology.org/2025.naacl-long.597.pdf",
+        "pages": 17,
+        "path": "pdfs/RL23/official.pdf",
+        "reference_edition": "Canonical Anthology PDF served at retrieval time; original-versus-corrected publication edition not separately verified",
+        "retrieved_at": "2026-10-21T20:16:28Z",
+        "sha256": "3e36751c6838373533385085a6ae06b3ffc59f14e326097a72e6e0ada905428e",
+        "url": "https://aclanthology.org/2025.naacl-long.597.pdf"
+      },
+      "paper_id": "2025.naacl-long.597",
+      "period": "late",
+      "sample_id": "RL23",
+      "selected_vN": "2403.15246v3",
+      "title": "FollowIR: Evaluating and Teaching Information Retrieval Models to Follow Instructions"
+    },
+    {
+      "actual_event_id": "acl2026",
+      "area_code": "A01",
+      "area_name": "Machine Translation and Cross-Lingual NLP",
+      "compiled_pdf": {
+        "bytes": 419944,
+        "pages": 15,
+        "path": "pdfs/RL24/compiled.pdf",
+        "sha256": "b3f837a16e25441028ec73003ab967f8162009cb31f672a1601f9147d97f8e21"
+      },
+      "official_pdf": {
+        "bytes": 534079,
+        "final_url": "https://aclanthology.org/2026.acl-long.1657.pdf",
+        "pages": 15,
+        "path": "pdfs/RL24/official.pdf",
+        "reference_edition": "Canonical Anthology PDF served at retrieval time; original-versus-corrected publication edition not separately verified",
+        "retrieved_at": "2026-10-21T20:16:29Z",
+        "sha256": "35519da725505a92b21c7d5e86a6405e402aae2255bfeac4f227e477c31f12fc",
+        "url": "https://aclanthology.org/2026.acl-long.1657.pdf"
+      },
+      "paper_id": "2026.acl-long.1657",
+      "period": "late",
+      "sample_id": "RL24",
+      "selected_vN": "2601.10925v3",
+      "title": "Massively Multilingual Joint Segmentation and Glossing"
+    },
+    {
+      "actual_event_id": "naacl2025",
+      "area_code": "A07",
+      "area_name": "Semantics, Inference, and Text Classification",
+      "compiled_pdf": {
+        "bytes": 298738,
+        "pages": 13,
+        "path": "pdfs/RL25/compiled.pdf",
+        "sha256": "8520fcbbd1913b18e53504e0de0f6171615c310955fbf1ca287913887c50d3c2"
+      },
+      "official_pdf": {
+        "bytes": 1032096,
+        "final_url": "https://aclanthology.org/2025.naacl-long.385.pdf",
+        "pages": 13,
+        "path": "pdfs/RL25/official.pdf",
+        "reference_edition": "Canonical Anthology PDF served at retrieval time; original-versus-corrected publication edition not separately verified",
+        "retrieved_at": "2026-10-21T20:16:30Z",
+        "sha256": "eb37459e918848269520e89cb96a8d2972beb3e14e587bf723caad435c6a2946",
+        "url": "https://aclanthology.org/2025.naacl-long.385.pdf"
+      },
+      "paper_id": "2025.naacl-long.385",
+      "period": "late",
+      "sample_id": "RL25",
+      "selected_vN": "2502.04960v1",
+      "title": "Commonality and Individuality! Integrating Humor Commonality with Speaker Individuality for Humor Recognition"
+    },
+    {
+      "actual_event_id": "acl2021",
+      "area_code": "A10",
+      "area_name": "Model Analysis and Interpretability",
+      "compiled_pdf": {
+        "bytes": 1034124,
+        "pages": 12,
+        "path": "pdfs/RL26/compiled.pdf",
+        "sha256": "cebd28d4af9c4358a4c9a4b6f806d4ba426651c2641df2e9e07896a40a53d06d"
+      },
+      "official_pdf": {
+        "bytes": 1231387,
+        "final_url": "https://aclanthology.org/2021.acl-long.94.pdf",
+        "pages": 11,
+        "path": "pdfs/RL26/official.pdf",
+        "reference_edition": "Canonical Anthology PDF served at retrieval time; original-versus-corrected publication edition not separately verified",
+        "retrieved_at": "2026-10-21T20:16:31Z",
+        "sha256": "338128868130f2adbd2ed1e1ff7ab096f30a4412f02e4cc0bba90540ae42bb9e",
+        "url": "https://aclanthology.org/2021.acl-long.94.pdf"
+      },
+      "paper_id": "2021.acl-long.94",
+      "period": "early",
+      "sample_id": "RL26",
+      "selected_vN": "2106.01269v1",
+      "title": "More Identifiable yet Equally Performant Transformers for Text Classification"
+    },
+    {
+      "actual_event_id": "acl2025",
+      "area_code": "A08",
+      "area_name": "Machine Learning for NLP and Language Modeling",
+      "compiled_pdf": {
+        "bytes": 1220670,
+        "pages": 51,
+        "path": "pdfs/RL27/compiled.pdf",
+        "sha256": "9a4f8a2c9adf73c97976b02bccf82cfae11a7e270f55543e02c9e9ea8a3e09fd"
+      },
+      "official_pdf": {
+        "bytes": 1510911,
+        "final_url": "https://aclanthology.org/2025.acl-long.1409.pdf",
+        "pages": 49,
+        "path": "pdfs/RL27/official.pdf",
+        "reference_edition": "Canonical Anthology PDF served at retrieval time; original-versus-corrected publication edition not separately verified",
+        "retrieved_at": "2026-10-21T20:16:32Z",
+        "sha256": "aea19710940fc543e6c5c5b0fbe2e8367a9a5bdf3ba1a17a994d077c17a9d9ab",
+        "url": "https://aclanthology.org/2025.acl-long.1409.pdf"
+      },
+      "paper_id": "2025.acl-long.1409",
+      "period": "late",
+      "sample_id": "RL27",
+      "selected_vN": "2503.10542v3",
+      "title": "Language Models, Graph Searching, and Supervision Adulteration: When More Supervision is Less and How to Make More More"
+    },
+    {
+      "actual_event_id": "eacl2024",
+      "area_code": "A05",
+      "area_name": "Dialogue, Discourse, and Pragmatics",
+      "compiled_pdf": {
+        "bytes": 840616,
+        "pages": 18,
+        "path": "pdfs/RL28/compiled.pdf",
+        "sha256": "05827e4632a4d00393bf85c81255727e2bab2a792cb13f3f5683dbafdb1d6081"
+      },
+      "official_pdf": {
+        "bytes": 966092,
+        "final_url": "https://aclanthology.org/2024.eacl-long.16.pdf",
+        "pages": 18,
+        "path": "pdfs/RL28/official.pdf",
+        "reference_edition": "Canonical Anthology PDF served at retrieval time; original-versus-corrected publication edition not separately verified",
+        "retrieved_at": "2026-10-21T20:16:33Z",
+        "sha256": "c6914f1e380563e5b2251be9a570df47094d1883c8d6c779e13b0f4f54a34db9",
+        "url": "https://aclanthology.org/2024.eacl-long.16.pdf"
+      },
+      "paper_id": "2024.eacl-long.16",
+      "period": "late",
+      "sample_id": "RL28",
+      "selected_vN": "2402.06509v1",
+      "title": "Asking the Right Question at the Right Time: Human and Model Uncertainty Guidance to Ask Clarification Questions"
+    },
+    {
+      "actual_event_id": "acl2021",
+      "area_code": "A08",
+      "area_name": "Machine Learning for NLP and Language Modeling",
+      "compiled_pdf": {
+        "bytes": 558740,
+        "pages": 12,
+        "path": "pdfs/RL29/compiled.pdf",
+        "sha256": "023eae10b9da8083ff375cc9d944f8a43b213f6693eeee21e00dfdc6e149e6fd"
+      },
+      "official_pdf": {
+        "bytes": 770936,
+        "final_url": "https://aclanthology.org/2021.acl-long.512.pdf",
+        "pages": 12,
+        "path": "pdfs/RL29/official.pdf",
+        "reference_edition": "Canonical Anthology PDF served at retrieval time; original-versus-corrected publication edition not separately verified",
+        "retrieved_at": "2026-10-21T20:16:35Z",
+        "sha256": "dae3fb663c2bc92377143c8e39b0ef7858e0b04fa2a45282828c0ef315bc3bd1",
+        "url": "https://aclanthology.org/2021.acl-long.512.pdf"
+      },
+      "paper_id": "2021.acl-long.512",
+      "period": "early",
+      "sample_id": "RL29",
+      "selected_vN": "2106.07400v3",
+      "title": "Determinantal Beam Search"
+    },
+    {
+      "actual_event_id": "acl2021",
+      "area_code": "A05",
+      "area_name": "Dialogue, Discourse, and Pragmatics",
+      "compiled_pdf": {
+        "bytes": 3175196,
+        "pages": 22,
+        "path": "pdfs/RL30/compiled.pdf",
+        "sha256": "8c8169adc52b0f24d1cdf8e3ea115289bec780b8df2a937d37cb935f9f479fa8"
+      },
+      "official_pdf": {
+        "bytes": 2083930,
+        "final_url": "https://aclanthology.org/2021.acl-long.439.pdf",
+        "pages": 15,
+        "path": "pdfs/RL30/official.pdf",
+        "reference_edition": "Canonical Anthology PDF served at retrieval time; original-versus-corrected publication edition not separately verified",
+        "retrieved_at": "2026-10-21T20:16:36Z",
+        "sha256": "a2c8fa2d0088f87145853ef47f5a31d6db20980894741a9d4b9a4df72c6f7023",
+        "url": "https://aclanthology.org/2021.acl-long.439.pdf"
+      },
+      "paper_id": "2021.acl-long.439",
+      "period": "early",
+      "sample_id": "RL30",
+      "selected_vN": "2101.00151v2",
+      "title": "DVD: A Diagnostic Dataset for Multi-step Reasoning in Video Grounded Dialogue"
+    }
+  ],
+  "rubric_version": "alignment-rubric-v1",
+  "sampling_provenance_sha256": "91ff684463e7a5f09695b3e20463682f085a05481249e7b02bcdc0875c83c2c2",
+  "schema": "revisionlens.alignment30.manifest.v1",
+  "seed": "RevisionLens-Alignment30-20261021-v1",
+  "selection_sha256": "48af5726c43e72a0f09a35d6ee5873c8cb7fcf591b41a059d99972f4b68e412c"
+}

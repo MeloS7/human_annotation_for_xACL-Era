@@ -1,0 +1,174 @@
+{
+  "algorithm": {
+    "areas_with_extra_early": 5,
+    "description": "For each area, rank SHA256(seed+'|extra-early|'+area); the first five areas receive 2 early and 1 late paper, the remaining five receive 1 early and 2 late. Within each period-area cell rank SHA256(seed+'|'+period+'|'+area+'|'+paper_id), take the quota, then order the 30 selected IDs by SHA256(seed+'|order|'+paper_id). Ties break by ID.",
+    "total_per_area": 3,
+    "version": "sha256-stratified-v1"
+  },
+  "dataset_id": "revisionlens-alignment30-v1",
+  "git_head": "440a1df84386eb2567fed93a35d8f723a3bc8e08",
+  "input_refs": {
+    "catalog_ref": {
+      "bytes": 3414178,
+      "path": ".runtime/formal600_reference_finalization_20261020/publication-worker/runs/main-release-6983044-v2-r1/package/catalog/papers.jsonl",
+      "sha256": "275c9df42bf821321afd5bffd1a790b927fb020003a8d1f673ffb9c9f757490f"
+    },
+    "selected_mirror_ref": {
+      "bytes": 2974433,
+      "path": "metadata/formal600_reference_finalization_20261020/final-v1/selected.jsonl",
+      "sha256": "0ffeaf2bf3435738bc3e0ca936424663d156d95f73ba6b2a9e02a81364e64e58"
+    }
+  },
+  "prepare_script_sha256": "b789a3a2fd4ea1411d117feec87df782fc695dd3da8a89ac14059eeeae700a56",
+  "release_pointer": {
+    "bytes": 7133,
+    "path": "metadata/formal600_reference_finalization_20261020/current-publication-v1.json",
+    "sha256": "a1915dc9f1fe9b0ca35db2de7cab4d9fafca1042be03e37638e23ee3bb78b4b4"
+  },
+  "rubric_version": "alignment-rubric-v1",
+  "schema": "revisionlens.alignment30.sampling-provenance.v1",
+  "seed": "RevisionLens-Alignment30-20261021-v1",
+  "selected_paper_ids": [
+    "2025.acl-long.636",
+    "2020.emnlp-main.647",
+    "2025.naacl-long.431",
+    "2020.emnlp-main.292",
+    "2020.emnlp-main.356",
+    "2021.acl-long.213",
+    "P18-1150",
+    "P18-1177",
+    "2025.naacl-long.633",
+    "2020.emnlp-main.554",
+    "2020.emnlp-main.613",
+    "2025.naacl-long.477",
+    "2024.eacl-long.177",
+    "2020.emnlp-main.359",
+    "2025.naacl-long.605",
+    "2025.naacl-long.494",
+    "2025.acl-long.71",
+    "2025.naacl-long.579",
+    "N18-1200",
+    "2020.emnlp-main.592",
+    "P18-1127",
+    "2025.acl-long.1016",
+    "2025.naacl-long.597",
+    "2026.acl-long.1657",
+    "2025.naacl-long.385",
+    "2021.acl-long.94",
+    "2025.acl-long.1409",
+    "2024.eacl-long.16",
+    "2021.acl-long.512",
+    "2021.acl-long.439"
+  ],
+  "selected_sample_ids": [
+    "RL01",
+    "RL02",
+    "RL03",
+    "RL04",
+    "RL05",
+    "RL06",
+    "RL07",
+    "RL08",
+    "RL09",
+    "RL10",
+    "RL11",
+    "RL12",
+    "RL13",
+    "RL14",
+    "RL15",
+    "RL16",
+    "RL17",
+    "RL18",
+    "RL19",
+    "RL20",
+    "RL21",
+    "RL22",
+    "RL23",
+    "RL24",
+    "RL25",
+    "RL26",
+    "RL27",
+    "RL28",
+    "RL29",
+    "RL30"
+  ],
+  "selection_counts": {
+    "areas": {
+      "A01": 3,
+      "A02": 3,
+      "A03": 3,
+      "A04": 3,
+      "A05": 3,
+      "A07": 3,
+      "A08": 3,
+      "A09": 3,
+      "A10": 3,
+      "C01": 3
+    },
+    "areas_by_period": {
+      "early": {
+        "A01": 1,
+        "A02": 1,
+        "A03": 1,
+        "A04": 2,
+        "A05": 1,
+        "A07": 2,
+        "A08": 1,
+        "A09": 2,
+        "A10": 2,
+        "C01": 2
+      },
+      "late": {
+        "A01": 2,
+        "A02": 2,
+        "A03": 2,
+        "A04": 1,
+        "A05": 2,
+        "A07": 1,
+        "A08": 2,
+        "A09": 1,
+        "A10": 1,
+        "C01": 1
+      }
+    },
+    "areas_with_extra_early": [
+      "A04",
+      "A07",
+      "A09",
+      "A10",
+      "C01"
+    ],
+    "papers": 30,
+    "period_area_quotas": {
+      "early": {
+        "A01": 1,
+        "A02": 1,
+        "A03": 1,
+        "A04": 2,
+        "A05": 1,
+        "A07": 2,
+        "A08": 1,
+        "A09": 2,
+        "A10": 2,
+        "C01": 2
+      },
+      "late": {
+        "A01": 2,
+        "A02": 2,
+        "A03": 2,
+        "A04": 1,
+        "A05": 2,
+        "A07": 1,
+        "A08": 2,
+        "A09": 1,
+        "A10": 1,
+        "C01": 1
+      }
+    },
+    "periods": {
+      "early": 15,
+      "late": 15
+    }
+  },
+  "selection_sha256": "48af5726c43e72a0f09a35d6ee5873c8cb7fcf591b41a059d99972f4b68e412c"
+}

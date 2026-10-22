@@ -1,0 +1,31 @@
+sample_id,paper_id,title,period,area_code,area_name,selected_vN,compiled_pages,official_pages
+RL01,2025.acl-long.636,Improving Medical Large Vision-Language Models with Abnormal-Aware Feedback,late,C01,Multimodality and Language Grounding,2501.01377v2,18,18
+RL02,2020.emnlp-main.647,MLSUM: The Multilingual Summarization Corpus,early,A04,Text Generation and Summarization,2004.14900v1,17,17
+RL03,2025.naacl-long.431,Open-World Evaluation for Retrieving Diverse Perspectives,late,A02,Information Extraction and Retrieval,2409.18110v2,21,21
+RL04,2020.emnlp-main.292,"Tasty Burgers, Soggy Fries: Probing Aspect Robustness in Aspect-Based Sentiment Analysis",early,A07,"Semantics, Inference, and Text Classification",2009.07964v4,13,12
+RL05,2020.emnlp-main.356,Room-Across-Room: Multilingual Vision-and-Language Navigation with Dense Spatiotemporal Grounding,early,C01,Multimodality and Language Grounding,2010.07954v1,23,21
+RL06,2021.acl-long.213,Factoring Statutory Reasoning as Language Understanding Challenges,early,A09,Language Resources and Evaluation,2105.07903v1,19,17
+RL07,P18-1150,A Graph-to-Sequence Model for AMR-to-Text Generation,early,A04,Text Generation and Summarization,1805.02473v3,11,11
+RL08,P18-1177,Harvesting Paragraph-level Question-Answer Pairs from Wikipedia,early,A03,Question Answering,1805.05942v1,14,11
+RL09,2025.naacl-long.633,CSR-Bench: Benchmarking LLM Agents in Deployment of Computer Science Research Repositories,late,A09,Language Resources and Evaluation,2502.06111v2,21,19
+RL10,2020.emnlp-main.554,Learning Music Helps You Read: Using Transfer to Study Linguistic Structure in Language Models,early,A10,Model Analysis and Interpretability,2004.14601v3,12,11
+RL11,2020.emnlp-main.613,Towards Debiasing NLU Models from Unknown Biases,early,A07,"Semantics, Inference, and Text Classification",2009.12303v4,15,14
+RL12,2025.naacl-long.477,ScreenQA: Large-Scale Question-Answer Pairs Over Mobile App Screenshots,late,A03,Question Answering,2209.08199v4,26,26
+RL13,2024.eacl-long.177,Analyzing the Evaluation of Cross-Lingual Knowledge Transfer in Multilingual Language Models,late,A01,Machine Translation and Cross-Lingual NLP,2402.02099v1,20,20
+RL14,2020.emnlp-main.359,On Negative Interference in Multilingual Models: Findings and A Meta-Learning Treatment,early,A01,Machine Translation and Cross-Lingual NLP,2010.03017v1,13,13
+RL15,2025.naacl-long.605,In-Context Learning with Long-Context Models: An In-Depth Exploration,late,A08,Machine Learning for NLP and Language Modeling,2405.00200v2,31,31
+RL16,2025.naacl-long.494,Coverage-based Fairness in Multi-document Summarization,late,A04,Text Generation and Summarization,2412.08795v2,19,19
+RL17,2025.acl-long.71,HALoGEN: Fantastic LLM Hallucinations and Where to Find Them,late,A10,Model Analysis and Interpretability,2501.08292v1,23,24
+RL18,2025.naacl-long.579,ProMQA: Question Answering Dataset for Multimodal Procedural Activity Understanding,late,A03,Question Answering,2410.22211v2,21,20
+RL19,N18-1200,Speaker Naming in Movies,early,C01,Multimodality and Language Grounding,1809.08761v1,12,11
+RL20,2020.emnlp-main.592,A Rigorous Study on Named Entity Recognition: Can Fine-tuning Pretrained Model Lead to the Promised Land?,early,A02,Information Extraction and Retrieval,2004.12126v2,11,10
+RL21,P18-1127,Automatic Metric Validation for Grammatical Error Correction,early,A09,Language Resources and Evaluation,1804.11225v2,11,11
+RL22,2025.acl-long.1016,Navigating Rifts in Human-LLM Grounding: Study and Benchmark,late,A05,"Dialogue, Discourse, and Pragmatics",2503.13975v2,16,16
+RL23,2025.naacl-long.597,FollowIR: Evaluating and Teaching Information Retrieval Models to Follow Instructions,late,A02,Information Extraction and Retrieval,2403.15246v3,18,17
+RL24,2026.acl-long.1657,Massively Multilingual Joint Segmentation and Glossing,late,A01,Machine Translation and Cross-Lingual NLP,2601.10925v3,15,15
+RL25,2025.naacl-long.385,Commonality and Individuality! Integrating Humor Commonality with Speaker Individuality for Humor Recognition,late,A07,"Semantics, Inference, and Text Classification",2502.04960v1,13,13
+RL26,2021.acl-long.94,More Identifiable yet Equally Performant Transformers for Text Classification,early,A10,Model Analysis and Interpretability,2106.01269v1,12,11
+RL27,2025.acl-long.1409,"Language Models, Graph Searching, and Supervision Adulteration: When More Supervision is Less and How to Make More More",late,A08,Machine Learning for NLP and Language Modeling,2503.10542v3,51,49
+RL28,2024.eacl-long.16,Asking the Right Question at the Right Time: Human and Model Uncertainty Guidance to Ask Clarification Questions,late,A05,"Dialogue, Discourse, and Pragmatics",2402.06509v1,18,18
+RL29,2021.acl-long.512,Determinantal Beam Search,early,A08,Machine Learning for NLP and Language Modeling,2106.07400v3,12,12
+RL30,2021.acl-long.439,DVD: A Diagnostic Dataset for Multi-step Reasoning in Video Grounded Dialogue,early,A05,"Dialogue, Discourse, and Pragmatics",2101.00151v2,22,15

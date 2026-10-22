@@ -1,0 +1,35 @@
+{
+  "schema": "xacl.deployment-verification.v1",
+  "checked_at": "2026-10-22T21:34:05.694211+00:00",
+  "configured_site_url": "https://melos7.github.io/human_annotation_for_xACL-Era/",
+  "local_software_verification": "passed",
+  "frozen_paper_pairs": 30,
+  "frozen_pdf_checksums_verified": 60,
+  "local_postgresql_version": "18.4",
+  "ci_postgresql_version": "17",
+  "official_supabase_sdk": "2.118.0",
+  "anonymous_auth_gateway_signup_http": 200,
+  "anonymous_auth_gateway_logout_http": 204,
+  "production_qa_annotation_profiles_created": 0,
+  "production_qa_ratings_written": 0,
+  "browser_checks": [
+    "English default, user-triggered anonymous self-registration, custom nickname and one-time downloadable recovery code; actual frozen PDFs under Pages subpath",
+    "Official SDK restores anonymous session; explicit Continue restores SQL draft; recovery code never persisted in local storage",
+    "Server accepts complete synthetic fixture and same-device continuation opens first unfinished RL02",
+    "Export uses canonical saved SQL record with original v1 schema and no recovery credential",
+    "New-device anonymous identity rejects wrong recovery code and restores same profile using its correct code",
+    "Two device identities share one participant safely; stale SQL save conflicts, switch blocks, recovery survives",
+    "Self-registered profile B cannot read profile A even with its known nickname; direct SQL RPC honors auth.uid binding",
+    "Legacy JSON import uses current cloud revision, not imported999; successful import restores unfinished draft and releases UI lock",
+    "Switch flushes saved content and signs out local anonymous session; original data remains retrievable with recovery code",
+    "Create/restore landing page fits 390px mobile screen"
+  ],
+  "browser_page_errors": [],
+  "unit_tests": 7,
+  "scientific_alignment_judgments_generated": false,
+  "live_deployment_status_reference": "GitHub Actions and deployments plus Supabase xacl_annotation_health RPC",
+  "limitations": [
+    "Browser integration mocks Supabase Auth/Data HTTP transport using synthetic JWTs; SDK and PostgreSQL authorization are real. Live Auth gateway was checked separately.",
+    "Software QA is not human scientific-content or publication-version validation."
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "schema": "revisionlens.alignment-rubric.v1",
+  "version": "alignment-rubric-v1",
+  "title": "RevisionLens PDF Alignment Audit / PDF 对齐标注",
+  "scope": "The compiled arXiv LaTeX PDF is the only scored document. The official conference PDF is the reference, never a second scoring target. Inspect both documents, including their final pages. Primary alignment scores and Overall concern the main paper and its figures, tables and equations. Record reference-list and appendix differences separately with their flags and page evidence. / 唯一评分对象为 arXiv LaTeX 编译 PDF，官方会议 PDF 只作参照。请检查两份文档及其末尾页面。分项和 Overall 评价正文及正文图表公式；参考文献与附录差异另用标记和页码记录。",
+  "dimensions": [
+    {
+      "key": "text_alignment",
+      "label": "Text Alignment",
+      "label_zh": "正文文字对齐",
+      "description": "Compare wording and paragraph correspondence. Distinguish formatting, editorial wording changes, and additions/deletions or changes of scientific statements. Ignore line wrapping, running headers and ordinary font differences. / 比较措辞和段落，区分排版、润色及科学陈述增删改；忽略普通换行、页眉和字体差异。",
+      "allows_na": false,
+      "scale": {"5": "Text corresponds; only formatting differs / 文字对应，仅排版不同", "4": "Localized editorial changes / 局部润色修改", "3": "Substantial passages added, removed or rewritten; same main study / 成段增删改写，但主体研究对应", "2": "Important scientific statements differ / 重要科学陈述不同", "1": "Main text largely does not correspond / 正文大幅不对应"}
+    },
+    {
+      "key": "figure_alignment",
+      "label": "Figure Alignment",
+      "label_zh": "图片对齐",
+      "description": "Compare all main-paper figures, panels, labels, legends and captions. Moving a figure to another page is not itself a content error. / 比较正文所有图片、子图、标记、图例和图注；移动到另一页本身不是内容错误。",
+      "allows_na": true,
+      "scale": {"5": "All figure information corresponds / 图片信息对应", "4": "Minor non-substantive figure or caption edits / 少量非实质图或图注修改", "3": "Some figures or panels added, removed or substantially edited / 部分图片或子图新增、缺失或明显修改", "2": "Key visual evidence or results differ / 关键视觉证据或结果不同", "1": "Applicable figure content largely does not correspond / 适用图片内容大幅不对应"}
+    },
+    {
+      "key": "table_alignment",
+      "label": "Table Alignment",
+      "label_zh": "表格对齐",
+      "description": "Compare table cells, labels, numbers, units, captions and notes, including continued tables. / 比较表格单元、标签、数字、单位、表注和跨页续表。",
+      "allows_na": true,
+      "scale": {"5": "Table content corresponds / 表格内容对应", "4": "Minor editorial or non-result differences / 轻微编辑或非结果差异", "3": "Some rows, columns or tables added or removed / 部分行、列或表格增删", "2": "Key numerical results or table meaning differ / 关键实验数字或表格含义不同", "1": "Applicable table content largely does not correspond / 适用表格内容大幅不对应"}
+    },
+    {
+      "key": "equation_alignment",
+      "label": "Equation Alignment",
+      "label_zh": "公式对齐",
+      "description": "Compare displayed equations and scientifically substantive inline expressions, including signs, indices, variables and conditions. An isolated variable name alone does not establish an equation. / 比较陈列公式和具有科学含义的行内表达式，含正负号、上下标、变量和条件；仅出现孤立变量名不算存在公式。",
+      "allows_na": true,
+      "scale": {"5": "Mathematical expressions correspond / 数学表达式对应", "4": "Equivalent notation or minor non-substantive edits / 等价记号或轻微非实质修改", "3": "Some expressions added, removed or substantially rewritten / 部分表达式增删或明显重写", "2": "Key mathematical meaning differs / 关键数学含义不同", "1": "Applicable equations largely do not correspond / 适用公式大幅不对应"}
+    },
+    {
+      "key": "structure_alignment",
+      "label": "Structure Alignment",
+      "label_zh": "章节结构对齐",
+      "description": "Compare main-paper section/subsection names, hierarchy and order, including renaming, splitting, merging and relocation. Case, numbering style and line wrapping are formatting differences. / 比较正文章节名称、层级和顺序，记录重命名、拆分、合并和移动；大小写、编号样式和换行属于排版差异。",
+      "allows_na": false,
+      "scale": {"5": "Section organization corresponds / 章节组织对应", "4": "Minor heading renaming with the same organization / 少量标题更名，组织基本相同", "3": "Some splitting, merging, additions or reordering / 部分章节拆合、增删或重排", "2": "Major structural differences / 主要结构不同", "1": "Main organization largely does not correspond / 主体组织大幅不对应"}
+    },
+    {
+      "key": "content_coverage",
+      "label": "Content Coverage",
+      "label_zh": "内容覆盖",
+      "description": "Check main-paper information in both directions: missing AND additional paragraphs, methods, experiments and results, even when headings match. Flag appendix and reference differences separately. / 双向检查正文遗漏和新增的段落、方法、实验与结果，即使标题一致也要检查；附录与文献差异另标。",
+      "allows_na": false,
+      "scale": {"5": "Main-paper information covered in both directions / 正文信息双向覆盖", "4": "Small non-essential additions or deletions / 少量非关键增删", "3": "Noticeable content added or removed; same main study / 明显增删，但主体研究对应", "2": "Important method, experiment or result absent or added / 重要方法、实验或结果缺失或新增", "1": "Main content largely missing or unrelated / 主体内容大量缺失或不对应"}
+    },
+    {
+      "key": "overall_alignment",
+      "label": "Overall Alignment",
+      "label_zh": "总体对齐",
+      "description": "Direct, evidence-based judgment of the compiled main paper relative to the official reference. Do not calculate an average. Different formatting is acceptable; a material method/result/conclusion difference is critical. / 依据证据直接判断编译正文与官方参照的总体对齐，不求分项均值。可有排版差异；方法、结果或结论的实质差异属于关键差异。",
+      "allows_na": false,
+      "scale": {"5": "Main-paper content and wording align; formatting may differ / 正文内容与表述对应，可有排版差异", "4": "Localized editorial or non-essential modifications / 局部润色或非关键修改", "3": "Noticeable passages, sections or experiments added/removed; same main study / 明显段落、章节或实验增删，主体研究仍对应", "2": "Material differences in methods, key results or conclusions / 方法、关键结果或结论实质不同", "1": "Main paper largely does not correspond or identity is wrong / 主体大幅不对应或身份错误"}
+    },
+    {
+      "key": "visual_integrity",
+      "label": "Visual Integrity & Legibility",
+      "label_zh": "视觉完整性与可读性",
+      "description": "Score ONLY the compiled PDF itself: legibility, missing glyphs, overlap, clipping, corrupt or blank content. Do not penalize ordinary font, margin or pagination differences from the official PDF. / 只评编译 PDF 自身：清晰度、缺字、重叠、裁切、损坏或异常空白。不要因与官方稿的普通字体、页边距或换页不同而扣分。",
+      "allows_na": false,
+      "scale": {"5": "Clear and intact / 清晰完整", "4": "Minor defects do not affect reading / 轻微瑕疵，不影响阅读", "3": "Localized defects affect some reading / 局部问题影响部分阅读", "2": "Multiple important parts hard to read / 多处重要内容难以辨认", "1": "Most content cannot be read normally / 大部分内容无法正常阅读"}
+    }
+  ],
+  "presence_rules": [
+    "For figures, tables and equations, record presence independently for compiled and official main papers. / 图片、表格和公式分别记录两份正文中是否存在。",
+    "N/A is valid ONLY when BOTH main papers lack that object type. It is neither 0 nor 5. / 仅两份正文均无该类对象时选 N/A；它不是0分或5分。",
+    "Present in only one version means added/missing content, not N/A. / 仅一份存在代表新增或缺失，不能选 N/A。",
+    "Uncertain means unable to assess, not absent. Explain the obstacle and pages. / Uncertain 表示无法判断，不表示不存在；请注明障碍和页码。"
+  ],
+  "instructions": [
+    "Work independently. Do not consult other annotators or model judgments before submitting. / 独立标注，提交前不查看其他标注者或模型结论。",
+    "Use the two PDFs themselves. No scientific correctness or research novelty judgment is requested. / 依据两份 PDF 比较，不评价研究本身的科学正确性或创新性。",
+    "Page numbers may differ: navigate each PDF independently and cite both page numbers in evidence. / 页码可能不同，请独立翻页，并在证据中写两份页码。",
+    "Inspect all main-paper pages and check where references and appendices start/end; record their differences with separate flags. / 检查全部正文页面及文献、附录边界，其差异单独标记。",
+    "Evidence is required for any score below 5, Uncertain, or any difference flag. / 任一低于5分、Uncertain 或差异标记，都需填写证据。",
+    "If a critical method/result/conclusion difference exists, Overall must be 1 or 2, or Uncertain when assessment is impossible. / 发现关键方法、结果或结论差异，Overall 应为1或2；确实无法判断时用 Uncertain。",
+    "Visual corruption does not by itself prove a version mismatch. If it prevents comparison, use Uncertain for affected alignment scores. / 显示损坏不等于版本不同；若妨碍比较，相应对齐项选 Uncertain。",
+    "These scores are audit observations, not automatic admission decisions. / 评分是审计观察，不是自动入选判定。"
+  ],
+  "flags": [
+    {"key": "critical_difference", "label": "Critical scientific-content difference", "label_zh": "关键科学内容差异"},
+    {"key": "appendix_difference", "label": "Appendix differs / added / missing", "label_zh": "附录不同、新增或缺失"},
+    {"key": "references_difference", "label": "Reference list differs", "label_zh": "参考文献不同"},
+    {"key": "rendering_problem", "label": "Compiled PDF rendering problem", "label_zh": "编译 PDF 显示问题"}
+  ]
+}
