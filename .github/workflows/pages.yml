@@ -40,6 +40,9 @@ jobs:
       - run: node --check site/app.js && node --check site/cloud.mjs
       - run: bash scripts/test_database.sh
       - run: python -m pip install "psycopg[binary]==3.2.12"
+      - run: python tests/database_upgrade.py
+        env:
+          QA_DATABASE_URL: postgresql://postgres:disposable_ci_password@localhost:5432/postgres
       - run: python tests/database_concurrency.py
         env:
           QA_DATABASE_URL: postgresql://postgres:disposable_ci_password@localhost:5432/postgres
@@ -51,6 +54,7 @@ jobs:
           QA_DATABASE_URL: postgresql://postgres:disposable_ci_password@localhost:5432/postgres
           PLAYWRIGHT_MODULE: ${{ github.workspace }}/.runtime/browser-deps/node_modules/playwright
   deploy:
+    if: github.ref == 'refs/heads/main'
     needs: verify
     runs-on: ubuntu-latest
     permissions:

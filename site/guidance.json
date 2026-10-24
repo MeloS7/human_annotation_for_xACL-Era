@@ -1,6 +1,6 @@
 {
   "schema": "revisionlens.alignment-guidance.v1",
-  "version": "alignment-guidance-20261022-v2",
+  "version": "alignment-guidance-20261024-v3",
   "title": {
     "en": "Quick guidance",
     "zh": "快速说明"
@@ -15,8 +15,8 @@
       "zh": "比较正文文字、章节结构、图片、表格和公式。参考文献或附录差异请单独记录。"
     },
     {
-      "en": "Record figure, table, and equation presence in both PDFs. Use N/A only when an item is absent from both; use Uncertain when you cannot assess it.",
-      "zh": "分别记录两份 PDF 中图片、表格和公式是否存在。仅两份均不存在时选 N/A；无法判断时选“无法判断”。"
+      "en": "For figures, tables, and equations, N/A means absent from both PDFs. Score 1 requires a reason: missing from the compiled PDF, added only in the compiled PDF, or largely non-corresponding content. Use Uncertain when comparison is impossible.",
+      "zh": "图片、表格和公式的 N/A 表示两份均不存在。1 分需注明原因：编译版全部缺失、仅编译版新增，或内容大幅不对应。无法比较时选“无法判断”。"
     },
     {
       "en": "Overall Alignment is a direct judgment, not an average. A Critical Difference flag caps it at 1–2, or Uncertain if assessment is impossible.",
@@ -64,12 +64,12 @@
     },
     {
       "title": {
-        "en": "Presence, N/A, and uncertainty",
-        "zh": "存在状态、N/A 与无法判断"
+        "en": "Object scores, N/A, and score 1 reasons",
+        "zh": "图表公式评分、N/A 与 1 分原因"
       },
       "text": {
-        "en": "Record each figure, table, and equation as present, absent, or uncertain in each PDF. N/A is valid only when both versions lack that item type; presence in one version only is an addition or omission. Uncertain means the comparison cannot be made, not that the item is absent.",
-        "zh": "分别记录两份 PDF 中图片、表格和公式的存在、缺失或无法判断。仅两份均缺少某类内容时才可选 N/A；仅一份存在表示新增或缺失。无法判断表示当前不能比较，不等于内容不存在。"
+        "en": "Select scores directly in each figure, table, or equation card; there are no separate presence questions. N/A explicitly confirms that both main papers lack that entire object type. If the official main paper contains the type and the compiled main paper contains none, choose 1 and Missing in compiled. If only the compiled main paper contains it, choose 1 and Added in compiled. If both contain it but applicable content largely does not correspond, choose 1 and Largely non-corresponding. Scores 2–5 mean that the type occurs in both main papers. Partial omissions or additions use the existing 2–4 anchors according to their scientific impact; they do not automatically receive 1. A score of 1 in one dimension does not automatically force Overall to 1. Uncertain means unable to assess, not absent. Presence fields are retained in the saved record and derived from these explicit choices.",
+        "zh": "直接在图片、表格或公式评分卡中选择，无需独立填写存在状态。N/A 明确确认两份正文均无该类内容。官方正文有而编译版全部没有，选 1 分及“编译版全部缺失”；仅编译版存在，选 1 分及“仅编译版新增”；两份均有但该类内容大幅不对应，选 1 分及“内容大幅不对应”。2–5 分表示该类内容在两份正文中均存在。部分缺失或新增按科学影响使用现有 2–4 分定义，不自动判为 1 分。单个维度为 1 分不自动要求总体为 1 分。无法判断表示不能评估，不表示不存在。保存记录继续保留存在状态字段，由上述明确选择自动填写。"
       }
     },
     {
@@ -80,6 +80,16 @@
       "text": {
         "en": "Use the reference-list and appendix flags for differences in those sections; do not mix them into main-paper content scores. Cite the relevant page numbers from both PDFs for scores below 5, any Uncertain rating, or any flag. Set Overall directly rather than averaging dimensions. When Critical Difference is selected, Overall must be 1 or 2, or Uncertain if you cannot assess the difference.",
         "zh": "参考文献和附录的差异使用相应标记，不计入正文内容分项。评分低于 5、选择“无法判断”或设置任何标记时，请注明两份 PDF 的相关页码。总体评分直接判断，不取分项平均；选择“关键差异”后，总体评分必须为 1 或 2，确实无法判断时可选“无法判断”。"
+      }
+    },
+    {
+      "title": {
+        "en": "Previously saved ratings",
+        "zh": "已有标注"
+      },
+      "text": {
+        "en": "Previously saved ratings retain their original scores and independently reported presence fields. They are labeled as legacy ratings and are not silently reinterpreted under the integrated protocol. To review a saved paper using the updated object rules, explicitly restart its three object ratings; the page asks for confirmation first. Text, structure, coverage, Overall, visual ratings, notes, and evidence are retained. Server revision history retains previous saves.",
+        "zh": "已有标注保留原来的分数和分别填写的存在状态，并标明为旧规则记录，不自动按合并协议重新解释。若要按新规则复核，需明确选择重新填写该论文的图、表、公式三项，页面会先请求确认。文字、结构、覆盖、总体、视觉评分以及备注和证据均保留。服务器历史保存此前各次记录。"
       }
     }
   ]

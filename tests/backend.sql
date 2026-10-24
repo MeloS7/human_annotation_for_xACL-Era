@@ -107,6 +107,228 @@ BEGIN
 END
 $security_metadata$;
 
+DO $integrated_presence_contract$
+DECLARE
+    v_now text := '2026-10-24T12:00:00.000Z';
+    v_annotation jsonb;
+    v_record jsonb;
+    v_legacy_annotation jsonb;
+    v_error text;
+    v_scenario record;
+    v_pair jsonb;
+BEGIN
+    -- Every supported score/presence mapping is accepted on a draft. The old
+    -- objects pairs remain in the record as derived compatibility data.
+    FOR v_scenario IN
+        SELECT * FROM (VALUES
+            ('null'::jsonb, NULL::text, NULL::text, NULL::text),
+            ('"na"'::jsonb, NULL::text, 'absent'::text, 'absent'::text),
+            ('2'::jsonb, NULL::text, 'present'::text, 'present'::text),
+            ('3'::jsonb, NULL::text, 'present'::text, 'present'::text),
+            ('4'::jsonb, NULL::text, 'present'::text, 'present'::text),
+            ('5'::jsonb, NULL::text, 'present'::text, 'present'::text),
+            ('"uncertain"'::jsonb, NULL::text, 'uncertain'::text, 'uncertain'::text),
+            ('1'::jsonb, NULL::text, NULL::text, NULL::text),
+            ('1'::jsonb, 'missing_in_compiled', 'absent', 'present'),
+            ('1'::jsonb, 'added_in_compiled', 'present', 'absent'),
+            ('1'::jsonb, 'non_corresponding', 'present', 'present')
+        ) AS scenarios(score, reason, compiled, official)
+    LOOP
+        v_pair := pg_catalog.jsonb_build_object(
+            'compiled', v_scenario.compiled,
+            'official', v_scenario.official
+        );
+        v_annotation := pg_catalog.jsonb_build_object(
+            'scores', pg_catalog.jsonb_build_object(
+                'text_alignment', NULL, 'figure_alignment', NULL, 'table_alignment', NULL,
+                'equation_alignment', NULL, 'structure_alignment', NULL, 'content_coverage', NULL,
+                'overall_alignment', NULL, 'visual_integrity', NULL
+            ),
+            'objects', pg_catalog.jsonb_build_object(
+                'figure', v_pair,
+                'table', pg_catalog.jsonb_build_object('compiled', NULL, 'official', NULL),
+                'equation', pg_catalog.jsonb_build_object('compiled', NULL, 'official', NULL)
+            ),
+            'evidence', '', 'notes', '', 'flags', '[]'::jsonb,
+            'reviewed_full_scope', false, 'status', 'draft', 'updated_at', v_now,
+            'scoring_protocol', 'integrated-presence-v1',
+            'object_score_reasons', pg_catalog.jsonb_build_object(
+                'figure', CASE WHEN v_scenario.reason IS NULL THEN 'null'::jsonb ELSE pg_catalog.to_jsonb(v_scenario.reason) END,
+                'table', 'null'::jsonb,
+                'equation', 'null'::jsonb
+            )
+        );
+        v_annotation := pg_catalog.jsonb_set(v_annotation, '{scores,figure_alignment}', v_scenario.score);
+        v_record := pg_catalog.jsonb_build_object(
+            'schema', 'revisionlens.alignment-annotations.v1',
+            'dataset_id', 'revisionlens-alignment30-v1',
+            'manifest_sha256', 'd60e722740919ee30896e2c4a84df256970c0b67c36e831af18a3a68ed3df071',
+            'rubric_version', 'alignment-rubric-v1', 'annotator_id', 'QA_TEST_A01',
+            'revision', 0, 'created_at', v_now, 'updated_at', v_now,
+            'annotations', pg_catalog.jsonb_build_object('RL01', v_annotation)
+        );
+        v_error := xacl_private.validate_annotation_record(
+            v_record, 'QA_TEST_A01', 'revisionlens-alignment30-v1',
+            'd60e722740919ee30896e2c4a84df256970c0b67c36e831af18a3a68ed3df071',
+            'alignment-rubric-v1'
+        );
+        IF v_error IS NOT NULL THEN
+            RAISE EXCEPTION 'valid integrated score mapping was rejected (score %, reason %): %',
+                v_scenario.score, v_scenario.reason, v_error;
+        END IF;
+    END LOOP;
+
+    -- Legacy 8-key rows keep their original validation semantics and may
+    -- coexist with new rows in the same v1 export without promotion.
+    v_legacy_annotation := (v_record#>'{annotations,RL01}') - 'scoring_protocol' - 'object_score_reasons';
+    v_error := xacl_private.validate_annotation_record(
+        pg_catalog.jsonb_set(v_record, '{annotations,RL01}', v_legacy_annotation),
+        'QA_TEST_A01', 'revisionlens-alignment30-v1',
+        'd60e722740919ee30896e2c4a84df256970c0b67c36e831af18a3a68ed3df071', 'alignment-rubric-v1'
+    );
+    IF v_error IS NOT NULL THEN
+        RAISE EXCEPTION 'legacy annotation was not accepted under its original rules: %', v_error;
+    END IF;
+    v_error := xacl_private.validate_annotation_record(
+        pg_catalog.jsonb_set(
+            pg_catalog.jsonb_set(v_record, '{annotations,RL02}', v_legacy_annotation, true),
+            '{annotations,RL01}', v_record#>'{annotations,RL01}'
+        ),
+        'QA_TEST_A01', 'revisionlens-alignment30-v1',
+        'd60e722740919ee30896e2c4a84df256970c0b67c36e831af18a3a68ed3df071', 'alignment-rubric-v1'
+    );
+    IF v_error IS NOT NULL OR v_legacy_annotation ? 'scoring_protocol' THEN
+        RAISE EXCEPTION 'mixed legacy and integrated annotations were not retained independently: %', v_error;
+    END IF;
+
+    -- A mismatched derived pair, malformed reason, unsupported protocol,
+    -- partial extension, or unknown key is rejected even on a draft.
+    v_error := xacl_private.validate_annotation_record(
+        pg_catalog.jsonb_set(v_record, '{annotations,RL01,objects,figure,official}', '"absent"'::jsonb),
+        'QA_TEST_A01', 'revisionlens-alignment30-v1',
+        'd60e722740919ee30896e2c4a84df256970c0b67c36e831af18a3a68ed3df071', 'alignment-rubric-v1'
+    );
+    IF v_error IS NULL OR v_error NOT LIKE '%does not match its score and reason%' THEN
+        RAISE EXCEPTION 'mismatched derived presence was not rejected: %', v_error;
+    END IF;
+    v_error := xacl_private.validate_annotation_record(
+        pg_catalog.jsonb_set(v_record, '{annotations,RL01,object_score_reasons,figure}', '2'::jsonb),
+        'QA_TEST_A01', 'revisionlens-alignment30-v1',
+        'd60e722740919ee30896e2c4a84df256970c0b67c36e831af18a3a68ed3df071', 'alignment-rubric-v1'
+    );
+    IF v_error IS NULL OR v_error NOT LIKE '%reason for figure must be null or a supported score-1 reason%' THEN
+        RAISE EXCEPTION 'malformed integrated reason was not rejected: %', v_error;
+    END IF;
+    v_error := xacl_private.validate_annotation_record(
+        pg_catalog.jsonb_set(v_record, '{annotations,RL01,object_score_reasons,other}', 'null'::jsonb),
+        'QA_TEST_A01', 'revisionlens-alignment30-v1',
+        'd60e722740919ee30896e2c4a84df256970c0b67c36e831af18a3a68ed3df071', 'alignment-rubric-v1'
+    );
+    IF v_error IS NULL OR v_error NOT LIKE '%exactly one reason for each object score%' THEN
+        RAISE EXCEPTION 'unknown object reason key was not rejected: %', v_error;
+    END IF;
+    v_error := xacl_private.validate_annotation_record(
+        pg_catalog.jsonb_set(v_record, '{annotations,RL01,scoring_protocol}', '"future-protocol"'::jsonb),
+        'QA_TEST_A01', 'revisionlens-alignment30-v1',
+        'd60e722740919ee30896e2c4a84df256970c0b67c36e831af18a3a68ed3df071', 'alignment-rubric-v1'
+    );
+    IF v_error IS NULL OR v_error NOT LIKE '%unsupported scoring protocol%' THEN
+        RAISE EXCEPTION 'unsupported integrated protocol was not rejected: %', v_error;
+    END IF;
+    v_error := xacl_private.validate_annotation_record(
+        pg_catalog.jsonb_set(
+            pg_catalog.jsonb_set(v_record, '{annotations,RL01,scores,figure_alignment}', '2'::jsonb),
+            '{annotations,RL01,object_score_reasons,figure}', '"non_corresponding"'::jsonb
+        ),
+        'QA_TEST_A01', 'revisionlens-alignment30-v1',
+        'd60e722740919ee30896e2c4a84df256970c0b67c36e831af18a3a68ed3df071', 'alignment-rubric-v1'
+    );
+    IF v_error IS NULL OR v_error NOT LIKE '%only allowed with a score of 1%' THEN
+        RAISE EXCEPTION 'score-1 reason was accepted with another score: %', v_error;
+    END IF;
+    v_error := xacl_private.validate_annotation_record(
+        v_record #- '{annotations,RL01,object_score_reasons}',
+        'QA_TEST_A01', 'revisionlens-alignment30-v1',
+        'd60e722740919ee30896e2c4a84df256970c0b67c36e831af18a3a68ed3df071', 'alignment-rubric-v1'
+    );
+    IF v_error IS NULL OR v_error NOT LIKE '%exact legacy or integrated-presence fields%' THEN
+        RAISE EXCEPTION 'partial integrated extension was not rejected: %', v_error;
+    END IF;
+    v_error := xacl_private.validate_annotation_record(
+        pg_catalog.jsonb_set(v_record, '{annotations,RL01,unknown}', 'true'::jsonb),
+        'QA_TEST_A01', 'revisionlens-alignment30-v1',
+        'd60e722740919ee30896e2c4a84df256970c0b67c36e831af18a3a68ed3df071', 'alignment-rubric-v1'
+    );
+    IF v_error IS NULL OR v_error NOT LIKE '%exact legacy or integrated-presence fields%' THEN
+        RAISE EXCEPTION 'unknown integrated annotation key was not rejected: %', v_error;
+    END IF;
+
+    -- An unanswered reason for score 1 is a valid draft but cannot be marked
+    -- completed. A completed score of 1 with a reason remains independent of
+    -- Overall and does not force Overall down to 1.
+    v_annotation := pg_catalog.jsonb_build_object(
+        'scores', pg_catalog.jsonb_build_object(
+            'text_alignment', 5, 'figure_alignment', 1, 'table_alignment', 5,
+            'equation_alignment', 5, 'structure_alignment', 5, 'content_coverage', 5,
+            'overall_alignment', 5, 'visual_integrity', 5
+        ),
+        'objects', pg_catalog.jsonb_build_object(
+            'figure', pg_catalog.jsonb_build_object('compiled', NULL, 'official', NULL),
+            'table', pg_catalog.jsonb_build_object('compiled', 'present', 'official', 'present'),
+            'equation', pg_catalog.jsonb_build_object('compiled', 'present', 'official', 'present')
+        ),
+        'evidence', 'Draft test evidence.', 'notes', '', 'flags', '[]'::jsonb,
+        'reviewed_full_scope', true, 'status', 'completed', 'updated_at', v_now,
+        'scoring_protocol', 'integrated-presence-v1',
+        'object_score_reasons', pg_catalog.jsonb_build_object(
+            'figure', NULL, 'table', NULL, 'equation', NULL
+        )
+    );
+    v_record := pg_catalog.jsonb_build_object(
+        'schema', 'revisionlens.alignment-annotations.v1',
+        'dataset_id', 'revisionlens-alignment30-v1',
+        'manifest_sha256', 'd60e722740919ee30896e2c4a84df256970c0b67c36e831af18a3a68ed3df071',
+        'rubric_version', 'alignment-rubric-v1', 'annotator_id', 'QA_TEST_A01',
+        'revision', 0, 'created_at', v_now, 'updated_at', v_now,
+        'annotations', pg_catalog.jsonb_build_object('RL01', v_annotation)
+    );
+    v_error := xacl_private.validate_annotation_record(
+        v_record, 'QA_TEST_A01', 'revisionlens-alignment30-v1',
+        'd60e722740919ee30896e2c4a84df256970c0b67c36e831af18a3a68ed3df071', 'alignment-rubric-v1'
+    );
+    IF v_error IS NULL OR v_error NOT LIKE '%score of 1 requires an explicit reason%' THEN
+        RAISE EXCEPTION 'completed score 1 without a reason was not rejected: %', v_error;
+    END IF;
+    v_annotation := pg_catalog.jsonb_set(v_annotation, '{objects,figure,compiled}', '"absent"'::jsonb);
+    v_annotation := pg_catalog.jsonb_set(v_annotation, '{objects,figure,official}', '"present"'::jsonb);
+    v_annotation := pg_catalog.jsonb_set(v_annotation, '{object_score_reasons,figure}', '"missing_in_compiled"'::jsonb);
+    v_record := pg_catalog.jsonb_set(v_record, '{annotations,RL01}', v_annotation);
+    v_error := xacl_private.validate_annotation_record(
+        v_record, 'QA_TEST_A01', 'revisionlens-alignment30-v1',
+        'd60e722740919ee30896e2c4a84df256970c0b67c36e831af18a3a68ed3df071', 'alignment-rubric-v1'
+    );
+    IF v_error IS NOT NULL THEN
+        RAISE EXCEPTION 'Overall 5 was incorrectly forced down because figure score was 1: %', v_error;
+    END IF;
+    v_error := xacl_private.validate_annotation_record(
+        pg_catalog.jsonb_set(v_record, '{annotations,RL01,evidence}', '""'::jsonb),
+        'QA_TEST_A01', 'revisionlens-alignment30-v1',
+        'd60e722740919ee30896e2c4a84df256970c0b67c36e831af18a3a68ed3df071', 'alignment-rubric-v1'
+    );
+    IF v_error IS NULL OR v_error NOT LIKE '%requires evidence%' THEN
+        RAISE EXCEPTION 'completed score 1 without evidence was accepted: %', v_error;
+    END IF;
+    v_error := xacl_private.validate_annotation_record(
+        pg_catalog.jsonb_set(v_record, '{annotations,RL01,flags}', '["critical_difference"]'::jsonb),
+        'QA_TEST_A01', 'revisionlens-alignment30-v1',
+        'd60e722740919ee30896e2c4a84df256970c0b67c36e831af18a3a68ed3df071', 'alignment-rubric-v1'
+    );
+    IF v_error IS NULL OR v_error NOT LIKE '%critical_difference requires Overall%' THEN
+        RAISE EXCEPTION 'integrated protocol changed the critical-difference Overall check: %', v_error;
+    END IF;
+END
+$integrated_presence_contract$;
+
 SET LOCAL ROLE anon;
 DO $anonymous_checks$
 DECLARE
@@ -119,8 +341,8 @@ BEGIN
         'dataset_id', 'revisionlens-alignment30-v1',
         'manifest_sha256', 'd60e722740919ee30896e2c4a84df256970c0b67c36e831af18a3a68ed3df071',
         'rubric_version', 'alignment-rubric-v1',
-        'guidance_version', 'alignment-guidance-20261022-v2',
-        'guidance_sha256', '7f8a3b46025dad152afb78e5da5bdd8c068270375e545f300b97da2d134000d3'
+        'guidance_version', 'alignment-guidance-20261024-v3',
+        'guidance_sha256', '3ab9433b66c448f211567717ce21df356892956d5f55d5a9adb4a1830340d990'
     ) THEN
         RAISE EXCEPTION 'health RPC returned the wrong frozen study identity: %', v_health;
     END IF;
@@ -227,8 +449,8 @@ BEGIN
     IF v_result->>'error' <> 'invalid_access' THEN
         RAISE EXCEPTION 'cross-UID load was not denied: %', v_result;
     END IF;
-    v_result := public.xacl_save_annotations('QA_TEST_A01', v_a, 'alignment-guidance-20261022-v2',
-        '7f8a3b46025dad152afb78e5da5bdd8c068270375e545f300b97da2d134000d3', 'save');
+    v_result := public.xacl_save_annotations('QA_TEST_A01', v_a, 'alignment-guidance-20261024-v3',
+        '3ab9433b66c448f211567717ce21df356892956d5f55d5a9adb4a1830340d990', 'save');
     IF v_result->>'error' <> 'invalid_access' THEN
         RAISE EXCEPTION 'cross-UID save was not denied: %', v_result;
     END IF;
@@ -316,8 +538,8 @@ DECLARE
     v_saved jsonb;
     v_bad jsonb;
     v_initial jsonb;
-    v_guidance text := 'alignment-guidance-20261022-v2';
-    v_guidance_hash text := '7f8a3b46025dad152afb78e5da5bdd8c068270375e545f300b97da2d134000d3';
+    v_guidance text := 'alignment-guidance-20261024-v3';
+    v_guidance_hash text := '3ab9433b66c448f211567717ce21df356892956d5f55d5a9adb4a1830340d990';
     v_now text := '2026-10-01T12:00:00.000Z';
 BEGIN
     v_initial := public.xacl_current_annotations()->'record';
@@ -534,8 +756,8 @@ BEGIN
        OR public.xacl_load_annotations('QA_TEST_A01')->>'error' <> 'invalid_access' THEN
         RAISE EXCEPTION 'revoked profile remained available to its original device';
     END IF;
-    v_result := public.xacl_save_annotations('QA_TEST_A01', NULL, 'alignment-guidance-20261022-v2',
-        '7f8a3b46025dad152afb78e5da5bdd8c068270375e545f300b97da2d134000d3', 'save');
+    v_result := public.xacl_save_annotations('QA_TEST_A01', NULL, 'alignment-guidance-20261024-v3',
+        '3ab9433b66c448f211567717ce21df356892956d5f55d5a9adb4a1830340d990', 'save');
     IF v_result->>'error' <> 'invalid_access' THEN
         RAISE EXCEPTION 'revoked profile remained writable';
     END IF;
@@ -570,8 +792,8 @@ BEGIN
     IF EXISTS (
         SELECT 1 FROM xacl_private.annotation_history
         WHERE annotator_id = 'QA_TEST_A01'
-          AND (guidance_version <> 'alignment-guidance-20261022-v2'
-               OR guidance_sha256 <> '7f8a3b46025dad152afb78e5da5bdd8c068270375e545f300b97da2d134000d3')
+          AND (guidance_version <> 'alignment-guidance-20261024-v3'
+               OR guidance_sha256 <> '3ab9433b66c448f211567717ce21df356892956d5f55d5a9adb4a1830340d990')
     ) THEN
         RAISE EXCEPTION 'history did not retain frozen guidance version/hash';
     END IF;

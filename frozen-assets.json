@@ -6,7 +6,7 @@
   "files": {
     "manifest.json": "d60e722740919ee30896e2c4a84df256970c0b67c36e831af18a3a68ed3df071",
     "rubric.json": "7f25e64851e1b0c261688e7918780f3112dfc25a94d945415d1114245b5ba39f",
-    "guidance.json": "7f8a3b46025dad152afb78e5da5bdd8c068270375e545f300b97da2d134000d3",
+    "guidance.json": "3ab9433b66c448f211567717ce21df356892956d5f55d5a9adb4a1830340d990",
     "selection.json": "48af5726c43e72a0f09a35d6ee5873c8cb7fcf591b41a059d99972f4b68e412c",
     "sampling-provenance.json": "91ff684463e7a5f09695b3e20463682f085a05481249e7b02bcdc0875c83c2c2",
     "pdfs/RL01/compiled.pdf": "624f9756540b93bdc07341b13c04e25cf1e8c231e54afcac23a434792fa71b52",
@@ -68,6 +68,7 @@
     "pdfs/RL29/compiled.pdf": "023eae10b9da8083ff375cc9d944f8a43b213f6693eeee21e00dfdc6e149e6fd",
     "pdfs/RL29/official.pdf": "dae3fb663c2bc92377143c8e39b0ef7858e0b04fa2a45282828c0ef315bc3bd1",
     "pdfs/RL30/compiled.pdf": "8c8169adc52b0f24d1cdf8e3ea115289bec780b8df2a937d37cb935f9f479fa8",
-    "pdfs/RL30/official.pdf": "a2c8fa2d0088f87145853ef47f5a31d6db20980894741a9d4b9a4df72c6f7023"
+    "pdfs/RL30/official.pdf": "a2c8fa2d0088f87145853ef47f5a31d6db20980894741a9d4b9a4df72c6f7023",
+    "archive/guidance-alignment-guidance-20261022-v2.json": "7f8a3b46025dad152afb78e5da5bdd8c068270375e545f300b97da2d134000d3"
   }
 }

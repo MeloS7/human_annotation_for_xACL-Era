@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
   <title>xACL-Era · PDF alignment annotation</title>
-  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./styles.css?v=20261024-integrated-presence">
   <script src="./vendor/supabase/supabase.js"></script>
-  <script type="module" src="./app.js?v=20261023-score-definitions"></script>
+  <script type="module" src="./app.js?v=20261024-integrated-presence"></script>
 </head>
 <body>
   <div class="app-shell" id="top">
@@ -214,9 +214,11 @@
                 </details>
               </div>
             </div>
-            <div class="presence-card" id="presence-card">
-              <div class="presence-intro"><div><h4 data-i18n="itemPresence">Item presence</h4><p data-i18n="presenceHelp">For each item, record whether it appears in each PDF. N/A is allowed only when both are absent.</p></div><span class="presence-badge" data-i18n="required">Required</span></div>
-              <div id="presence-grid" class="presence-grid"></div>
+            <div id="object-protocol-notice" class="object-protocol-notice is-hidden" role="note">
+              <strong id="object-protocol-title" data-i18n="legacyObjectTitle">Existing object ratings use the previous recording rules</strong>
+              <p id="object-protocol-message"></p>
+              <div id="legacy-object-summary" class="legacy-object-summary"></div>
+              <button id="convert-legacy-object-scores" class="button button-secondary is-hidden" type="button" data-i18n="convertLegacyObjectScores">Review object ratings using updated rules</button>
             </div>
             <div id="rubric-scoring" class="rubric-scoring"></div>
             <div class="annotation-details-grid">

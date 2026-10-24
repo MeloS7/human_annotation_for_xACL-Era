@@ -24,7 +24,7 @@ assert config["auth_mode"] == "anonymous_recovery_v1"
 assert (site / "vendor/supabase/supabase.js").is_file()
 assert "sb_secret_" not in (site / "config.json").read_text()
 assert len(list((site / "pdfs").rglob("*.pdf"))) == 60
-for name in ["index.html", "app.js", "cloud.mjs", "styles.css", "vendor/pdfjs/legacy/build/pdf.mjs", "vendor/pdfjs/legacy/build/pdf.worker.mjs"]:
+for name in ["index.html", "app.js", "cloud.mjs", "score-protocol.mjs", "styles.css", "vendor/pdfjs/legacy/build/pdf.mjs", "vendor/pdfjs/legacy/build/pdf.worker.mjs"]:
     assert (site / name).is_file(), name
 assert not (site / "outputs").exists()
 print("Verified frozen 30-paper cohort, 60 PDF checksums, rubric/guidance, and hosted runtime files.")

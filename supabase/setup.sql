@@ -127,24 +127,39 @@ VALUES (
     'revisionlens-alignment30-v1',
     'd60e722740919ee30896e2c4a84df256970c0b67c36e831af18a3a68ed3df071',
     'alignment-rubric-v1',
-    'alignment-guidance-20261022-v2',
-    '7f8a3b46025dad152afb78e5da5bdd8c068270375e545f300b97da2d134000d3'
+    'alignment-guidance-20261024-v3',
+    '3ab9433b66c448f211567717ce21df356892956d5f55d5a9adb4a1830340d990'
 )
 ON CONFLICT (study_id) DO NOTHING;
 
 DO $study_config_assert$
+DECLARE
+    v_config xacl_private.study_config%ROWTYPE;
 BEGIN
-    IF NOT EXISTS (
-        SELECT 1
-        FROM xacl_private.study_config AS c
-        WHERE c.study_id = 'revisionlens-alignment30-v1'
-          AND c.dataset_id = 'revisionlens-alignment30-v1'
-          AND c.manifest_sha256 = 'd60e722740919ee30896e2c4a84df256970c0b67c36e831af18a3a68ed3df071'
-          AND c.rubric_version = 'alignment-rubric-v1'
-          AND c.guidance_version = 'alignment-guidance-20261022-v2'
-          AND c.guidance_sha256 = '7f8a3b46025dad152afb78e5da5bdd8c068270375e545f300b97da2d134000d3'
-    ) THEN
-        RAISE EXCEPTION 'xACL-Era study configuration differs from the frozen site config';
+    SELECT c.* INTO v_config
+    FROM xacl_private.study_config AS c
+    WHERE c.study_id = 'revisionlens-alignment30-v1'
+    FOR UPDATE;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'xACL-Era study configuration is missing';
+    END IF;
+
+    IF v_config.dataset_id <> 'revisionlens-alignment30-v1'
+       OR v_config.manifest_sha256 <> 'd60e722740919ee30896e2c4a84df256970c0b67c36e831af18a3a68ed3df071'
+       OR v_config.rubric_version <> 'alignment-rubric-v1' THEN
+        RAISE EXCEPTION 'xACL-Era frozen dataset configuration differs from the site';
+    END IF;
+
+    IF v_config.guidance_version = 'alignment-guidance-20261022-v2'
+       AND v_config.guidance_sha256 = '7f8a3b46025dad152afb78e5da5bdd8c068270375e545f300b97da2d134000d3' THEN
+        UPDATE xacl_private.study_config
+        SET guidance_version = 'alignment-guidance-20261024-v3',
+            guidance_sha256 = '3ab9433b66c448f211567717ce21df356892956d5f55d5a9adb4a1830340d990'
+        WHERE study_id = v_config.study_id;
+    ELSIF v_config.guidance_version <> 'alignment-guidance-20261024-v3'
+       OR v_config.guidance_sha256 <> '3ab9433b66c448f211567717ce21df356892956d5f55d5a9adb4a1830340d990' THEN
+        RAISE EXCEPTION 'xACL-Era scoring guidance metadata is unknown; refusing to upgrade it';
     END IF;
 END
 $study_config_assert$;
@@ -215,12 +230,18 @@ DECLARE
     v_pair jsonb;
     v_flags jsonb;
     v_status text;
+    v_integrated_presence boolean;
     v_sample_id text;
     v_score_key text;
     v_object_type text;
     v_score jsonb;
+    v_reason jsonb;
+    v_reasons jsonb;
+    v_reason_text text;
     v_compiled text;
     v_official text;
+    v_expected_compiled text;
+    v_expected_official text;
     v_needs_evidence boolean;
     v_revision_text text;
 BEGIN
@@ -279,13 +300,36 @@ BEGIN
         IF v_sample_id !~ '^RL(0[1-9]|[12][0-9]|30)$' THEN
             RETURN pg_catalog.format('record contains an unknown sample_id: %s', v_sample_id);
         END IF;
-        IF pg_catalog.jsonb_typeof(v_annotation) IS DISTINCT FROM 'object'
-           OR xacl_private.object_key_count(v_annotation) <> 8
-           OR NOT (v_annotation ?& ARRAY[
+        IF pg_catalog.jsonb_typeof(v_annotation) IS DISTINCT FROM 'object' THEN
+            RETURN pg_catalog.format('annotation %s must contain exactly the supported annotation fields', v_sample_id);
+        END IF;
+
+        IF xacl_private.object_key_count(v_annotation) = 8
+           AND v_annotation ?& ARRAY[
                'scores', 'objects', 'evidence', 'notes', 'flags',
                'reviewed_full_scope', 'status', 'updated_at'
-           ]::text[]) THEN
-            RETURN pg_catalog.format('annotation %s must contain exactly the supported annotation fields', v_sample_id);
+           ]::text[] THEN
+            v_integrated_presence := false;
+            v_reasons := NULL;
+        ELSIF xacl_private.object_key_count(v_annotation) = 10
+           AND v_annotation ?& ARRAY[
+               'scores', 'objects', 'evidence', 'notes', 'flags',
+               'reviewed_full_scope', 'status', 'updated_at',
+               'scoring_protocol', 'object_score_reasons'
+           ]::text[] THEN
+            v_integrated_presence := true;
+            IF pg_catalog.jsonb_typeof(v_annotation->'scoring_protocol') IS DISTINCT FROM 'string'
+               OR v_annotation->>'scoring_protocol' IS DISTINCT FROM 'integrated-presence-v1' THEN
+                RETURN pg_catalog.format('annotation %s has an unsupported scoring protocol', v_sample_id);
+            END IF;
+            v_reasons := v_annotation->'object_score_reasons';
+            IF pg_catalog.jsonb_typeof(v_reasons) IS DISTINCT FROM 'object'
+               OR xacl_private.object_key_count(v_reasons) <> 3
+               OR NOT (v_reasons ?& ARRAY['figure', 'table', 'equation']::text[]) THEN
+                RETURN pg_catalog.format('annotation %s must contain exactly one reason for each object score', v_sample_id);
+            END IF;
+        ELSE
+            RETURN pg_catalog.format('annotation %s must use the exact legacy or integrated-presence fields', v_sample_id);
         END IF;
 
         v_scores := v_annotation->'scores';
@@ -350,7 +394,66 @@ BEGIN
             END IF;
 
             v_score := v_scores->(v_object_type || '_alignment');
-            IF v_score = '"na"'::jsonb
+            IF v_integrated_presence THEN
+                v_reason := v_reasons->v_object_type;
+                IF pg_catalog.jsonb_typeof(v_reason) IS DISTINCT FROM 'null'
+                   AND (pg_catalog.jsonb_typeof(v_reason) IS DISTINCT FROM 'string'
+                        OR v_reason #>> '{}' NOT IN (
+                            'missing_in_compiled', 'added_in_compiled', 'non_corresponding'
+                        )) THEN
+                    RETURN pg_catalog.format('reason for %s must be null or a supported score-1 reason', v_object_type);
+                END IF;
+                v_reason_text := CASE
+                    WHEN pg_catalog.jsonb_typeof(v_reason) = 'string' THEN v_reason #>> '{}'
+                    ELSE NULL
+                END;
+
+                v_expected_compiled := NULL;
+                v_expected_official := NULL;
+                IF pg_catalog.jsonb_typeof(v_score) = 'null' THEN
+                    IF v_reason_text IS NOT NULL THEN
+                        RETURN pg_catalog.format('reason for %s must be null when its score is unanswered', v_object_type);
+                    END IF;
+                ELSIF v_score = '"na"'::jsonb THEN
+                    IF v_reason_text IS NOT NULL THEN
+                        RETURN pg_catalog.format('reason for %s must be null when its score is N/A', v_object_type);
+                    END IF;
+                    v_expected_compiled := 'absent';
+                    v_expected_official := 'absent';
+                ELSIF v_score = '"uncertain"'::jsonb THEN
+                    IF v_reason_text IS NOT NULL THEN
+                        RETURN pg_catalog.format('reason for %s must be null when its score is uncertain', v_object_type);
+                    END IF;
+                    v_expected_compiled := 'uncertain';
+                    v_expected_official := 'uncertain';
+                ELSIF (v_score #>> '{}') = '1' THEN
+                    IF v_reason_text IS NULL THEN
+                        -- A score-1 draft may be incomplete. Completion is checked below.
+                        v_expected_compiled := NULL;
+                        v_expected_official := NULL;
+                    ELSIF v_reason_text = 'missing_in_compiled' THEN
+                        v_expected_compiled := 'absent';
+                        v_expected_official := 'present';
+                    ELSIF v_reason_text = 'added_in_compiled' THEN
+                        v_expected_compiled := 'present';
+                        v_expected_official := 'absent';
+                    ELSE
+                        v_expected_compiled := 'present';
+                        v_expected_official := 'present';
+                    END IF;
+                ELSE
+                    IF v_reason_text IS NOT NULL THEN
+                        RETURN pg_catalog.format('reason for %s is only allowed with a score of 1', v_object_type);
+                    END IF;
+                    v_expected_compiled := 'present';
+                    v_expected_official := 'present';
+                END IF;
+
+                IF v_pair->>'compiled' IS DISTINCT FROM v_expected_compiled
+                   OR v_pair->>'official' IS DISTINCT FROM v_expected_official THEN
+                    RETURN pg_catalog.format('presence for %s does not match its score and reason', v_object_type);
+                END IF;
+            ELSIF v_score = '"na"'::jsonb
                AND (v_pair->>'compiled' IS DISTINCT FROM 'absent'
                     OR v_pair->>'official' IS DISTINCT FROM 'absent') THEN
                 RETURN pg_catalog.format('N/A for %s is valid only when both PDFs lack that object type', v_object_type);
@@ -406,6 +509,16 @@ BEGIN
                     RETURN pg_catalog.format('completed annotation requires all eight scores (%s is missing)', v_score_key);
                 END IF;
             END LOOP;
+            IF v_integrated_presence THEN
+                FOR v_object_type IN SELECT pg_catalog.unnest(ARRAY['figure', 'table', 'equation']::text[])
+                LOOP
+                    v_score := v_scores->(v_object_type || '_alignment');
+                    IF v_score = '1'::jsonb
+                       AND pg_catalog.jsonb_typeof(v_reasons->v_object_type) = 'null' THEN
+                        RETURN pg_catalog.format('completed %s score of 1 requires an explicit reason', v_object_type);
+                    END IF;
+                END LOOP;
+            END IF;
             IF v_annotation->>'reviewed_full_scope' <> 'true' THEN
                 RETURN 'completed annotation requires reviewed_full_scope=true';
             END IF;
@@ -548,8 +661,8 @@ BEGIN
        OR v_config.dataset_id IS DISTINCT FROM 'revisionlens-alignment30-v1'
        OR v_config.manifest_sha256 IS DISTINCT FROM 'd60e722740919ee30896e2c4a84df256970c0b67c36e831af18a3a68ed3df071'
        OR v_config.rubric_version IS DISTINCT FROM 'alignment-rubric-v1'
-       OR v_config.guidance_version IS DISTINCT FROM 'alignment-guidance-20261022-v2'
-       OR v_config.guidance_sha256 IS DISTINCT FROM '7f8a3b46025dad152afb78e5da5bdd8c068270375e545f300b97da2d134000d3' THEN
+       OR v_config.guidance_version IS DISTINCT FROM 'alignment-guidance-20261024-v3'
+       OR v_config.guidance_sha256 IS DISTINCT FROM '3ab9433b66c448f211567717ce21df356892956d5f55d5a9adb4a1830340d990' THEN
         RETURN pg_catalog.jsonb_build_object('ready', false);
     END IF;
     RETURN pg_catalog.jsonb_build_object(

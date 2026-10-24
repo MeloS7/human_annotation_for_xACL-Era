@@ -1,0 +1,47 @@
+{
+  "schema": "xacl.integrated-scoring-verification.v1",
+  "client_date": "2026-10-24",
+  "guidance_version": "alignment-guidance-20261024-v3",
+  "guidance_sha256": "3ab9433b66c448f211567717ce21df356892956d5f55d5a9adb4a1830340d990",
+  "scoring_protocol": "integrated-presence-v1",
+  "local_verification": "passed",
+  "node_tests": 16,
+  "browser_checks": [
+    "English default, user-triggered anonymous self-registration, custom nickname and one-time downloadable recovery code; actual frozen PDFs under Pages subpath",
+    "Official SDK restores anonymous session; explicit Continue restores SQL draft; recovery code never persisted in local storage",
+    "Direct N/A maps to both-absent presence; completed record resumes at first unfinished paper; all eight score definitions default open",
+    "Score 1 without a reason autosaves as an unfinished draft with blank presence mapping",
+    "Completion remains blocked solely by the missing score-1 reason after all other requirements are met",
+    "Three score-1 reasons map and persist independently; changing to 4 clears stale reason/presence mapping; reload restores selected reason and derived presence",
+    "Export uses canonical saved SQL record with original v1 schema and no recovery credential",
+    "New-device anonymous identity rejects wrong recovery code and restores same profile using its correct code",
+    "Two device identities share one participant safely; stale SQL save conflicts, switch blocks, recovery survives",
+    "Self-registered profile B cannot read profile A even with its known nickname; direct SQL RPC honors auth.uid binding",
+    "Legacy JSON import uses current cloud revision, not imported999; successful import restores unfinished draft and releases UI lock",
+    "Legacy object scores/presence remain read-only and unchanged on view/save; cancel keeps them; explicit confirmation clears only three object dimensions and full-scope completion while retaining other fields",
+    "Switch flushes saved content and signs out local anonymous session; original data remains retrievable with recovery code",
+    "Create/restore landing page fits 390px mobile screen"
+  ],
+  "browser_page_errors": [],
+  "browser_unexpected_requests": [],
+  "local_postgresql_version": "18.4",
+  "ci_postgresql_version": "17",
+  "database_verification": [
+    "strict score/reason/presence mappings",
+    "legacy and mixed records",
+    "incomplete score-1 draft and completion rejection",
+    "evidence/full-scope and critical-difference checks",
+    "current records and immutable history preserved across v2-to-v3 upgrade",
+    "idempotent reapply",
+    "unknown guidance/manifest/rubric drift rejected with rollback",
+    "registration and save concurrency"
+  ],
+  "frozen_pdf_checksums_verified": 60,
+  "production_database_upgrade": "pending database owner execution",
+  "production_frontend_deployment": "held until matching database upgrade",
+  "human_judgments_generated": false,
+  "limitations": [
+    "Browser tests use synthetic Auth/Data transport with official Supabase SDK and real disposable PostgreSQL; production annotations were not modified.",
+    "The legacy eight-key annotation and integrated ten-key annotation share the original outer v1 JSON schema and are distinguished explicitly per row."
+  ]
+}

@@ -1,10 +1,17 @@
 import { assertHostedHealth, createHostedAdapter, loadHostedAssets, randomRecoveryCode } from "./cloud.mjs";
+import {
+  OBJECT_SCORE_KEYS,
+  OBJECT_SCORE_REASONS,
+  integratedObjectFields,
+  objectScoringMode,
+  setIntegratedObjectScore,
+  validateIntegratedObjectScores,
+} from "./score-protocol.mjs?v=20261024-integrated-presence";
 
 const SCORE_KEYS = [
   "text_alignment", "figure_alignment", "table_alignment", "equation_alignment",
   "structure_alignment", "content_coverage", "overall_alignment", "visual_integrity",
 ];
-const PRESENCE_KEYS = ["figure", "table", "equation"];
 const PRESENCE_VALUES = ["present", "absent", "uncertain"];
 const FLAG_KEYS = ["critical_difference", "appendix_difference", "references_difference", "rendering_problem"];
 const RECORD_SCHEMA = "revisionlens.alignment-annotations.v1";
@@ -48,10 +55,17 @@ const STRINGS = {
     targetPdf: "TARGET PDF", compiledArxiv: "Compiled arXiv LaTeX", referencePdf: "REFERENCE PDF", officialConference: "Official conference PDF",
     openNewTab: "Open in new tab", page: "Page", fit: "Fit", pdfWait: "PDF will appear when you select a paper.",
     pageCountPending: "Page count pending", rubricLabel: "FIXED RUBRIC", annotationTitle: "Alignment annotation",
-    itemPresence: "Item presence", presenceHelp: "For each item, record whether it appears in each PDF. N/A is allowed only when both are absent.",
-    required: "Required", figure: "Figure", table: "Table", equation: "Equation", compiledPdf: "Compiled PDF", officialPdf: "Official PDF", present: "Present", absent: "Absent", presenceUncertain: "Uncertain",
-    naOnlyBoth: "N/A only when both are absent", confirmNa: "Confirm both absent → mark N/A", naConfirmed: "N/A confirmed because both are absent. Changing presence will reset this score.",
-    naChangeReset: "Presence changed; the N/A score was reset.", scoreHelp: "Select one score", scoreScale: "Show score definitions", na: "N/A", uncertain: "Uncertain",
+    figure: "Figure", table: "Table", equation: "Equation", compiledPdf: "Compiled PDF", officialPdf: "Official PDF", present: "Present", absent: "Absent", presenceUncertain: "Uncertain",
+    naHelp: "N/A means this item type is absent in both PDFs.", scoreOneObjectHelp: "Use 1 when this entire item type is present officially but missing from the compiled PDF, absent officially but added in the compiled PDF, or largely non-corresponding. Score partial omissions by impact (2–4).",
+    objectReasonPrompt: "Why is this item rated 1? Select one reason to complete the rating.", reasonMissing: "Present officially; entirely missing in compiled PDF", reasonAdded: "Absent officially; added in compiled PDF", reasonNonCorresponding: "Present in both, largely non-corresponding",
+    legacyObjectTitle: "Existing object ratings use the previous recording rules", legacyObjectHelp: "The original ratings and presence entries are shown read-only and remain unchanged. To use the updated rules, explicitly reset only the three figure, table and equation ratings and presence entries; all other fields are retained.",
+    unsupportedObjectTitle: "Object-rating format is not recognized",
+    legacyScore: "Score", legacyCompiled: "Compiled", legacyOfficial: "Official", legacyNoScore: "Not scored", legacyUnknown: "Unknown", convertLegacyObjectScores: "Review object ratings using updated rules",
+    confirmLegacyConversion: "Reset only the figure, table, and equation scores and their presence entries? Text, structure, coverage, overall and visual scores, notes, evidence, flags and annotator identity will be kept. The paper will return to draft and full-scope review will reset.",
+    unsupportedObjectProtocol: "These object ratings use an unsupported format and are locked. Contact the study coordinator before editing them.",
+    scoreOneReasonRequired: "Choose a reason for each object score of 1 before completing this paper.", objectMappingInvalid: "An object score and its stored presence do not match. Re-select that score or contact the study coordinator.",
+    saveProtocolError: "Unsaved changes were not sent because paper {sample} has invalid object-score data. Review that paper’s object scores first.",
+    scoreHelp: "Select one score", scoreScale: "Score definitions", na: "N/A", uncertain: "Uncertain",
     overallDirect: "Direct judgment; do not average the other dimensions.", visualTargetOnly: "Rate the compiled target PDF itself only.",
     flagsTitle: "Separate difference flags", flagsHelp: "Use flags for differences outside the main alignment score or for a major issue.",
     evidenceTitle: "Evidence and page references", evidenceWhenRequired: "Required for differences, uncertainty, or flags",
@@ -75,10 +89,8 @@ const STRINGS = {
     wrongImport: "This file does not match the current dataset, manifest, rubric, or annotator ID.", badImport: "The selected JSON is not a valid annotation record.",
     importFailed: "Could not import the annotation file.", importedUnsaved: "Changes imported locally. Save to commit them.",
     completed: "Completed", noEvidence: "Add evidence with page references for scores below 5, uncertain ratings, or any flags.",
-    noFullScope: "Confirm that you reviewed the full main-body scope.", missingScores: "Complete all eight scores and all six item-presence fields.",
-    criticalCap: "A critical content flag requires Overall Alignment of 1 or 2, or Uncertain.", needBothAbsent: "N/A is allowed only when both PDFs are marked absent.", naRequired: "When both PDFs lack this item, confirm N/A before completing.",
-    oneSidedPresence: "This item appears in only one PDF. Record an addition or omission; do not rate it fully aligned (5).",
-    oneSidedScore: "A figure, table, or equation present in only one PDF cannot receive score 5.",
+    noFullScope: "Confirm that you reviewed the full main-body scope.", missingScores: "Complete all eight scores.",
+    criticalCap: "A critical content flag requires Overall Alignment of 1 or 2, or Uncertain.", needBothAbsent: "N/A means this object type is absent in both PDFs.", naRequired: "Select N/A when neither PDF contains this object type.", oneSidedScore: "A figure, table, or equation present in only one PDF cannot receive score 5.",
     completedSaved: "Paper marked complete and saved.", draftSaved: "Paper returned to draft.",
     pageLabelTarget: "Target PDF page", pageLabelOfficial: "Reference PDF page", canvasTarget: "Rendered compiled PDF page", canvasOfficial: "Rendered official PDF page", previousTarget: "Previous target page", nextTarget: "Next target page",
     previousReference: "Previous reference page", nextReference: "Next reference page", scoreFor: "Score for", paper: "paper", of: "of",
@@ -123,10 +135,17 @@ const STRINGS = {
     targetPdf: "评分对象", compiledArxiv: "arXiv LaTeX 编译 PDF", referencePdf: "对照参照", officialConference: "会议官方 PDF",
     openNewTab: "在新标签页打开", page: "页", fit: "适应窗口", pdfWait: "选择论文后将在此显示 PDF。",
     pageCountPending: "等待读取页数", rubricLabel: "固定评分标准", annotationTitle: "版本对齐标注",
-    itemPresence: "图表公式是否存在", presenceHelp: "分别记录每种内容是否出现在两份 PDF 中。仅当两份 PDF 中都不存在时才能选 N/A。",
-    required: "必填", figure: "图片", table: "表格", equation: "公式", compiledPdf: "编译版 PDF", officialPdf: "官方 PDF", present: "存在", absent: "不存在", presenceUncertain: "无法判断",
-    naOnlyBoth: "仅两份均不存在时可选 N/A", confirmNa: "确认两份均不存在并设为 N/A", naConfirmed: "已因两份均不存在设为 N/A。更改存在状态会重置此评分。",
-    naChangeReset: "存在状态已更改，N/A 评分已重置。", scoreHelp: "选择一项评分", scoreScale: "查看分数定义", na: "N/A", uncertain: "无法判断",
+    figure: "图片", table: "表格", equation: "公式", compiledPdf: "编译版 PDF", officialPdf: "官方 PDF", present: "存在", absent: "不存在", presenceUncertain: "无法判断",
+    naHelp: "N/A 表示两份 PDF 中都没有该类内容。", scoreOneObjectHelp: "官方版有而编译版完全缺失、官方版没有而编译版整体新增，或两版内容大幅不对应时选 1。部分缺失按影响程度选 2–4。",
+    objectReasonPrompt: "此项为何评为 1？请选择一个原因以完成评分。", reasonMissing: "官方版存在；编译版完全缺失", reasonAdded: "官方版没有；编译版新增", reasonNonCorresponding: "两版都有，但内容大幅不对应",
+    legacyObjectTitle: "已有图表公式评分采用旧记录规则", legacyObjectHelp: "原评分和存在状态只读显示，不会自动更改。如需使用新规则，请明确重置图片、表格和公式三项评分及其存在状态；其他字段会保留。",
+    unsupportedObjectTitle: "无法识别图表公式评分格式",
+    legacyScore: "分数", legacyCompiled: "编译版", legacyOfficial: "官方版", legacyNoScore: "未评分", legacyUnknown: "未知", convertLegacyObjectScores: "按新规则重新标注图表公式",
+    confirmLegacyConversion: "是否只重置图片、表格、公式的分数及其存在状态？正文、结构、覆盖、总体和视觉评分，备注、证据、标记及标注者身份都会保留。该论文将恢复为草稿，并清除完整范围复核确认。",
+    unsupportedObjectProtocol: "这些图表公式评分使用了不支持的格式，当前已锁定。请联系研究协调者后再修改。",
+    scoreOneReasonRequired: "完成论文前，请为每个图表公式的 1 分选择原因。", objectMappingInvalid: "图表公式评分与保存的存在状态不一致。请重新选择该分数，或联系研究协调者。",
+    saveProtocolError: "由于论文 {sample} 的图表公式评分记录无效，修改尚未提交。请先检查该论文的相关评分。",
+    scoreHelp: "选择一项评分", scoreScale: "分数定义", na: "N/A", uncertain: "无法判断",
     overallDirect: "直接给出总体判断，不要计算其他分项的平均值。", visualTargetOnly: "只评价编译版目标 PDF 本身。",
     flagsTitle: "单独记录差异标记", flagsHelp: "标记总体对齐之外的差异，或关键问题。",
     evidenceTitle: "证据与页码", evidenceWhenRequired: "差异、不确定或设置标记时必填",
@@ -150,10 +169,8 @@ const STRINGS = {
     wrongImport: "文件与当前数据集、清单、评分标准或标注编号不匹配。", badImport: "所选 JSON 不是有效的标注记录。",
     importFailed: "无法导入标注文件。", importedUnsaved: "内容已在本地载入，请保存后提交。",
     completed: "已完成", noEvidence: "评分低于5分、选择无法判断或设置差异标记时，请提供页码证据。",
-    noFullScope: "请确认已检查完整正文范围。", missingScores: "请完成8项评分和6项存在状态记录。",
-    criticalCap: "设置关键科学差异标记后，总体对齐必须为1、2或无法判断。", needBothAbsent: "只有两份 PDF 都标为不存在时才能选择 N/A。", naRequired: "两份 PDF 中都没有该项时，请确认 N/A 后再完成。",
-    oneSidedPresence: "此项只出现在一份 PDF 中，请记录为新增或缺失；不能评为完全对齐（5分）。",
-    oneSidedScore: "图片、表格或公式只出现在一份 PDF 中时，不能给5分。",
+    noFullScope: "请确认已检查完整正文范围。", missingScores: "请完成8项评分。",
+    criticalCap: "设置关键科学差异标记后，总体对齐必须为1、2或无法判断。", needBothAbsent: "N/A 表示两份 PDF 中都没有该类内容。", naRequired: "两份 PDF 均没有该类内容时，请选择 N/A。", oneSidedScore: "图片、表格或公式只出现在一份 PDF 中时，不能给5分。",
     completedSaved: "论文已标记为完成并保存。", draftSaved: "论文已恢复为草稿。",
     pageLabelTarget: "目标 PDF 页码", pageLabelOfficial: "参照 PDF 页码", canvasTarget: "编译版 PDF 页面", canvasOfficial: "官方 PDF 页面", previousTarget: "目标 PDF 上一页", nextTarget: "目标 PDF 下一页",
     previousReference: "参照 PDF 上一页", nextReference: "参照 PDF 下一页", scoreFor: "评分论文", paper: "篇", of: "/",
@@ -297,28 +314,17 @@ function recordTemplate(annotatorId, revision = 0) {
 function blankAnnotation() {
   return {
     scores: Object.fromEntries(SCORE_KEYS.map((key) => [key, null])),
-    objects: Object.fromEntries(PRESENCE_KEYS.map((key) => [key, { compiled: null, official: null }])),
+    ...integratedObjectFields(),
+    objects: Object.fromEntries(OBJECT_SCORE_KEYS.map((key) => [key, { compiled: null, official: null }])),
     evidence: "", notes: "", flags: [], reviewed_full_scope: false, status: "draft", updated_at: nowIso(),
   };
 }
 function ensureAnnotation(sampleId) {
   if (!state.record.annotations[sampleId]) state.record.annotations[sampleId] = blankAnnotation();
-  const row = state.record.annotations[sampleId];
-  if (!row.scores || typeof row.scores !== "object") row.scores = Object.fromEntries(SCORE_KEYS.map((key) => [key, null]));
-  for (const key of SCORE_KEYS) if (!(key in row.scores)) row.scores[key] = null;
-  if (!row.objects || typeof row.objects !== "object") row.objects = {};
-  for (const key of PRESENCE_KEYS) {
-    if (!row.objects[key] || typeof row.objects[key] !== "object") row.objects[key] = { compiled: null, official: null };
-    for (const side of ["compiled", "official"]) if (!(side in row.objects[key])) row.objects[key][side] = null;
-  }
-  if (!Array.isArray(row.flags)) row.flags = [];
-  if (!Array.isArray(row.evidence)) row.evidence = String(row.evidence ?? "");
-  if (!Array.isArray(row.notes)) row.notes = String(row.notes ?? "");
-  if (typeof row.evidence !== "string") row.evidence = String(row.evidence ?? "");
-  if (typeof row.notes !== "string") row.notes = String(row.notes ?? "");
-  if (typeof row.reviewed_full_scope !== "boolean") row.reviewed_full_scope = false;
-  if (!["draft", "completed"].includes(row.status)) row.status = "draft";
-  return row;
+  // Existing rows are returned byte-for-byte as received. In particular, legacy
+  // object scores and independently recorded presence values must not be
+  // converted or supplemented just because a paper was opened.
+  return state.record.annotations[sampleId];
 }
 function activePaper() { return state.papers.find((paper) => paper.sample_id === state.activeSampleId) || null; }
 function activeAnnotation() { return state.record && state.activeSampleId ? ensureAnnotation(state.activeSampleId) : null; }
@@ -422,7 +428,7 @@ function rubricIsComplete(rubric) {
 function showRubricMissing() {
   $("#guidance-scope").textContent = t("rubricMissing");
   $("#rubric-scoring").replaceChildren();
-  $("#presence-grid").replaceChildren();
+  $("#object-protocol-notice").classList.add("is-hidden");
   $("#flag-list").replaceChildren();
   renderLoginState();
   renderSessionControls();
@@ -472,6 +478,7 @@ function bindEvents() {
   $("#import-button").addEventListener("click", () => $("#import-file").click());
   $("#import-file").addEventListener("change", importAnnotations);
   $("#complete-review").addEventListener("click", toggleComplete);
+  $("#convert-legacy-object-scores").addEventListener("click", convertLegacyObjectScores);
   $("#evidence").addEventListener("input", () => updateTextField("evidence"));
   $("#notes").addEventListener("input", () => updateTextField("notes"));
   $("#reviewed-full-scope").addEventListener("change", () => mutateActive((row) => { row.reviewed_full_scope = $("#reviewed-full-scope").checked; }));
@@ -490,14 +497,10 @@ function onDocumentClick(event) {
   if (state.importing) return;
   const paperButton = event.target.closest("[data-sample-id]");
   if (paperButton) { selectPaper(paperButton.dataset.sampleId); return; }
+  const reasonButton = event.target.closest("[data-object-score-reason]");
+  if (reasonButton) { setObjectScoreReason(reasonButton.dataset.objectScoreReason, reasonButton.dataset.reason); return; }
   const scoreButton = event.target.closest("[data-score-key]");
   if (scoreButton) { setScore(scoreButton.dataset.scoreKey, scoreButton.dataset.option); return; }
-  const confirmNa = event.target.closest("[data-confirm-na]");
-  if (confirmNa) {
-    const key = confirmNa.dataset.confirmNa;
-    if (presenceBothAbsent(activeAnnotation()?.objects?.[key])) setScore(`${key}_alignment`, "na");
-    return;
-  }
   const viewerAction = event.target.closest("[data-viewer-action]");
   if (viewerAction) handleViewerAction(viewerAction.dataset.viewer, viewerAction.dataset.viewerAction);
   const restore = event.target.closest("[data-recover-local]");
@@ -509,8 +512,6 @@ function onDocumentClick(event) {
 }
 function onDocumentChange(event) {
   if (state.importing) return;
-  const presenceSelect = event.target.closest("[data-presence-key]");
-  if (presenceSelect) updatePresence(presenceSelect.dataset.presenceKey, presenceSelect.dataset.presenceSide, presenceSelect.value || null);
   const flagInput = event.target.closest("[data-flag-key]");
   if (flagInput) updateFlag(flagInput.dataset.flagKey, flagInput.checked);
   const pageInput = event.target.closest("[data-page-input]");
@@ -946,8 +947,9 @@ function renderActivePaper() {
   renderAnnotation();
 }
 function renderBlankAnnotation() {
-  $$('[data-presence-key]').forEach((select) => { select.value = ""; select.disabled = true; });
   $$('[data-score-key]').forEach((button) => { button.setAttribute("aria-pressed", "false"); button.disabled = true; });
+  $$('.object-reason-panel').forEach((panel) => { panel.hidden = true; });
+  $("#object-protocol-notice").classList.add("is-hidden");
   $$('[data-flag-key]').forEach((input) => { input.checked = false; input.disabled = true; });
   $("#evidence").value = ""; $("#evidence").disabled = true;
   $("#notes").value = ""; $("#notes").disabled = true;
@@ -958,31 +960,30 @@ function renderBlankAnnotation() {
 function renderAnnotation() {
   const row = activeAnnotation();
   if (!row) { renderBlankAnnotation(); return; }
-  for (const key of PRESENCE_KEYS) {
-    const object = row.objects[key] || {};
-    for (const side of ["compiled", "official"]) {
-      const select = $(`[data-presence-key="${key}"][data-presence-side="${side}"]`);
-      if (select) { select.value = object[side] || ""; select.disabled = false; }
-    }
-    updatePresenceNote(key, row);
-  }
+  const objectMode = objectScoringMode(row);
+  renderObjectProtocolNotice(row);
   for (const key of SCORE_KEYS) {
-    const score = row.scores[key];
+    const score = row.scores?.[key] ?? null;
+    const objectKey = key.replace("_alignment", "");
+    const objectScore = OBJECT_SCORE_KEYS.includes(objectKey);
     $$(`[data-score-key="${key}"]`).forEach((button) => {
       const selected = button.dataset.option === String(score);
       button.setAttribute("aria-pressed", String(selected));
-      button.disabled = false;
-      if (button.dataset.option === "na") button.disabled = !canUseNa(key, row);
+      button.disabled = objectScore ? objectMode !== "integrated" : false;
     });
+    if (objectScore) {
+      const currentPanel = $(`[data-object-reason-panel="${objectKey}"]`);
+      currentPanel?.replaceWith(renderObjectReasonPanel(objectKey, row, objectMode));
+    }
   }
-  for (const input of $$('[data-flag-key]')) input.checked = row.flags.includes(input.dataset.flagKey);
-  $("#evidence").value = row.evidence;
-  $("#notes").value = row.notes;
-  $("#reviewed-full-scope").checked = row.reviewed_full_scope;
+  for (const input of $$('[data-flag-key]')) input.checked = (row.flags || []).includes(input.dataset.flagKey);
+  $("#evidence").value = typeof row.evidence === "string" ? row.evidence : "";
+  $("#notes").value = typeof row.notes === "string" ? row.notes : "";
+  $("#reviewed-full-scope").checked = row.reviewed_full_scope === true;
   $("#evidence").disabled = false; $("#notes").disabled = false; $("#reviewed-full-scope").disabled = false;
   $$('[data-flag-key]').forEach((input) => { input.disabled = false; });
-  $("#evidence-count").textContent = `${row.evidence.length} / 12000`;
-  $("#notes-count").textContent = `${row.notes.length} / 12000`;
+  $("#evidence-count").textContent = `${$("#evidence").value.length} / 12000`;
+  $("#notes-count").textContent = `${$("#notes").value.length} / 12000`;
   $("#complete-review").disabled = false;
   $("#complete-review").dataset.completed = String(row.status === "completed");
   $("#complete-review").textContent = row.status === "completed" ? t("reopenPaper") : t("markComplete");
@@ -994,7 +995,6 @@ function renderRubric() {
   if (!state.rubric) return;
   $("#rubric-version").textContent = state.rubric.version || "—";
   renderGuidance();
-  renderPresenceControls();
   renderScoreCards();
   renderFlags();
 }
@@ -1016,37 +1016,6 @@ function renderGuidance() {
   }));
   $("#guidance-revision").textContent = guidance.version;
 }
-function renderPresenceControls() {
-  const grid = $("#presence-grid");
-  const rows = PRESENCE_KEYS.map((key) => {
-    const dimension = getDimension(`${key}_alignment`);
-    const card = element("div", "presence-item");
-    const head = element("div", "presence-item-heading", dimension ? localized(dimension.label_zh && dimension.label ? state.language === "zh" ? dimension.label_zh : dimension.label : dimension.label || dimension.key) : key);
-    card.append(head);
-    const pair = element("div", "presence-pair");
-    for (const [side, label] of [["compiled", "compiledPdf"], ["official", "officialPdf"]]) {
-      const wrapper = element("label", "presence-side");
-      wrapper.append(element("span", "", t(label)));
-      const select = element("select");
-      select.dataset.presenceKey = key;
-      select.dataset.presenceSide = side;
-      select.setAttribute("aria-label", `${t(key)} · ${t(label)}`);
-      for (const [value, textKey] of [["", ""], ["present", "present"], ["absent", "absent"], ["uncertain", "presenceUncertain"]]) {
-        const option = element("option", "", value ? t(textKey) : "—");
-        option.value = value;
-        select.append(option);
-      }
-      wrapper.append(select);
-      pair.append(wrapper);
-    }
-    card.append(pair);
-    const note = element("div", "presence-auto-note");
-    note.dataset.presenceNote = key;
-    card.append(note);
-    return card;
-  });
-  grid.replaceChildren(...rows);
-}
 function renderScoreCards() {
   const container = $("#rubric-scoring");
   const cards = SCORE_KEYS.map((key) => {
@@ -1065,16 +1034,27 @@ function renderScoreCards() {
     options.setAttribute("role", "group");
     options.setAttribute("aria-label", `${t("scoreFor")} ${title.textContent}`);
     for (let score = 1; score <= 5; score += 1) options.append(makeScoreButton(key, String(score), String(score), localized(dimension.scale[String(score)])));
-    if (["figure_alignment", "table_alignment", "equation_alignment"].includes(key)) options.append(makeScoreButton(key, "na", t("na"), t("needBothAbsent")));
+    const objectKey = key.replace("_alignment", "");
+    const objectScore = OBJECT_SCORE_KEYS.includes(objectKey);
+    if (objectScore) options.append(makeScoreButton(key, "na", t("na"), t("naHelp")));
     options.append(makeScoreButton(key, "uncertain", t("uncertain"), t("presenceUncertain")));
     card.append(options);
+    if (objectScore) {
+      card.append(element("p", "score-option-help", t("naHelp")));
+      card.append(renderObjectReasonPanel(objectKey, null, "integrated"));
+    }
     const details = element("details", "score-scale-details");
     details.open = true;
     const summary = element("summary", "", t("scoreScale"));
     const list = element("ol", "score-scale-list");
     for (let score = 1; score <= 5; score += 1) {
       const item = element("li");
-      item.append(element("b", "", String(score)), element("span", "", localized(dimension.scale[String(score)])));
+      let definition = localized(dimension.scale[String(score)]);
+      if (objectScore && score === 1) {
+        const separator = /[.!?。！？]$/.test(definition.trimEnd()) ? " " : ". ";
+        definition = `${definition.trimEnd()}${separator}${t("scoreOneObjectHelp")}`;
+      }
+      item.append(element("b", "", String(score)), element("span", "", definition));
       list.append(item);
     }
     details.append(summary, list);
@@ -1084,6 +1064,63 @@ function renderScoreCards() {
     return card;
   });
   container.replaceChildren(...cards);
+}
+function renderObjectReasonPanel(key, row, mode) {
+  const panel = element("div", "object-reason-panel");
+  panel.dataset.objectReasonPanel = key;
+  panel.hidden = mode !== "integrated" || row?.scores?.[`${key}_alignment`] !== 1;
+  panel.append(element("p", "object-reason-prompt", t("objectReasonPrompt")));
+  const group = element("div", "object-reason-options");
+  group.setAttribute("role", "group");
+  group.setAttribute("aria-label", `${t(key)}: ${t("objectReasonPrompt")}`);
+  for (const [reason, labelKey] of [
+    ["missing_in_compiled", "reasonMissing"],
+    ["added_in_compiled", "reasonAdded"],
+    ["non_corresponding", "reasonNonCorresponding"],
+  ]) {
+    const button = element("button", "object-reason-option", t(labelKey));
+    button.type = "button";
+    button.dataset.objectScoreReason = key;
+    button.dataset.reason = reason;
+    button.setAttribute("aria-pressed", String(row?.object_score_reasons?.[key] === reason));
+    button.disabled = mode !== "integrated";
+    group.append(button);
+  }
+  panel.append(group);
+  return panel;
+}
+function renderObjectProtocolNotice(row) {
+  const notice = $("#object-protocol-notice");
+  const mode = objectScoringMode(row);
+  notice.classList.toggle("is-hidden", mode === "integrated");
+  const summary = $("#legacy-object-summary");
+  const convert = $("#convert-legacy-object-scores");
+  convert.classList.toggle("is-hidden", mode !== "legacy");
+  if (mode === "legacy") {
+    $("#object-protocol-title").textContent = t("legacyObjectTitle");
+    $("#object-protocol-message").textContent = t("legacyObjectHelp");
+    summary.replaceChildren(...OBJECT_SCORE_KEYS.map((key) => {
+      const item = element("div", "legacy-object-item");
+      const title = getDimension(`${key}_alignment`);
+      item.append(element("strong", "", title ? (state.language === "zh" && title.label_zh ? title.label_zh : title.label || title.label_zh || key) : t(key)));
+      const pair = row.objects?.[key] || {};
+      const score = row.scores?.[`${key}_alignment`];
+      item.append(element("span", "", `${t("legacyScore")}: ${score === null || score === undefined ? t("legacyNoScore") : score}`));
+      item.append(element("span", "", `${t("legacyCompiled")}: ${localizedPresence(pair.compiled)}`));
+      item.append(element("span", "", `${t("legacyOfficial")}: ${localizedPresence(pair.official)}`));
+      return item;
+    }));
+  } else {
+    $("#object-protocol-title").textContent = t("unsupportedObjectTitle");
+    $("#object-protocol-message").textContent = t("unsupportedObjectProtocol");
+    summary.replaceChildren();
+  }
+}
+function localizedPresence(value) {
+  if (value === "present") return t("present");
+  if (value === "absent") return t("absent");
+  if (value === "uncertain") return t("presenceUncertain");
+  return t("legacyUnknown");
 }
 function makeScoreButton(key, option, label, definition) {
   const button = element("button", "score-option", label);
@@ -1112,8 +1149,12 @@ function renderValidation(showAll) {
   const row = activeAnnotation();
   if (!row) return;
   const errors = validationErrors(row);
+  const protocolMessage = objectProtocolMessage(row);
   const message = $("#validation-message");
-  if (row.status === "completed" && errors.length === 0) {
+  if (protocolMessage) {
+    message.dataset.kind = "error";
+    message.textContent = protocolMessage;
+  } else if (row.status === "completed" && errors.length === 0) {
     message.dataset.kind = "success";
     message.textContent = t("completed");
   } else if ((showAll || row.status === "completed") && errors.length) {
@@ -1126,18 +1167,45 @@ function renderValidation(showAll) {
   $("#complete-review").dataset.completed = String(row.status === "completed");
   $("#complete-review").textContent = row.status === "completed" ? t("reopenPaper") : t("markComplete");
 }
+function objectProtocolMessage(row) {
+  const mode = objectScoringMode(row);
+  if (mode === "unsupported") return t("unsupportedObjectProtocol");
+  if (mode !== "integrated") return "";
+  const issue = validateIntegratedObjectScores(row).find((item) =>
+    item.error !== "missing_reason" || row.status === "completed");
+  if (!issue) return "";
+  return issue.error === "missing_reason" ? t("scoreOneReasonRequired") : t("objectMappingInvalid");
+}
+function recordObjectProtocolIssue(record) {
+  for (const [sampleId, row] of Object.entries(record?.annotations || {})) {
+    const message = objectProtocolMessage(row);
+    if (message) return { sampleId, message };
+  }
+  return null;
+}
 function validationErrors(row) {
   const errors = [];
-  if (SCORE_KEYS.some((key) => row.scores[key] === null || row.scores[key] === undefined)) errors.push(t("missingScores"));
-  if (PRESENCE_KEYS.some((key) => ["compiled", "official"].some((side) => !PRESENCE_VALUES.includes(row.objects[key]?.[side])))) errors.push(t("missingScores"));
-  if (PRESENCE_KEYS.some((key) => presenceBothAbsent(row.objects[key]) && row.scores[`${key}_alignment`] !== "na")) errors.push(t("naRequired"));
-  if (PRESENCE_KEYS.some((key) => oneSidedPresence(row.objects[key]) && row.scores[`${key}_alignment`] === 5)) errors.push(t("oneSidedScore"));
+  const scores = row.scores || {};
+  const flags = Array.isArray(row.flags) ? row.flags : [];
+  if (SCORE_KEYS.some((key) => scores[key] === null || scores[key] === undefined)) errors.push(t("missingScores"));
+  const mode = objectScoringMode(row);
+  if (mode === "legacy") {
+    if (OBJECT_SCORE_KEYS.some((key) => ["compiled", "official"].some((side) => !PRESENCE_VALUES.includes(row.objects?.[key]?.[side])))) errors.push(t("missingScores"));
+    if (OBJECT_SCORE_KEYS.some((key) => presenceBothAbsent(row.objects?.[key]) && scores[`${key}_alignment`] !== "na")) errors.push(t("naRequired"));
+    if (OBJECT_SCORE_KEYS.some((key) => oneSidedPresence(row.objects?.[key]) && scores[`${key}_alignment`] === 5)) errors.push(t("oneSidedScore"));
+  } else if (mode === "integrated") {
+    const objectErrors = validateIntegratedObjectScores(row);
+    if (objectErrors.some((item) => item.error === "missing_reason")) errors.push(t("scoreOneReasonRequired"));
+    if (objectErrors.some((item) => item.error !== "missing_reason")) errors.push(t("objectMappingInvalid"));
+  } else {
+    errors.push(t("unsupportedObjectProtocol"));
+  }
   if (!row.reviewed_full_scope) errors.push(t("noFullScope"));
-  const needsEvidence = row.flags.length > 0 || SCORE_KEYS.some((key) => [1, 2, 3, 4, "uncertain"].includes(row.scores[key])) ||
-    PRESENCE_KEYS.some((key) => [row.objects[key]?.compiled, row.objects[key]?.official].includes("uncertain"));
-  if (needsEvidence && !row.evidence.trim()) errors.push(t("noEvidence"));
-  if (row.flags.includes("critical_difference") && ![1, 2, "uncertain"].includes(row.scores.overall_alignment)) errors.push(t("criticalCap"));
-  if (PRESENCE_KEYS.some((key) => row.scores[`${key}_alignment`] === "na" && !canUseNa(`${key}_alignment`, row))) errors.push(t("needBothAbsent"));
+  const needsEvidence = flags.length > 0 || SCORE_KEYS.some((key) => [1, 2, 3, 4, "uncertain"].includes(scores[key])) ||
+    (mode === "legacy" && OBJECT_SCORE_KEYS.some((key) => [row.objects?.[key]?.compiled, row.objects?.[key]?.official].includes("uncertain")));
+  if (needsEvidence && !(typeof row.evidence === "string" && row.evidence.trim())) errors.push(t("noEvidence"));
+  if (flags.includes("critical_difference") && ![1, 2, "uncertain"].includes(scores.overall_alignment)) errors.push(t("criticalCap"));
+  if (mode === "legacy" && OBJECT_SCORE_KEYS.some((key) => scores[`${key}_alignment`] === "na" && !canUseNa(`${key}_alignment`, row))) errors.push(t("needBothAbsent"));
   return [...new Set(errors)];
 }
 function toggleComplete() {
@@ -1178,58 +1246,56 @@ function setScore(key, value) {
   if (!SCORE_KEYS.includes(key)) return;
   const row = activeAnnotation();
   if (!row) return;
-  if (value === "na" && !canUseNa(key, row)) { setToast(t("needBothAbsent"), "error"); return; }
-  const next = value === "null" || String(row.scores[key]) === value ? null : (value === "uncertain" || value === "na" ? value : Number(value));
+  const objectKey = key.replace("_alignment", "");
+  const isObjectScore = OBJECT_SCORE_KEYS.includes(objectKey);
+  const mode = objectScoringMode(row);
+  if (isObjectScore && mode !== "integrated") return;
+  const currentScore = row.scores?.[key] ?? null;
+  const next = value === "null" || String(currentScore) === value ? null : (value === "uncertain" || value === "na" ? value : Number(value));
   if (next !== null && ![1, 2, 3, 4, 5, "uncertain", "na"].includes(next)) return;
-  mutateActive((annotation) => { annotation.scores[key] = next; });
+  mutateActive((annotation) => {
+    if (isObjectScore) setIntegratedObjectScore(annotation, objectKey, next, null);
+    else annotation.scores[key] = next;
+  });
   renderAnnotation();
 }
 function canUseNa(key, row) {
   const objectKey = String(key).replace("_alignment", "");
-  return PRESENCE_KEYS.includes(objectKey) && presenceBothAbsent(row?.objects?.[objectKey]);
+  if (!OBJECT_SCORE_KEYS.includes(objectKey)) return false;
+  if (objectScoringMode(row) === "integrated") return true;
+  return objectScoringMode(row) === "legacy" && presenceBothAbsent(row?.objects?.[objectKey]);
 }
 function presenceBothAbsent(pair) { return pair?.compiled === "absent" && pair?.official === "absent"; }
 function oneSidedPresence(pair) {
   return (pair?.compiled === "present" && pair?.official === "absent") || (pair?.compiled === "absent" && pair?.official === "present");
 }
-function updatePresence(key, side, value) {
-  if (!PRESENCE_KEYS.includes(key) || !["compiled", "official"].includes(side)) return;
-  if (value && !PRESENCE_VALUES.includes(value)) return;
+function setObjectScoreReason(key, reason) {
+  if (!OBJECT_SCORE_KEYS.includes(key) || !OBJECT_SCORE_REASONS.includes(reason)) return;
   const row = activeAnnotation();
-  if (!row) return;
-  const wasNa = row.scores[`${key}_alignment`] === "na";
-  mutateActive((annotation) => {
-    annotation.objects[key][side] = value;
-    if (wasNa && !presenceBothAbsent(annotation.objects[key])) annotation.scores[`${key}_alignment`] = null;
-  });
-  const current = activeAnnotation();
-  if (wasNa && !presenceBothAbsent(current.objects[key])) setToast(t("naChangeReset"));
+  if (!row || objectScoringMode(row) !== "integrated" || row.scores?.[`${key}_alignment`] !== 1) return;
+  mutateActive((annotation) => setIntegratedObjectScore(annotation, key, 1, reason));
   renderAnnotation();
-  if (presenceBothAbsent(current.objects[key]) && !wasNa) {
-    // The explicit confirmation button in this row commits N/A; no N/A is inferred merely from a blank field.
-    updatePresenceNote(key, current);
-  }
 }
-function updatePresenceNote(key, row = activeAnnotation()) {
-  const node = $(`[data-presence-note="${key}"]`);
-  if (!node || !row) return;
-  node.replaceChildren();
-  if (presenceBothAbsent(row.objects[key])) {
-    if (row.scores[`${key}_alignment`] === "na") node.textContent = t("naConfirmed");
-    else {
-      node.append(element("span", "", t("naOnlyBoth")));
-      const button = element("button", "presence-confirm", t("confirmNa"));
-      button.type = "button"; button.dataset.confirmNa = key;
-      node.append(button);
+function convertLegacyObjectScores() {
+  const row = activeAnnotation();
+  if (!row || objectScoringMode(row) !== "legacy" || !window.confirm(t("confirmLegacyConversion"))) return;
+  mutateActive((annotation) => {
+    Object.assign(annotation, integratedObjectFields());
+    for (const key of OBJECT_SCORE_KEYS) {
+      annotation.scores[key + "_alignment"] = null;
+      annotation.objects[key] = { compiled: null, official: null };
     }
-  } else if (oneSidedPresence(row.objects[key])) node.textContent = t("oneSidedPresence");
-  else if (row.scores[`${key}_alignment`] === "na") node.textContent = t("needBothAbsent");
+    annotation.reviewed_full_scope = false;
+    annotation.status = "draft";
+  });
+  renderAnnotation();
 }
 function updateFlag(key, checked) {
   if (!FLAG_KEYS.includes(key)) return;
   mutateActive((row) => {
-    row.flags = checked ? [...new Set([...row.flags, key])] : row.flags.filter((value) => value !== key);
-    if (key === "critical_difference" && checked && ![1, 2, "uncertain"].includes(row.scores.overall_alignment)) row.scores.overall_alignment = null;
+    const flags = Array.isArray(row.flags) ? row.flags : [];
+    row.flags = checked ? [...new Set([...flags, key])] : flags.filter((value) => value !== key);
+    if (key === "critical_difference" && checked && ![1, 2, "uncertain"].includes(row.scores?.overall_alignment)) row.scores.overall_alignment = null;
   });
   if (key === "critical_difference" && checked && ![1, 2, "uncertain"].includes(activeAnnotation()?.scores.overall_alignment)) {
     setToast(t("criticalCap"), "error", 5000);
@@ -1248,7 +1314,12 @@ function renderSaveStatus() {
   if (state.saveBlocked) { setSaveState("conflict", t("conflict")); return; }
   if (state.savingPromise) { setSaveState("saving", t("saving")); return; }
   if (state.switching) { setSaveState("saving", t("switchingSave")); return; }
-  if (state.dirty) { setSaveState(state.saveError ? "error" : "idle", state.saveError ? t("saveFailed") : t("unsaved")); return; }
+  if (state.dirty) {
+    const issue = recordObjectProtocolIssue(state.record);
+    const protocolMessage = issue ? t("saveProtocolError").replace("{sample}", issue.sampleId) : "";
+    setSaveState(state.saveError || issue ? "error" : "idle", protocolMessage || (state.saveError ? t("saveFailed") : t("unsaved")));
+    return;
+  }
   if (state.sessionLoading) { setSaveState("saving", t("loadingSession")); return; }
   if (state.startupErrorKey) { setSaveState("error", `${t(state.startupErrorKey)}${state.startupErrorDetail ? ` ${state.startupErrorDetail}` : ""}`); return; }
   if (!state.initialized) { setSaveState("saving", t("connecting")); return; }
@@ -1379,6 +1450,15 @@ async function flushSave(manual) {
   return result;
 }
 async function saveLoop() {
+  const protocolIssue = recordObjectProtocolIssue(state.record);
+  if (protocolIssue) {
+    state.saveError = "invalid_object_protocol";
+    const message = t("saveProtocolError").replace("{sample}", protocolIssue.sampleId);
+    setSaveState("error", message);
+    setToast(message, "error", 7000);
+    if (state.activeSampleId === protocolIssue.sampleId) renderValidation(true);
+    return false;
+  }
   while (state.dirty && !state.saveBlocked) {
     const version = state.dirtyVersion;
     const snapshot = structuredClone(state.record);
@@ -1539,6 +1619,11 @@ async function importAnnotations(event) {
     if (!state.hosted) throw Object.assign(new Error(), { code: "service_unavailable" });
     expectedRevision = state.record.revision;
     importCandidate = normalizeRecord(imported, state.annotatorId);
+    const protocolIssue = recordObjectProtocolIssue(importCandidate);
+    if (protocolIssue) {
+      setToast(`${protocolIssue.message} (${protocolIssue.sampleId})`, "error", 7000);
+      return;
+    }
     importCandidate.revision = expectedRevision;
     const response = await state.hosted.save(state.annotatorId, importCandidate, "import");
     const record = response.record;
