@@ -310,13 +310,16 @@ BEGIN
     IF v_error IS NOT NULL THEN
         RAISE EXCEPTION 'Overall 5 was incorrectly forced down because figure score was 1: %', v_error;
     END IF;
+    v_record := pg_catalog.jsonb_set(v_record, '{annotations,RL01,evidence}', '""'::jsonb);
+    v_record := pg_catalog.jsonb_set(v_record, '{annotations,RL01,notes}', '""'::jsonb);
+    v_record := pg_catalog.jsonb_set(v_record, '{annotations,RL01,scores,text_alignment}', '"uncertain"'::jsonb);
+    v_record := pg_catalog.jsonb_set(v_record, '{annotations,RL01,flags}', '["references_difference"]'::jsonb);
     v_error := xacl_private.validate_annotation_record(
-        pg_catalog.jsonb_set(v_record, '{annotations,RL01,evidence}', '""'::jsonb),
-        'QA_TEST_A01', 'revisionlens-alignment30-v1',
+        v_record, 'QA_TEST_A01', 'revisionlens-alignment30-v1',
         'd60e722740919ee30896e2c4a84df256970c0b67c36e831af18a3a68ed3df071', 'alignment-rubric-v1'
     );
-    IF v_error IS NULL OR v_error NOT LIKE '%requires evidence%' THEN
-        RAISE EXCEPTION 'completed score 1 without evidence was accepted: %', v_error;
+    IF v_error IS NOT NULL THEN
+        RAISE EXCEPTION 'uncertain score and non-critical flag without evidence were rejected: %', v_error;
     END IF;
     v_error := xacl_private.validate_annotation_record(
         pg_catalog.jsonb_set(v_record, '{annotations,RL01,flags}', '["critical_difference"]'::jsonb),
@@ -341,8 +344,8 @@ BEGIN
         'dataset_id', 'revisionlens-alignment30-v1',
         'manifest_sha256', 'd60e722740919ee30896e2c4a84df256970c0b67c36e831af18a3a68ed3df071',
         'rubric_version', 'alignment-rubric-v1',
-        'guidance_version', 'alignment-guidance-20261024-v3',
-        'guidance_sha256', '3ab9433b66c448f211567717ce21df356892956d5f55d5a9adb4a1830340d990'
+        'guidance_version', 'alignment-guidance-20261024-v4',
+        'guidance_sha256', 'a2bb9e881d2bb8c1947196bb025cf8145d788acb2a8a3635396a81300dc4a59c'
     ) THEN
         RAISE EXCEPTION 'health RPC returned the wrong frozen study identity: %', v_health;
     END IF;
@@ -449,8 +452,8 @@ BEGIN
     IF v_result->>'error' <> 'invalid_access' THEN
         RAISE EXCEPTION 'cross-UID load was not denied: %', v_result;
     END IF;
-    v_result := public.xacl_save_annotations('QA_TEST_A01', v_a, 'alignment-guidance-20261024-v3',
-        '3ab9433b66c448f211567717ce21df356892956d5f55d5a9adb4a1830340d990', 'save');
+    v_result := public.xacl_save_annotations('QA_TEST_A01', v_a, 'alignment-guidance-20261024-v4',
+        'a2bb9e881d2bb8c1947196bb025cf8145d788acb2a8a3635396a81300dc4a59c', 'save');
     IF v_result->>'error' <> 'invalid_access' THEN
         RAISE EXCEPTION 'cross-UID save was not denied: %', v_result;
     END IF;
@@ -536,10 +539,11 @@ DECLARE
     v_annotation jsonb;
     v_result jsonb;
     v_saved jsonb;
+    v_loaded jsonb;
     v_bad jsonb;
     v_initial jsonb;
-    v_guidance text := 'alignment-guidance-20261024-v3';
-    v_guidance_hash text := '3ab9433b66c448f211567717ce21df356892956d5f55d5a9adb4a1830340d990';
+    v_guidance text := 'alignment-guidance-20261024-v4';
+    v_guidance_hash text := 'a2bb9e881d2bb8c1947196bb025cf8145d788acb2a8a3635396a81300dc4a59c';
     v_now text := '2026-10-01T12:00:00.000Z';
 BEGIN
     v_initial := public.xacl_current_annotations()->'record';
@@ -634,10 +638,10 @@ BEGIN
     END IF;
 
     -- Complete with both PDFs lacking all three optional object types: N/A is
-    -- required. One-sided content cannot receive score 5 and needs evidence.
+    -- required. A low score can be saved without evidence or private notes.
     v_annotation := pg_catalog.jsonb_build_object(
         'scores', pg_catalog.jsonb_build_object(
-            'text_alignment', 5, 'figure_alignment', 'na', 'table_alignment', 'na',
+            'text_alignment', 4, 'figure_alignment', 'na', 'table_alignment', 'na',
             'equation_alignment', 'na', 'structure_alignment', 5, 'content_coverage', 5,
             'overall_alignment', 5, 'visual_integrity', 5
         ),
@@ -693,14 +697,8 @@ BEGIN
        OR v_result->>'message' NOT LIKE '%cannot be 5%' THEN
         RAISE EXCEPTION 'one-sided figure with score 5 was accepted: %', v_result;
     END IF;
-    v_bad := pg_catalog.jsonb_set(v_bad, '{annotations,RL01,scores,figure_alignment}', '4'::jsonb);
-    v_result := public.xacl_save_annotations('QA_TEST_A01', v_bad, v_guidance, v_guidance_hash, 'save');
-    IF v_result->>'error' <> 'invalid_record'
-       OR v_result->>'message' NOT LIKE '%requires evidence%' THEN
-        RAISE EXCEPTION 'one-sided figure without evidence was accepted: %', v_result;
-    END IF;
 
-    v_bad := pg_catalog.jsonb_set(v_bad, '{annotations,RL01,evidence}', '"Figure 1 appears only in the compiled version."'::jsonb);
+    v_bad := pg_catalog.jsonb_set(v_saved, '{annotations,RL01}', v_annotation);
     v_result := public.xacl_save_annotations('QA_TEST_A01', v_bad, v_guidance, v_guidance_hash, 'save');
     IF v_result->>'error' IS NOT NULL OR v_result#>>'{record,revision}' <> '2' THEN
         RAISE EXCEPTION 'valid completed annotation failed: %', v_result;
@@ -714,20 +712,65 @@ BEGIN
         RAISE EXCEPTION 'critical_difference with Overall 5 was accepted: %', v_result;
     END IF;
 
-    v_bad := pg_catalog.jsonb_set(v_saved, '{annotations,RL01,objects,figure,compiled}', '"uncertain"'::jsonb);
-    v_bad := pg_catalog.jsonb_set(v_bad, '{annotations,RL01,evidence}', '""'::jsonb);
-    v_result := public.xacl_save_annotations('QA_TEST_A01', v_bad, v_guidance, v_guidance_hash, 'save');
-    IF v_result->>'error' <> 'invalid_record'
-       OR v_result->>'message' NOT LIKE '%requires evidence%' THEN
-        RAISE EXCEPTION 'uncertain presence without evidence was accepted: %', v_result;
-    END IF;
-
-    v_bad := pg_catalog.jsonb_set(v_saved, '{annotations,RL01,objects,figure,compiled}', '"uncertain"'::jsonb);
-    v_bad := pg_catalog.jsonb_set(v_bad, '{annotations,RL01,evidence}', '"The compiled figure content is unclear."'::jsonb);
-    v_result := public.xacl_save_annotations('QA_TEST_A01', v_bad, v_guidance, v_guidance_hash, 'import'
+    v_annotation := pg_catalog.jsonb_build_object(
+        'scores', pg_catalog.jsonb_build_object(
+            'text_alignment', 4, 'figure_alignment', 1, 'table_alignment', 'uncertain',
+            'equation_alignment', 'na', 'structure_alignment', 3, 'content_coverage', 2,
+            'overall_alignment', 4, 'visual_integrity', 1
+        ),
+        'objects', pg_catalog.jsonb_build_object(
+            'figure', pg_catalog.jsonb_build_object('compiled', 'absent', 'official', 'present'),
+            'table', pg_catalog.jsonb_build_object('compiled', 'uncertain', 'official', 'uncertain'),
+            'equation', pg_catalog.jsonb_build_object('compiled', 'absent', 'official', 'absent')
+        ),
+        'evidence', '', 'notes', '', 'flags', '["references_difference"]'::jsonb,
+        'reviewed_full_scope', true, 'status', 'completed', 'updated_at', v_now,
+        'scoring_protocol', 'integrated-presence-v1',
+        'object_score_reasons', pg_catalog.jsonb_build_object(
+            'figure', 'missing_in_compiled', 'table', NULL, 'equation', NULL
+        )
     );
+    v_bad := pg_catalog.jsonb_set(v_saved, '{annotations,RL02}', v_annotation, true);
+
+    v_annotation := pg_catalog.jsonb_build_object(
+        'scores', pg_catalog.jsonb_build_object(
+            'text_alignment', 'uncertain', 'figure_alignment', 2, 'table_alignment', 3,
+            'equation_alignment', 4, 'structure_alignment', 4, 'content_coverage', 3,
+            'overall_alignment', 2, 'visual_integrity', 4
+        ),
+        'objects', pg_catalog.jsonb_build_object(
+            'figure', pg_catalog.jsonb_build_object('compiled', 'present', 'official', 'present'),
+            'table', pg_catalog.jsonb_build_object('compiled', 'present', 'official', 'present'),
+            'equation', pg_catalog.jsonb_build_object('compiled', 'present', 'official', 'present')
+        ),
+        'evidence', '', 'notes', '', 'flags', '["critical_difference"]'::jsonb,
+        'reviewed_full_scope', true, 'status', 'completed', 'updated_at', v_now,
+        'scoring_protocol', 'integrated-presence-v1',
+        'object_score_reasons', pg_catalog.jsonb_build_object(
+            'figure', NULL, 'table', NULL, 'equation', NULL
+        )
+    );
+    v_bad := pg_catalog.jsonb_set(v_bad, '{annotations,RL03}', v_annotation, true);
+    v_result := public.xacl_save_annotations('QA_TEST_A01', v_bad, v_guidance, v_guidance_hash, 'import');
     IF v_result->>'error' IS NOT NULL OR v_result#>>'{record,revision}' <> '3' THEN
-        RAISE EXCEPTION 'valid imported revision failed: %', v_result;
+        RAISE EXCEPTION 'completed annotations with low scores, uncertainty, flags, and empty evidence failed: %', v_result;
+    END IF;
+    v_saved := v_result->'record';
+    v_loaded := public.xacl_load_annotations('QA_TEST_A01');
+    IF v_loaded->>'error' IS NOT NULL OR v_loaded->'record' IS DISTINCT FROM v_saved THEN
+        RAISE EXCEPTION 'saved optional evidence, notes, and annotation values did not round-trip: %', v_loaded;
+    END IF;
+    IF v_saved#>>'{annotations,RL02,evidence}' IS DISTINCT FROM ''
+       OR v_saved#>>'{annotations,RL02,notes}' IS DISTINCT FROM ''
+       OR v_saved#>>'{annotations,RL03,evidence}' IS DISTINCT FROM ''
+       OR v_saved#>>'{annotations,RL03,notes}' IS DISTINCT FROM ''
+       OR v_saved#>>'{annotations,RL02,scores,figure_alignment}' IS DISTINCT FROM '1'
+       OR v_saved#>>'{annotations,RL02,scores,table_alignment}' IS DISTINCT FROM 'uncertain'
+       OR v_saved#>>'{annotations,RL02,object_score_reasons,figure}' IS DISTINCT FROM 'missing_in_compiled'
+       OR v_saved#>'{annotations,RL02,flags}' IS DISTINCT FROM '["references_difference"]'::jsonb
+       OR v_saved#>>'{annotations,RL03,scores,overall_alignment}' IS DISTINCT FROM '2'
+       OR v_saved#>'{annotations,RL03,flags}' IS DISTINCT FROM '["critical_difference"]'::jsonb THEN
+        RAISE EXCEPTION 'saved completed optional-evidence examples did not retain their values: %', v_saved;
     END IF;
 
 END
@@ -756,8 +799,8 @@ BEGIN
        OR public.xacl_load_annotations('QA_TEST_A01')->>'error' <> 'invalid_access' THEN
         RAISE EXCEPTION 'revoked profile remained available to its original device';
     END IF;
-    v_result := public.xacl_save_annotations('QA_TEST_A01', NULL, 'alignment-guidance-20261024-v3',
-        '3ab9433b66c448f211567717ce21df356892956d5f55d5a9adb4a1830340d990', 'save');
+    v_result := public.xacl_save_annotations('QA_TEST_A01', NULL, 'alignment-guidance-20261024-v4',
+        'a2bb9e881d2bb8c1947196bb025cf8145d788acb2a8a3635396a81300dc4a59c', 'save');
     IF v_result->>'error' <> 'invalid_access' THEN
         RAISE EXCEPTION 'revoked profile remained writable';
     END IF;
@@ -792,8 +835,8 @@ BEGIN
     IF EXISTS (
         SELECT 1 FROM xacl_private.annotation_history
         WHERE annotator_id = 'QA_TEST_A01'
-          AND (guidance_version <> 'alignment-guidance-20261024-v3'
-               OR guidance_sha256 <> '3ab9433b66c448f211567717ce21df356892956d5f55d5a9adb4a1830340d990')
+          AND (guidance_version <> 'alignment-guidance-20261024-v4'
+               OR guidance_sha256 <> 'a2bb9e881d2bb8c1947196bb025cf8145d788acb2a8a3635396a81300dc4a59c')
     ) THEN
         RAISE EXCEPTION 'history did not retain frozen guidance version/hash';
     END IF;

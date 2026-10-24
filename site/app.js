@@ -64,13 +64,12 @@ const STRINGS = {
     saveProtocolError: "Unsaved changes were not sent because paper {sample} has invalid object-score data. Review that paper’s object scores first.",
     scoreHelp: "Select one score", scoreScale: "Score definitions", na: "N/A", uncertain: "Uncertain",
     overallDirect: "Direct judgment; do not average the other dimensions.", visualTargetOnly: "Rate the compiled target PDF itself only.",
-    flagsTitle: "Separate difference flags", flagsHelp: "Use flags for differences outside the main alignment score or for a major issue.",
-    evidenceTitle: "Evidence and page references", evidenceWhenRequired: "Required for differences, uncertainty, or flags",
-    evidencePlaceholder: "Record page numbers and concise evidence for differences or uncertainty.",
-    evidenceNoNeed: "Cite pages from both PDFs when relevant.", notesTitle: "Private annotator notes", optional: "Optional",
+    flagsTitle: "Difference flags (optional)", flagsHelp: "Use flags for major issues or differences outside the main-paper scores.",
+    evidenceTitle: "Evidence and page references", evidencePlaceholder: "Add evidence or page references if helpful.",
+    evidenceNoNeed: "Page references can help explain a rating.", notesTitle: "Private annotator notes", optional: "Optional",
     notesPlaceholder: "Add notes for your own review.", notesHelp: "These notes are included in your annotation output.",
     fullScopeTitle: "I reviewed the full available main-body scope",
-    fullScopeHelp: "Read both PDFs throughout the main paper, including all available pages and relevant figures, tables, and equations. Record appendix or reference-list differences with flags.",
+    fullScopeHelp: "Review both PDFs across the main paper, including relevant figures, tables, and equations. Optional flags can note appendix or reference-list differences.",
     markComplete: "Mark paper complete", reopenPaper: "Reopen paper", footerNotice: "The official PDF is a comparison reference. Scores apply to the compiled arXiv PDF.",
     noPapersMatch: "No papers match these filters.", noTitle: "Untitled paper", noSession: "Load your annotator session to begin.",
     sessionLoaded: "Annotation session loaded.",
@@ -85,7 +84,7 @@ const STRINGS = {
     exported: "Annotation JSON exported.", imported: "Annotation JSON imported and saved.", importConfirm: "Import this file into the current annotator’s record? It will replace that annotator’s current state for this study.",
     wrongImport: "This file does not match the current dataset, manifest, rubric, or annotator ID.", badImport: "The selected JSON is not a valid annotation record.",
     importFailed: "Could not import the annotation file.", importedUnsaved: "Changes imported locally. Save to commit them.",
-    completed: "Completed", noEvidence: "Add evidence with page references for scores below 5, uncertain ratings, or any flags.",
+    completed: "Completed",
     noFullScope: "Confirm that you reviewed the full main-body scope.", missingScores: "Complete all eight scores.",
     criticalCap: "A critical content flag requires Overall Alignment of 1 or 2, or Uncertain.",
     completedSaved: "Paper marked complete and saved.", draftSaved: "Paper returned to draft.",
@@ -141,13 +140,12 @@ const STRINGS = {
     saveProtocolError: "由于论文 {sample} 的图表公式评分记录无效，修改尚未提交。请先检查该论文的相关评分。",
     scoreHelp: "选择一项评分", scoreScale: "分数定义", na: "N/A", uncertain: "无法判断",
     overallDirect: "直接给出总体判断，不要计算其他分项的平均值。", visualTargetOnly: "只评价编译版目标 PDF 本身。",
-    flagsTitle: "单独记录差异标记", flagsHelp: "标记总体对齐之外的差异，或关键问题。",
-    evidenceTitle: "证据与页码", evidenceWhenRequired: "差异、不确定或设置标记时必填",
-    evidencePlaceholder: "记录两份 PDF 中的页码，以及简要差异或不确定原因。",
-    evidenceNoNeed: "适用时请同时注明两份 PDF 的页码。", notesTitle: "标注者个人备注", optional: "选填",
+    flagsTitle: "差异标记（选填）", flagsHelp: "用于标记主要问题或正文评分之外的差异。",
+    evidenceTitle: "证据与页码", evidencePlaceholder: "如有帮助，可补充证据或页码。",
+    evidenceNoNeed: "页码可用于辅助说明评分。", notesTitle: "标注者个人备注", optional: "选填",
     notesPlaceholder: "填写供自己复核的备注。", notesHelp: "备注会包含在你的标注输出中。",
     fullScopeTitle: "我已检查完整的正文范围",
-    fullScopeHelp: "逐页阅读两份 PDF 的正文，包括所有页面及相关图表、公式。附录或参考文献差异请用标记记录。",
+    fullScopeHelp: "检查两份 PDF 的正文页面及相关图表、表格和公式。附录或参考文献差异可选用标记记录。",
     markComplete: "将论文标记为完成", reopenPaper: "重新打开论文", footerNotice: "官方 PDF 仅作对照参照。评分对象是 arXiv LaTeX 编译 PDF。",
     noPapersMatch: "没有符合筛选条件的论文。", noTitle: "无标题论文", noSession: "加载标注者会话后即可开始。",
     sessionLoaded: "标注会话已加载。",
@@ -162,7 +160,7 @@ const STRINGS = {
     exported: "标注 JSON 已导出。", imported: "标注 JSON 已导入并保存。", importConfirm: "将该文件导入当前标注者的记录吗？这会替换该编号在本研究中的当前记录。",
     wrongImport: "文件与当前数据集、清单、评分标准或标注编号不匹配。", badImport: "所选 JSON 不是有效的标注记录。",
     importFailed: "无法导入标注文件。", importedUnsaved: "内容已在本地载入，请保存后提交。",
-    completed: "已完成", noEvidence: "评分低于5分、选择无法判断或设置差异标记时，请提供页码证据。",
+    completed: "已完成",
     noFullScope: "请确认已检查完整正文范围。", missingScores: "请完成8项评分。",
     criticalCap: "设置关键科学差异标记后，总体对齐必须为1、2或无法判断。",
     completedSaved: "论文已标记为完成并保存。", draftSaved: "论文已恢复为草稿。",
@@ -1175,8 +1173,6 @@ function validationErrors(row) {
     errors.push(t("unsupportedObjectProtocol"));
   }
   if (!row.reviewed_full_scope) errors.push(t("noFullScope"));
-  const needsEvidence = flags.length > 0 || SCORE_KEYS.some((key) => [1, 2, 3, 4, "uncertain"].includes(scores[key]));
-  if (needsEvidence && !(typeof row.evidence === "string" && row.evidence.trim())) errors.push(t("noEvidence"));
   if (flags.includes("critical_difference") && ![1, 2, "uncertain"].includes(scores.overall_alignment)) errors.push(t("criticalCap"));
   return [...new Set(errors)];
 }

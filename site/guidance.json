@@ -1,6 +1,6 @@
 {
   "schema": "revisionlens.alignment-guidance.v1",
-  "version": "alignment-guidance-20261024-v3",
+  "version": "alignment-guidance-20261024-v4",
   "title": {
     "en": "Quick guidance",
     "zh": "快速说明"
@@ -11,8 +11,8 @@
   },
   "quick_rules": [
     {
-      "en": "Compare main-paper text, section structure, figures, tables, and equations. Record reference-list or appendix differences separately.",
-      "zh": "比较正文文字、章节结构、图片、表格和公式。参考文献或附录差异请单独记录。"
+      "en": "Compare main-paper text, section structure, figures, tables, and equations.",
+      "zh": "比较正文文字、章节结构、图片、表格和公式。"
     },
     {
       "en": "For figures, tables, and equations, N/A means absent from both PDFs. Score 1 requires a reason: missing from the compiled PDF, added only in the compiled PDF, or largely non-corresponding content. Use Uncertain when comparison is impossible.",
@@ -23,8 +23,8 @@
       "zh": "总体对齐应直接判断，不取分项平均。设置“关键差异”后，总体对齐最高为 2；无法判断时可选“无法判断”。"
     },
     {
-      "en": "Give page evidence for every score below 5, Uncertain rating, or difference flag.",
-      "zh": "任何低于 5 分、无法判断的评分或差异标记，都要注明页码证据。"
+      "en": "Difference flags, evidence and page references, and notes are optional.",
+      "zh": "差异标记、证据与页码、个人备注均为选填。"
     }
   ],
   "publication_notice": {
@@ -78,18 +78,8 @@
         "zh": "证据、单独标记与总体评分"
       },
       "text": {
-        "en": "Use the reference-list and appendix flags for differences in those sections; do not mix them into main-paper content scores. Cite the relevant page numbers from both PDFs for scores below 5, any Uncertain rating, or any flag. Set Overall directly rather than averaging dimensions. When Critical Difference is selected, Overall must be 1 or 2, or Uncertain if you cannot assess the difference.",
-        "zh": "参考文献和附录的差异使用相应标记，不计入正文内容分项。评分低于 5、选择“无法判断”或设置任何标记时，请注明两份 PDF 的相关页码。总体评分直接判断，不取分项平均；选择“关键差异”后，总体评分必须为 1 或 2，确实无法判断时可选“无法判断”。"
-      }
-    },
-    {
-      "title": {
-        "en": "Previously saved ratings",
-        "zh": "已有标注"
-      },
-      "text": {
-        "en": "Previously saved ratings retain their original scores and independently reported presence fields. They are labeled as legacy ratings and are not silently reinterpreted under the integrated protocol. To review a saved paper using the updated object rules, explicitly restart its three object ratings; the page asks for confirmation first. Text, structure, coverage, Overall, visual ratings, notes, and evidence are retained. Server revision history retains previous saves.",
-        "zh": "已有标注保留原来的分数和分别填写的存在状态，并标明为旧规则记录，不自动按合并协议重新解释。若要按新规则复核，需明确选择重新填写该论文的图、表、公式三项，页面会先请求确认。文字、结构、覆盖、总体、视觉评分以及备注和证据均保留。服务器历史保存此前各次记录。"
+        "en": "Difference flags, evidence and page references, and notes are optional, including for low or Uncertain scores. Reference-list and appendix differences are separate from main-paper scores. Set Overall directly rather than averaging dimensions. When Critical Difference is selected, Overall must be 1 or 2, or Uncertain if you cannot assess the difference.",
+        "zh": "差异标记、证据与页码和备注均为选填，低分或“无法判断”也不要求填写。参考文献和附录差异不计入正文评分。总体评分直接判断，不取分项平均；选择“关键差异”后，总体评分必须为 1 或 2，确实无法判断时可选“无法判断”。"
       }
     }
   ]

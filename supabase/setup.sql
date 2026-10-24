@@ -127,8 +127,8 @@ VALUES (
     'revisionlens-alignment30-v1',
     'd60e722740919ee30896e2c4a84df256970c0b67c36e831af18a3a68ed3df071',
     'alignment-rubric-v1',
-    'alignment-guidance-20261024-v3',
-    '3ab9433b66c448f211567717ce21df356892956d5f55d5a9adb4a1830340d990'
+    'alignment-guidance-20261024-v4',
+    'a2bb9e881d2bb8c1947196bb025cf8145d788acb2a8a3635396a81300dc4a59c'
 )
 ON CONFLICT (study_id) DO NOTHING;
 
@@ -151,14 +151,16 @@ BEGIN
         RAISE EXCEPTION 'xACL-Era frozen dataset configuration differs from the site';
     END IF;
 
-    IF v_config.guidance_version = 'alignment-guidance-20261022-v2'
-       AND v_config.guidance_sha256 = '7f8a3b46025dad152afb78e5da5bdd8c068270375e545f300b97da2d134000d3' THEN
+    IF (v_config.guidance_version = 'alignment-guidance-20261022-v2'
+        AND v_config.guidance_sha256 = '7f8a3b46025dad152afb78e5da5bdd8c068270375e545f300b97da2d134000d3')
+       OR (v_config.guidance_version = 'alignment-guidance-20261024-v3'
+           AND v_config.guidance_sha256 = '3ab9433b66c448f211567717ce21df356892956d5f55d5a9adb4a1830340d990') THEN
         UPDATE xacl_private.study_config
-        SET guidance_version = 'alignment-guidance-20261024-v3',
-            guidance_sha256 = '3ab9433b66c448f211567717ce21df356892956d5f55d5a9adb4a1830340d990'
+        SET guidance_version = 'alignment-guidance-20261024-v4',
+            guidance_sha256 = 'a2bb9e881d2bb8c1947196bb025cf8145d788acb2a8a3635396a81300dc4a59c'
         WHERE study_id = v_config.study_id;
-    ELSIF v_config.guidance_version <> 'alignment-guidance-20261024-v3'
-       OR v_config.guidance_sha256 <> '3ab9433b66c448f211567717ce21df356892956d5f55d5a9adb4a1830340d990' THEN
+    ELSIF v_config.guidance_version <> 'alignment-guidance-20261024-v4'
+       OR v_config.guidance_sha256 <> 'a2bb9e881d2bb8c1947196bb025cf8145d788acb2a8a3635396a81300dc4a59c' THEN
         RAISE EXCEPTION 'xACL-Era scoring guidance metadata is unknown; refusing to upgrade it';
     END IF;
 END
@@ -242,7 +244,6 @@ DECLARE
     v_official text;
     v_expected_compiled text;
     v_expected_official text;
-    v_needs_evidence boolean;
     v_revision_text text;
 BEGIN
     IF p_record IS NULL OR pg_catalog.jsonb_typeof(p_record) IS DISTINCT FROM 'object' THEN
@@ -542,29 +543,6 @@ BEGIN
                 END IF;
             END LOOP;
 
-            v_needs_evidence := pg_catalog.jsonb_array_length(v_flags) > 0;
-            FOR v_score_key IN
-                SELECT pg_catalog.unnest(ARRAY[
-                    'text_alignment', 'figure_alignment', 'table_alignment', 'equation_alignment',
-                    'structure_alignment', 'content_coverage', 'overall_alignment', 'visual_integrity'
-                ]::text[])
-            LOOP
-                v_score := v_scores->v_score_key;
-                IF v_score = '"uncertain"'::jsonb
-                   OR (pg_catalog.jsonb_typeof(v_score) = 'number' AND (v_score #>> '{}')::integer < 5) THEN
-                    v_needs_evidence := true;
-                END IF;
-            END LOOP;
-            FOR v_object_type IN SELECT pg_catalog.unnest(ARRAY['figure', 'table', 'equation']::text[])
-            LOOP
-                v_pair := v_objects->v_object_type;
-                IF v_pair->>'compiled' = 'uncertain' OR v_pair->>'official' = 'uncertain' THEN
-                    v_needs_evidence := true;
-                END IF;
-            END LOOP;
-            IF v_needs_evidence AND pg_catalog.btrim(v_annotation->>'evidence') = '' THEN
-                RETURN 'completed annotation requires evidence for scores below 5, uncertain scores or presence, or flags';
-            END IF;
             IF v_flags ? 'critical_difference'
                AND v_scores->>'overall_alignment' NOT IN ('1', '2', 'uncertain') THEN
                 RETURN 'critical_difference requires Overall 1–2 or uncertain';
@@ -661,8 +639,8 @@ BEGIN
        OR v_config.dataset_id IS DISTINCT FROM 'revisionlens-alignment30-v1'
        OR v_config.manifest_sha256 IS DISTINCT FROM 'd60e722740919ee30896e2c4a84df256970c0b67c36e831af18a3a68ed3df071'
        OR v_config.rubric_version IS DISTINCT FROM 'alignment-rubric-v1'
-       OR v_config.guidance_version IS DISTINCT FROM 'alignment-guidance-20261024-v3'
-       OR v_config.guidance_sha256 IS DISTINCT FROM '3ab9433b66c448f211567717ce21df356892956d5f55d5a9adb4a1830340d990' THEN
+       OR v_config.guidance_version IS DISTINCT FROM 'alignment-guidance-20261024-v4'
+       OR v_config.guidance_sha256 IS DISTINCT FROM 'a2bb9e881d2bb8c1947196bb025cf8145d788acb2a8a3635396a81300dc4a59c' THEN
         RETURN pg_catalog.jsonb_build_object('ready', false);
     END IF;
     RETURN pg_catalog.jsonb_build_object(

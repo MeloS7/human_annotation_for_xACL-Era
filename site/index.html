@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
   <title>xACL-Era · PDF alignment annotation</title>
-  <link rel="stylesheet" href="./styles.css?v=20261024-auto-current-rules-mobile">
+  <link rel="stylesheet" href="./styles.css?v=20261024-optional-evidence">
   <script src="./vendor/supabase/supabase.js"></script>
-  <script type="module" src="./app.js?v=20261024-auto-current-rules"></script>
+  <script type="module" src="./app.js?v=20261024-optional-evidence"></script>
 </head>
 <body>
   <div class="app-shell" id="top">
@@ -220,11 +220,11 @@
             </div>
             <div id="rubric-scoring" class="rubric-scoring"></div>
             <div class="annotation-details-grid">
-              <fieldset class="flags-card"><legend data-i18n="flagsTitle">Separate difference flags</legend><p class="field-description" data-i18n="flagsHelp">Use flags for differences outside the main alignment score or for a major issue.</p><div id="flag-list" class="flag-list"></div></fieldset>
+              <fieldset class="flags-card"><legend data-i18n="flagsTitle">Difference flags (optional)</legend><p class="field-description" data-i18n="flagsHelp">Use flags for major issues or differences outside the main-paper scores.</p><div id="flag-list" class="flag-list"></div></fieldset>
               <div class="evidence-card">
-                <label for="evidence"><span data-i18n="evidenceTitle">Evidence and page references</span><span class="required-hint" data-i18n="evidenceWhenRequired">Required for differences, uncertainty, or flags</span></label>
-                <textarea id="evidence" rows="5" maxlength="12000" data-i18n-placeholder="evidencePlaceholder" placeholder="Record page numbers and concise evidence for differences or uncertainty."></textarea>
-                <div class="textarea-foot"><span data-i18n="evidenceNoNeed">For a fully aligned rating, a short rationale is still helpful.</span><span id="evidence-count">0 / 12000</span></div>
+                <label for="evidence"><span data-i18n="evidenceTitle">Evidence and page references</span><span class="optional-hint" data-i18n="optional">Optional</span></label>
+                <textarea id="evidence" rows="5" maxlength="12000" data-i18n-placeholder="evidencePlaceholder" placeholder="Add evidence or page references if helpful."></textarea>
+                <div class="textarea-foot"><span data-i18n="evidenceNoNeed">Page references can help explain a rating.</span><span id="evidence-count">0 / 12000</span></div>
               </div>
               <div class="notes-card">
                 <label for="notes"><span data-i18n="notesTitle">Private annotator notes</span><span class="optional-hint" data-i18n="optional">Optional</span></label>

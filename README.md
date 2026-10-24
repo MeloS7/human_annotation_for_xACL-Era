@@ -16,11 +16,13 @@ The page defaults to English. 中文 remains available. Different publisher-adde
 
 Figure, table, and equation scores include their presence decisions directly. **N/A** confirms that the type is absent from both main papers. **1** requires a reason: missing from the compiled PDF, added only in the compiled PDF, or largely non-corresponding content. Partial omissions use the existing severity anchors. All eight score definitions open by default. All annotators enter the current scoring interface directly. Earlier pre-study test rows automatically restart only the figure, table, and equation ratings; existing current-protocol ratings are retained.
 
+Difference flags, evidence and page references, and private notes are **optional**, including for low or Uncertain scores. Completion still requires all eight scores, a reason for any object score of 1, and full-scope review confirmation. If a Critical Difference flag is selected, Overall must be 1, 2, or Uncertain. Guidance v4 supersedes the original rubric's evidence-required instruction without changing its frozen score definitions.
+
 ## Coordinator setup and deployment
 
 Supabase Anonymous Sign-Ins must be enabled. The URL and publishable client key in `site/config.json` are public settings, not administrator credentials. Run `supabase/setup.sql` as the project database owner once to create this study's private tables and authenticated RPC functions. It creates **no predefined annotators or recovery codes**. Reapplying the migration preserves data and checks the frozen study identity.
 
-The integrated scoring update also requires this reviewed setup script on an existing deployment. It upgrades only the recognized previous guidance configuration, preserves saved records and immutable history, and rejects unknown configuration drift. Apply the database upgrade before publishing its matching frontend. See [the scoring protocol and upgrade notes](docs/integrated-scoring.md).
+The current scoring update also requires this reviewed setup script on an existing deployment. It upgrades only the recognized v2 or v3 guidance configuration, preserves saved records and immutable history, and rejects unknown configuration drift. Apply the database upgrade before publishing its matching frontend. See [the scoring protocol and upgrade notes](docs/integrated-scoring.md).
 
 Profiles are created by participants through Supabase anonymous authentication. The site generates a cryptographically random personal recovery code; the database retains only its digest. No fixed user-count limit or assigned ID list is imposed by this application. Normal Supabase plan and rate limits still apply.
 

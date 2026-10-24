@@ -1,6 +1,6 @@
 # Integrated figure, table, and equation scoring
 
-Guidance: `alignment-guidance-20261024-v3`. Protocol: `integrated-presence-v1`.
+Guidance: `alignment-guidance-20261024-v4`. Protocol: `integrated-presence-v1`.
 
 The frozen 30 paper pairs, manifest, rubric version, and eight research dimensions remain the same. The updated guidance combines the former six independent presence questions with the three object scores. It makes score 1 reasons explicit and records the protocol. All annotators use this current interface directly.
 
@@ -20,7 +20,9 @@ There is no separate Item presence section. Each figure, table, or equation card
 
 A score of 1 without a reason can be saved as an unfinished draft; both presence values remain null until a reason is chosen. It cannot be marked complete. Other scores clear any previous score 1 reason. The Uncertain mapping indicates that presence was not separately elicited; it must not be analyzed as a confirmed physical absence.
 
-Missing or adding only part of an object type does not automatically produce a score of 1. Use the original 2–4 severity anchors and page evidence. A low object score does not automatically set Overall. Existing evidence, full-scope confirmation, and Critical Difference requirements still apply.
+Missing or adding only part of an object type does not automatically produce a score of 1. Use the original 2–4 severity anchors. A low object score does not automatically set Overall.
+
+Difference flags, evidence and page references, and private notes are optional, including for low or Uncertain scores and when flags are selected. They can remain empty when a paper is marked complete. The eight scores, score 1 object reasons, and full-scope confirmation remain required. Selecting Critical Difference still requires Overall 1, 2, or Uncertain. The optional fields retain their existing JSON representation (`flags: []`, `evidence: ""`, `notes: ""` when unused), bounds, save/restore behavior, and revision history.
 
 ## Saved representation
 
@@ -47,14 +49,14 @@ On session entry, old JSON import, or local recovery, a known earlier-format tes
 
 The transformed record is saved using the normal revision checks and recovery behavior. Existing pending local recovery must not be overwritten by a background conversion. Records already using the integrated protocol are unchanged, so reopening a paper never erases current ratings. An unsupported or partially extended format is rejected rather than guessed into a valid record.
 
-This is a change to treatment of pre-study test data, not a change to the scoring criteria or stored protocol. The v3 guidance bytes and database metadata remain unchanged. The superseded transition-only paragraph titled “Previously saved ratings” is omitted from the current interface; the frozen source remains available for auditing.
+This pre-study reset policy does not reset records that already use the integrated protocol. Guidance v4 makes the three supplementary sections optional and removes the superseded transition-only paragraph titled “Previously saved ratings”. Prior guidance bytes remain archived. The original frozen rubric retains its historical evidence instruction; the versioned v4 guidance supersedes that instruction, while all eight score definitions remain unchanged.
 
 ## Database upgrade and deployment
 
 1. Finish and verify the implementation against a disposable PostgreSQL database. Never run software test fixtures on the production project.
-2. Review `supabase/setup.sql`, then run it in the Supabase SQL Editor as the database owner. It supports a fresh installation and the exact recognized previous guidance configuration. Unexpected study, manifest, rubric, or guidance metadata must fail with rollback.
+2. Review `supabase/setup.sql`, then run it in the Supabase SQL Editor as the database owner. It supports a fresh installation and the exact recognized v2 or v3 guidance configuration. Unexpected study, manifest, rubric, or guidance metadata must fail with rollback.
 3. Confirm that `xacl_annotation_health` returns the guidance version and SHA-256 in `site/config.json`.
 4. Publish the matching GitHub Pages frontend. An outdated frontend is blocked by the guidance identity check instead of mislabeling new saves.
 5. Verify the live interface with authorized test data. Keep software fixtures separate from research annotations.
 
-No annotation records or revision-history entries are rewritten by the configuration upgrade. The prior guidance bytes remain in `site/archive/guidance-alignment-guidance-20261022-v2.json`. The manifest, PDF, and original rubric checksums remain frozen.
+No annotation records or revision-history entries are rewritten by the configuration upgrade. Prior v2 and v3 guidance bytes remain in `site/archive/`. The manifest, PDF, and original rubric checksums remain frozen.
