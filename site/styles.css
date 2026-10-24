@@ -327,7 +327,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .context-label { font-size: 9px; }
   .topbar-actions { gap: 8px; }
   .save-indicator { max-width: 92px; overflow: hidden; font-size: 9px; }
-  .app-body { grid-template-columns: 1fr; }
+  .app-body { grid-template-columns: minmax(0, 1fr); }
   .sidebar { position: relative; top: auto; height: auto; min-height: auto; padding: 13px 14px 10px; border-right: 0; border-bottom: 1px solid var(--line); }
   .sidebar-heading { align-items: center; }
   .sidebar-heading h1 { font-size: 15px; }
