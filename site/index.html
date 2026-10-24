@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
   <title>xACL-Era · PDF alignment annotation</title>
-  <link rel="stylesheet" href="./styles.css?v=20261024-optional-evidence">
+  <link rel="stylesheet" href="./styles.css?v=20261024-bottom-stepper">
   <script src="./vendor/supabase/supabase.js"></script>
-  <script type="module" src="./app.js?v=20261024-optional-evidence"></script>
+  <script type="module" src="./app.js?v=20261024-bottom-stepper"></script>
 </head>
 <body>
   <div class="app-shell" id="top">
@@ -136,13 +136,8 @@
           <section class="paper-heading" aria-labelledby="active-paper-title">
             <div class="paper-heading-main">
               <div class="paper-kickers"><span id="active-period" class="period-chip">—</span><span id="active-area" class="area-chip">—</span></div>
-              <h2 id="active-paper-title">—</h2>
+              <h2 id="active-paper-title" tabindex="-1">—</h2>
               <p id="active-paper-subtitle" class="paper-subtitle">—</p>
-            </div>
-            <div class="paper-stepper">
-              <button id="previous-paper" class="button button-quiet" type="button" data-i18n="previousPaper">← Previous</button>
-              <span id="paper-position" class="paper-position">—</span>
-              <button id="next-paper" class="button button-quiet" type="button" data-i18n="nextPaper">Next →</button>
             </div>
           </section>
 
@@ -232,9 +227,16 @@
                 <div class="textarea-foot"><span data-i18n="notesHelp">These notes are included in your annotation output.</span><span id="notes-count">0 / 12000</span></div>
               </div>
             </div>
-            <div class="completion-card">
-              <div class="completion-check-wrap"><label class="check-label"><input id="reviewed-full-scope" type="checkbox"><span class="check-custom" aria-hidden="true"></span><span><strong data-i18n="fullScopeTitle">I reviewed the full available main-body scope</strong><small data-i18n="fullScopeHelp">Read both PDFs throughout the main paper, including all available pages and relevant figures, tables, and equations. Record appendix or reference-list differences with flags.</small></span></label></div>
-              <div class="completion-actions"><div id="validation-message" class="validation-message" role="status" aria-live="polite"></div><button id="complete-review" class="button button-complete" type="button" data-i18n="markComplete">Mark paper complete</button></div>
+            <div class="completion-flow">
+              <div class="completion-card">
+                <div class="completion-check-wrap"><label class="check-label"><input id="reviewed-full-scope" type="checkbox"><span class="check-custom" aria-hidden="true"></span><span><strong data-i18n="fullScopeTitle">I reviewed the full available main-body scope</strong><small data-i18n="fullScopeHelp">Review both PDFs across the main paper, including relevant figures, tables, and equations. Optional flags can note appendix or reference-list differences.</small></span></label></div>
+                <div class="completion-actions"><div id="validation-message" class="validation-message" role="status" aria-live="polite"></div><button id="complete-review" class="button button-complete" type="button" data-i18n="markComplete">Mark paper complete</button></div>
+              </div>
+              <nav class="paper-stepper paper-stepper-bottom" data-i18n-title="paperNavigation" aria-label="Paper navigation">
+                <button id="previous-paper" class="button button-secondary" type="button" data-i18n="previousPaper">← Previous</button>
+                <span id="paper-position" class="paper-position">—</span>
+                <button id="next-paper" class="button button-primary" type="button" data-i18n="nextPaper">Next →</button>
+              </nav>
             </div>
           </section>
 

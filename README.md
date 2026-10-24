@@ -12,6 +12,8 @@ The static application and the 60 public paper PDFs are hosted by GitHub Pages. 
 4. Ratings save automatically. Wait for **Saved** before closing or changing device. If saving fails, keep the page open and download recovery JSON.
 5. Export your own saved annotation JSON when finished. The recovery file and annotation JSON are different files: the first restores account access, while the second contains your ratings.
 
+Previous/Next navigation sits below the completion controls. These controls return to the selected paper's heading and PDFs; drafts remain drafts until explicitly marked complete.
+
 The page defaults to English. 中文 remains available. Different publisher-added proceedings information, copyright notices and page numbering do not by themselves lower alignment scores; the scoring guide explains scope and exceptions.
 
 Figure, table, and equation scores include their presence decisions directly. **N/A** confirms that the type is absent from both main papers. **1** requires a reason: missing from the compiled PDF, added only in the compiled PDF, or largely non-corresponding content. Partial omissions use the existing severity anchors. All eight score definitions open by default. All annotators enter the current scoring interface directly. Earlier pre-study test rows automatically restart only the figure, table, and equation ratings; existing current-protocol ratings are retained.

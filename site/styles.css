@@ -29,6 +29,9 @@
 
 * { box-sizing: border-box; }
 html { min-width: 320px; scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
 body { margin: 0; min-width: 320px; min-height: 100vh; background: #f4f6fa; }
 button, input, select, textarea { font: inherit; }
 button { color: inherit; }
@@ -153,7 +156,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .toolbar-label, .section-kicker { color: #919aab; font-size: 9px; font-weight: 800; letter-spacing: .12em; }
 .annotator-chip { max-width: 170px; overflow: hidden; border: 1px solid #d9e1f9; border-radius: 20px; padding: 4px 9px; background: #f5f7ff; color: #4946a5; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
 .toolbar-actions { display: flex; align-items: center; gap: 5px; }
-.paper-heading { display: flex; align-items: end; justify-content: space-between; gap: 20px; padding: 23px 0 20px; }
+.paper-heading { display: flex; align-items: end; justify-content: space-between; gap: 20px; padding: 23px 0 20px; scroll-margin-top: 80px; }
 .paper-heading-main { min-width: 0; }
 .paper-kickers { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 9px; }
 .period-chip, .area-chip { display: inline-flex; align-items: center; min-height: 21px; border-radius: 5px; padding: 0 7px; font-size: 9px; font-weight: 700; }
@@ -163,6 +166,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .paper-heading h2 { max-width: 1000px; margin: 0; color: #182230; font-size: clamp(19px, 2vw, 27px); font-weight: 680; letter-spacing: -.04em; line-height: 1.25; }
 .paper-subtitle { margin: 7px 0 0; color: #8790a0; font-size: 10px; }
 .paper-stepper { display: flex; flex: 0 0 auto; align-items: center; gap: 3px; }
+.completion-flow { margin-top: 13px; }
+.paper-stepper-bottom { width: 100%; justify-content: flex-end; gap: 8px; margin-top: 12px; border-top: 1px solid var(--line); padding-top: 10px; }
 .paper-position { min-width: 46px; color: #7d8797; font-size: 9px; font-variant-numeric: tabular-nums; text-align: center; }
 .comparison-section, .annotation-section { padding-top: 1px; }
 .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin: 0 0 11px; }
@@ -285,7 +290,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .evidence-card textarea::placeholder, .notes-card textarea::placeholder { color: #a0a8b5; }
 .textarea-foot { display: flex; justify-content: space-between; gap: 8px; margin-top: 5px; color: #929aaa; font-size: 7px; line-height: 1.4; }
 .textarea-foot span:last-child { flex: 0 0 auto; font-variant-numeric: tabular-nums; }
-.completion-card { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, .8fr); align-items: center; gap: 17px; margin-top: 13px; border: 1px solid #dfe5ed; border-radius: 10px; padding: 13px; background: #fbfcfd; }
+.completion-card { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, .8fr); align-items: center; gap: 17px; margin-top: 0; border: 1px solid #dfe5ed; border-radius: 10px; padding: 13px; background: #fbfcfd; }
 .check-label { position: relative; display: flex; align-items: start; gap: 9px; cursor: pointer; }
 .check-custom { position: relative; display: inline-grid; flex: 0 0 auto; width: 17px; height: 17px; place-items: center; border: 1px solid #cbd2dd; border-radius: 5px; background: white; }
 .check-label input:checked + .check-custom { border-color: var(--teal); background: var(--teal); }
@@ -339,6 +344,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .sidebar-footer { display: grid; grid-template-columns: minmax(180px, 1fr) auto; align-items: center; gap: 12px; padding-top: 8px; }
   .privacy-note { margin: 0; }
   .main-content { padding: 0 14px 30px; }
+  .paper-heading { scroll-margin-top: 72px; }
+  .paper-stepper-bottom { justify-content: space-between; }
   .login-screen { min-height: calc(100vh - 60px); padding: 24px 16px 34px; }
   .sidebar { top: 60px; }
   .topbar { position: sticky; }

@@ -50,7 +50,7 @@ const STRINGS = {
     allComplete: "All {count} papers are complete. The last paper is open for review. Export JSON when you are ready to save your annotation file.",
     loadingSession: "Loading annotation record…",
     currentPaper: "CURRENT PAPER", importJson: "Import JSON", exportJson: "Export JSON", saveNow: "Save now", importing: "Importing and saving…",
-    previousPaper: "← Previous", nextPaper: "Next →", compareLabel: "COMPARE THE TWO VERSIONS", pdfComparison: "PDF comparison",
+    previousPaper: "← Previous", nextPaper: "Next →", paperNavigation: "Paper navigation", compareLabel: "COMPARE THE TWO VERSIONS", pdfComparison: "PDF comparison",
     targetOnlyScore: "Score the compiled PDF; use the official PDF as reference", expandViewers: "Expand viewers",
     targetPdf: "TARGET PDF", compiledArxiv: "Compiled arXiv LaTeX", referencePdf: "REFERENCE PDF", officialConference: "Official conference PDF",
     openNewTab: "Open in new tab", page: "Page", fit: "Fit", pdfWait: "PDF will appear when you select a paper.",
@@ -126,7 +126,7 @@ const STRINGS = {
     allComplete: "已完成全部 {count} 篇论文。最后一篇已打开供复核；准备结束时请导出 JSON 保存标注文件。",
     loadingSession: "正在加载标注记录…",
     currentPaper: "当前论文", importJson: "导入 JSON", exportJson: "导出 JSON", saveNow: "立即保存", importing: "正在导入并保存…",
-    previousPaper: "← 上一篇", nextPaper: "下一篇 →", compareLabel: "对照两个版本", pdfComparison: "PDF 对照",
+    previousPaper: "← 上一篇", nextPaper: "下一篇 →", paperNavigation: "论文导航", compareLabel: "对照两个版本", pdfComparison: "PDF 对照",
     targetOnlyScore: "只评分编译版 PDF；官方 PDF 用作参照", expandViewers: "展开 PDF 查看器",
     targetPdf: "评分对象", compiledArxiv: "arXiv LaTeX 编译 PDF", referencePdf: "对照参照", officialConference: "会议官方 PDF",
     openNewTab: "在新标签页打开", page: "页", fit: "适应窗口", pdfWait: "选择论文后将在此显示 PDF。",
@@ -922,8 +922,13 @@ function selectPaper(sampleId) {
 }
 function movePaper(delta) {
   if (!state.sessionReady || state.importing || !state.papers.length) return;
-  const next = Math.max(0, Math.min(state.papers.length - 1, state.activeIndex + delta));
-  selectPaper(state.papers[next].sample_id);
+  const nextIndex = Math.max(0, Math.min(state.papers.length - 1, state.activeIndex + delta));
+  if (nextIndex === state.activeIndex) return;
+  const nextPaper = state.papers[nextIndex];
+  if (!nextPaper || nextPaper.sample_id === state.activeSampleId) return;
+  selectPaper(nextPaper.sample_id);
+  $("#active-paper-title").focus({ preventScroll: true });
+  $(".paper-heading").scrollIntoView({ block: "start", behavior: "auto" });
 }
 function renderActivePaper() {
   const paper = activePaper();
