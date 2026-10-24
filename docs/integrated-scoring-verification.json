@@ -37,11 +37,20 @@
     "registration and save concurrency"
   ],
   "frozen_pdf_checksums_verified": 60,
-  "production_database_upgrade": "pending database owner execution",
-  "production_frontend_deployment": "held until matching database upgrade",
+  "production_database_upgrade": "confirmed: health RPC ready with matching v3 guidance version and SHA-256",
+  "production_frontend_deployment": "published and checked online",
   "human_judgments_generated": false,
   "limitations": [
     "Browser tests use synthetic Auth/Data transport with official Supabase SDK and real disposable PostgreSQL; production annotations were not modified.",
     "The legacy eight-key annotation and integrated ten-key annotation share the original outer v1 JSON schema and are distinguished explicitly per row."
-  ]
+  ],
+  "release_commit": "8fcc137de067b5b6382d8ed5c5021067513d257e",
+  "release_workflow_url": "https://github.com/MeloS7/human_annotation_for_xACL-Era/actions/runs/40100808514",
+  "production_read_only_checks": [
+    "All six published index/app/protocol/style/config/guidance files match reviewed bytes",
+    "English default; eight score definitions open; no independent presence section",
+    "Existing test profile restores its previous scores and legacy presence without conversion",
+    "An unstarted paper enables N/A directly and includes all three score-1 reasons"
+  ],
+  "production_annotation_writes_in_release_check": 0
 }
