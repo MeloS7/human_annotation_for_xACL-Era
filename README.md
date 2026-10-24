@@ -14,6 +14,8 @@ The static application and the 60 public paper PDFs are hosted by GitHub Pages. 
 
 Previous/Next navigation sits below the completion controls. These controls return to the selected paper's heading and PDFs; drafts remain drafts until explicitly marked complete.
 
+**Sync page turns** is optional and starts off. When enabled, either PDF's page arrows move both viewers by one page while preserving their current page offset until a viewer reaches its first or last page. Each PDF clamps to its own page range and displays a boundary notice. Direct page-number entry, zoom, and Fit remain independent. Enabling sync does not change the current pages; each newly selected paper starts at page 1 in both viewers.
+
 The page defaults to English. 中文 remains available. Different publisher-added proceedings information, copyright notices and page numbering do not by themselves lower alignment scores; the scoring guide explains scope and exceptions.
 
 Figure, table, and equation scores include their presence decisions directly. **N/A** confirms that the type is absent from both main papers. **1** requires a reason: missing from the compiled PDF, added only in the compiled PDF, or largely non-corresponding content. Partial omissions use the existing severity anchors. All eight score definitions open by default. All annotators enter the current scoring interface directly. Earlier pre-study test rows automatically restart only the figure, table, and equation ratings; existing current-protocol ratings are retained.

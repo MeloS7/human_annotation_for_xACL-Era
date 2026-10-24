@@ -62,6 +62,111 @@ async function rendered(p,id){
  await p.waitForFunction(id=>document.querySelector(`[data-sample-id="${id}"]`)?.getAttribute('aria-current')==='true',id);
  await p.waitForFunction(id=>['compiled','official'].every(k=>{const n=document.querySelector(`[data-canvas="${k}"]`);return n&&!n.classList.contains('is-hidden')&&n.width>0&&n.dataset.renderedSample===id&&n.dataset.renderedPage==='1'&&document.querySelector(`[data-stage="${k}"]`).getAttribute('aria-busy')==='false';}),id,{timeout:60000});
 }
+async function renderedPages(p,sampleId,compiledPage,officialPage){
+ await p.waitForFunction(({sampleId,compiledPage,officialPage})=>{
+  return [['compiled',compiledPage],['official',officialPage]].every(([side,page])=>{
+   const canvas=document.querySelector(`[data-canvas="${side}"]`),stage=document.querySelector(`[data-stage="${side}"]`);
+   return canvas&&!canvas.classList.contains('is-hidden')&&canvas.width>0&&canvas.dataset.renderedSample===sampleId&&canvas.dataset.renderedPage===String(page)&&stage.getAttribute('aria-busy')==='false';
+  });
+ },{sampleId,compiledPage,officialPage},{timeout:60000});
+ assert.equal(await p.locator('[data-page-input="compiled"]').inputValue(),String(compiledPage));
+ assert.equal(await p.locator('[data-page-input="official"]').inputValue(),String(officialPage));
+}
+async function setPageInput(p,sampleId,side,page){
+ const input=p.locator(`[data-page-input="${side}"]`);
+ await input.fill(String(page));await input.press('Enter');
+ const target=Math.max(1,Math.min(side==='compiled'?(sampleId==='RL04'?13:18):(sampleId==='RL04'?12:18),Math.round(page)));
+ await p.waitForFunction(({sampleId,side,target})=>{
+  const canvas=document.querySelector(`[data-canvas="${side}"]`),stage=document.querySelector(`[data-stage="${side}"]`);
+  return canvas?.dataset.renderedSample===sampleId&&canvas.dataset.renderedPage===String(target)&&stage?.getAttribute('aria-busy')==='false';
+ },{sampleId,side,target},{timeout:60000});
+ assert.equal(await input.inputValue(),String(target));
+ return target;
+}
+async function setSync(p,enabled,keyboard=false){
+ const toggle=p.locator('#sync-pdf-pages');
+ if(await toggle.isChecked()!==enabled){
+  if(keyboard){await toggle.evaluate(node=>node.focus());await p.keyboard.press('Space');}
+  else await p.locator('.sync-toggle').click();
+ }
+ assert.equal(await toggle.isChecked(),enabled);
+}
+async function exerciseSyncedPdfNavigation(p,artifacts){
+ const toggle=p.locator('#sync-pdf-pages');
+ assert.equal(await toggle.getAttribute('role'),'switch');assert.equal(await toggle.isChecked(),false);assert.equal(await toggle.getAttribute('aria-labelledby'),'sync-pdf-pages-label');
+ await p.locator('[data-viewer-action="next"][data-viewer="compiled"]').click();await renderedPages(p,'RL01',2,1);
+ await setPageInput(p,'RL01','compiled',5);await setPageInput(p,'RL01','official',6);await renderedPages(p,'RL01',5,6);
+ await setSync(p,true,true);await renderedPages(p,'RL01',5,6);
+ await p.locator('#focus-viewers').click();assert.equal((await p.locator('#viewer-grid').getAttribute('class')).includes('is-focus'),true);
+ await p.locator('[data-viewer-action="next"][data-viewer="official"]').click();await renderedPages(p,'RL01',6,7);
+ await p.locator('[data-exit-focus]').click();assert.equal((await p.locator('#viewer-grid').getAttribute('class')).includes('is-focus'),false);
+ await p.locator('[data-viewer-action="prev"][data-viewer="compiled"]').click();await renderedPages(p,'RL01',5,6);
+ await setPageInput(p,'RL01','compiled',1);await setPageInput(p,'RL01','official',2);await renderedPages(p,'RL01',1,2);
+ await p.locator('.language-button[data-language="zh"]').click();assert.equal(await p.locator('#sync-pdf-pages-label').innerText(),'同步翻页');
+ await p.locator('[data-viewer-action="prev"][data-viewer="official"]').click();await renderedPages(p,'RL01',1,1);
+ for(const side of ['compiled','official']){assert.equal(await p.locator(`[data-page-status="${side}"]`).innerText(),'已到第一页');assert.equal(await p.locator(`[data-page-status="${side}"]`).getAttribute('role'),'status');assert.equal(await p.locator(`[data-page-status="${side}"]`).getAttribute('aria-live'),'polite');}
+ const compiledStage=p.locator('[data-stage="compiled"]');await compiledStage.evaluate(stage=>{stage.dataset.busyChanges='0';stage.__busyObserver=new MutationObserver(records=>{stage.dataset.busyChanges=String(Number(stage.dataset.busyChanges)+records.length);});stage.__busyObserver.observe(stage,{attributes:true,attributeFilter:['aria-busy']});});
+ await p.locator('[data-viewer-action="prev"][data-viewer="compiled"]').click();await renderedPages(p,'RL01',1,1);
+ await p.waitForTimeout(0);assert.equal(await compiledStage.getAttribute('data-busy-changes'),'0','repeated boundary turns must not rerender an unchanged page');await compiledStage.evaluate(stage=>stage.__busyObserver.disconnect());
+ await p.locator('.language-button[data-language="en"]').click();assert.equal(await p.locator('#sync-pdf-pages-label').innerText(),'Sync page turns');
+ assert.equal(await p.locator('[data-page-status="compiled"]').innerText(),'First page reached');assert.equal(await p.locator('[data-page-status="official"]').innerText(),'First page reached');
+ await setPageInput(p,'RL01','compiled',0);await renderedPages(p,'RL01',1,1);assert.equal(await p.locator('[data-page-status="compiled"]').isHidden(),true);
+ await setPageInput(p,'RL01','compiled',5);await renderedPages(p,'RL01',5,1);
+ assert.equal(await p.locator('[data-page-status="compiled"]').isHidden(),true);assert.equal(await p.locator('[data-page-status="official"]').isHidden(),true);
+ await setPageInput(p,'RL01','compiled',0);await renderedPages(p,'RL01',1,1);
+ await setSync(p,false);await p.locator('[data-viewer-action="next"][data-viewer="compiled"]').click();await renderedPages(p,'RL01',2,1);
+ await setSync(p,true);await renderedPages(p,'RL01',2,1);
+ await p.evaluate(()=>{
+  const next=document.querySelector('[data-viewer-action="next"][data-viewer="compiled"]');
+  for(let i=0;i<8;i++)next.click();
+  document.querySelector('[data-sample-id="RL04"]').click();
+ });
+ await rendered(p,'RL04');
+ assert.equal(await toggle.isChecked(),true);assert.equal(await p.locator('[data-page-status="compiled"]').isHidden(),true);assert.equal(await p.locator('[data-page-status="official"]').isHidden(),true);
+ await setPageInput(p,'RL04','compiled',13);await setPageInput(p,'RL04','official',10);await renderedPages(p,'RL04',13,10);
+ await p.locator('[data-viewer-action="next"][data-viewer="compiled"]').click();await renderedPages(p,'RL04',13,11);
+ assert.equal(await p.locator('[data-page-status="compiled"]').innerText(),'Last page reached');assert.equal(await p.locator('[data-page-status="official"]').isHidden(),true);
+ await p.locator('[data-viewer-action="next"][data-viewer="official"]').click();await renderedPages(p,'RL04',13,12);
+ assert.equal(await p.locator('[data-page-status="compiled"]').innerText(),'Last page reached');assert.equal(await p.locator('[data-page-status="official"]').innerText(),'Last page reached');
+ await setPageInput(p,'RL04','compiled',999);await renderedPages(p,'RL04',13,12);
+ assert.equal(await p.locator('[data-page-status="compiled"]').isHidden(),true);assert.equal(await p.locator('[data-page-status="official"]').isHidden(),true);
+ await p.locator('[data-viewer-action="next"][data-viewer="official"]').click();await renderedPages(p,'RL04',13,12);
+ assert.equal(await p.locator('[data-page-status="compiled"]').innerText(),'Last page reached');assert.equal(await p.locator('[data-page-status="official"]').innerText(),'Last page reached');
+ await p.setViewportSize({width:390,height:844});
+ const mobileWidth=await p.evaluate(()=>document.documentElement.scrollWidth);assert.ok(mobileWidth<=390,`Synced PDF controls overflow at 390px: ${mobileWidth}px`);
+ assert.ok(await toggle.isVisible());await p.locator('.pdf-panel-target').screenshot({path:path.join(artifacts,'synced-boundary-mobile.png')});
+ await p.setViewportSize({width:1600,height:1050});await renderedPages(p,'RL04',13,12);
+ await p.locator('.pdf-panel-target').screenshot({path:path.join(artifacts,'synced-boundary-desktop.png')});
+ await p.locator('[data-viewer-action="prev"][data-viewer="official"]').click();await renderedPages(p,'RL04',12,11);
+ assert.equal(await p.locator('[data-page-status="compiled"]').isHidden(),true);assert.equal(await p.locator('[data-page-status="official"]').isHidden(),true);
+ await setSync(p,false);await p.locator('[data-viewer-action="next"][data-viewer="compiled"]').click();await renderedPages(p,'RL04',13,11);
+ report.checks.push('Optional page-turn sync preserves independent offsets and direct jumps, moves both rendered PDFs by one relative page, clamps each range independently, localizes boundary status, resets pages on paper change, survives rapid turns followed by a paper switch without stale canvases, works in expanded viewers, and resets to off after reload');
+}
+async function exerciseSyncAvailability(p){
+ const context=p.context(),pattern='**/pdfs/RL04/official.pdf*';
+ await p.locator('[data-sample-id="RL01"]').click();await rendered(p,'RL01');
+ let reachedResolve,releaseResolve,held=true;
+ const reached=new Promise(resolve=>{reachedResolve=resolve;}),gate=new Promise(resolve=>{releaseResolve=resolve;});
+ const delayed=async route=>{if(held){held=false;reachedResolve();await gate;}await route.continue();};
+ await context.route(pattern,delayed);await setSync(p,true);
+ await p.locator('[data-sample-id="RL04"]').click();
+ let routeTimeout;await Promise.race([reached,new Promise((_,reject)=>{routeTimeout=setTimeout(()=>reject(new Error('Delayed official PDF request was not intercepted')),15000);})]).finally(()=>clearTimeout(routeTimeout));
+ await p.waitForFunction(()=>document.querySelector('[data-canvas="compiled"]')?.dataset.renderedSample==='RL04'&&document.querySelector('[data-canvas="compiled"]')?.dataset.renderedPage==='1'&&document.querySelector('[data-stage="compiled"]')?.getAttribute('aria-busy')==='false',{},{timeout:60000});
+ for(const side of ['compiled','official'])for(const action of ['prev','next'])assert.equal(await p.locator(`[data-viewer-action="${action}"][data-viewer="${side}"]`).isDisabled(),true,`sync ${action} must stay disabled while official PDF loads`);
+ assert.equal(await p.locator('[data-page-input="compiled"]').isDisabled(),false);assert.equal(await p.locator('[data-viewer-action="zoom-in"][data-viewer="compiled"]').isDisabled(),false);
+ releaseResolve();await rendered(p,'RL04');await context.unroute(pattern,delayed);
+ const failed=route=>route.abort();await context.route(pattern,failed);
+ await p.locator('[data-sample-id="RL01"]').click();await rendered(p,'RL01');await p.locator('[data-sample-id="RL04"]').click();
+ await p.locator('[data-error="official"]').waitFor({state:'visible',timeout:60000});
+ await p.waitForFunction(()=>document.querySelector('[data-canvas="compiled"]')?.dataset.renderedSample==='RL04'&&document.querySelector('[data-stage="compiled"]')?.getAttribute('aria-busy')==='false',{},{timeout:60000});
+ for(const side of ['compiled','official'])for(const action of ['prev','next'])assert.equal(await p.locator(`[data-viewer-action="${action}"][data-viewer="${side}"]`).isDisabled(),true,`sync ${action} must stay disabled when official PDF failed`);
+ assert.equal(await p.locator('[data-page-input="compiled"]').isDisabled(),false);assert.equal(await p.locator('[data-viewer-action="zoom-in"][data-viewer="compiled"]').isDisabled(),false);
+ await setSync(p,false);
+ assert.equal(await p.locator('[data-viewer-action="prev"][data-viewer="compiled"]').isDisabled(),false);assert.equal(await p.locator('[data-viewer-action="next"][data-viewer="compiled"]').isDisabled(),false);
+ assert.equal(await p.locator('[data-viewer-action="prev"][data-viewer="official"]').isDisabled(),true);assert.equal(await p.locator('[data-viewer-action="next"][data-viewer="official"]').isDisabled(),true);
+ await context.unroute(pattern,failed);
+ report.checks.push('Sync arrows block while either current PDF is still loading or has a load error; loaded-side zoom and page input remain available, and turning sync off restores independent navigation');
+}
 async function assertSteppedTo(p,id,index){
  await rendered(p,id);
  await p.waitForFunction(()=>{
@@ -106,6 +211,8 @@ async function create(p,name){
  await p.locator('.language-button[data-language="zh"]').click();assert.equal(await p.locator('#previous-paper').innerText(),'← 上一篇');assert.equal(await p.locator('#next-paper').innerText(),'下一篇 →');assert.equal(await p.locator('#paper-position').innerText(),'1 / 30');assert.equal(await p.locator('#previous-paper').evaluate(n=>n.closest('nav').getAttribute('aria-label')),'论文导航');await p.locator('.language-button[data-language="en"]').click();
  await p.locator('[data-sample-id="RL30"]').click();await p.waitForFunction(()=>document.querySelector('[data-sample-id="RL30"]')?.getAttribute('aria-current')==='true');assert.equal(await p.locator('#paper-position').innerText(),'30 of 30');assert.equal(await p.locator('#previous-paper').isDisabled(),false);assert.equal(await p.locator('#next-paper').isDisabled(),true);await p.locator('#next-paper').evaluate(button=>button.click());assert.equal(await p.locator('[data-sample-id="RL30"]').getAttribute('aria-current'),'true');
  await p.locator('[data-sample-id="RL01"]').click();await rendered(p,'RL01');assert.equal(await p.locator('#paper-position').innerText(),'1 of 30');assert.equal(await p.locator('#previous-paper').isDisabled(),true);assert.equal(await p.locator('#next-paper').isDisabled(),false);report.checks.push('Single bottom stepper follows completion, localizes English/Chinese, reports positions, and disables both boundary directions without wrapping');
+ await exerciseSyncedPdfNavigation(p,artifacts);await exerciseSyncAvailability(p);
+ await p.reload();await p.locator('#continue-profile').waitFor({state:'visible'});await p.locator('#continue-profile').click();await rendered(p,'RL01');assert.equal(await p.locator('#sync-pdf-pages').isChecked(),false,'page-turn sync defaults off on every page load');
  assert.equal(await p.locator('.evidence-card .optional-hint').innerText(),'Optional');assert.match(await p.locator('.flags-card legend').innerText(),/optional/i);
  await p.locator('#guidance-details').evaluate(n=>n.open=true);assert.equal(await p.locator('.guidance-detail h4').filter({hasText:'Previously saved ratings'}).count(),0);await p.locator('#guidance-details').evaluate(n=>n.open=false);
  const englishGuidance=[await p.locator('#guidance-quick-rules').innerText(),await p.locator('#guidance-expanded-items').innerText(),await p.locator('[data-i18n="fullScopeHelp"]').innerText()].join(' ');assert.match(englishGuidance,/optional/i);assert.doesNotMatch(englishGuidance,/evidence.{0,80}(required|must)|page references.{0,80}(required|must)|required.{0,80}(evidence|page)/i);

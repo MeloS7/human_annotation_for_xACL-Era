@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
   <title>xACL-Era · PDF alignment annotation</title>
-  <link rel="stylesheet" href="./styles.css?v=20261024-bottom-stepper">
+  <link rel="stylesheet" href="./styles.css?v=20261024-sync-pdf-pages">
   <script src="./vendor/supabase/supabase.js"></script>
-  <script type="module" src="./app.js?v=20261024-bottom-stepper"></script>
+  <script type="module" src="./app.js?v=20261024-sync-pdf-pages"></script>
 </head>
 <body>
   <div class="app-shell" id="top">
@@ -146,6 +146,11 @@
               <div><span class="section-kicker" data-i18n="compareLabel">COMPARE THE TWO VERSIONS</span><h3 id="comparison-title" data-i18n="pdfComparison">PDF comparison</h3></div>
               <div class="comparison-actions">
                 <span class="scope-note"><span class="scope-dot" aria-hidden="true"></span><span data-i18n="targetOnlyScore">Score the compiled PDF; use the official PDF as reference</span></span>
+                <label class="sync-toggle" for="sync-pdf-pages">
+                  <span id="sync-pdf-pages-label" data-i18n="syncPageTurns">Sync page turns</span>
+                  <input id="sync-pdf-pages" class="sr-only" type="checkbox" role="switch" aria-labelledby="sync-pdf-pages-label">
+                  <span class="sync-toggle-track" aria-hidden="true"></span>
+                </label>
                 <button id="focus-viewers" class="button button-quiet focus-button" type="button" aria-pressed="false" data-i18n="expandViewers">Expand viewers</button>
               </div>
             </div>
@@ -163,6 +168,7 @@
                   <div class="page-controls"><button type="button" data-viewer-action="prev" data-viewer="compiled" class="control-button" aria-label="Previous target page">‹</button><label><span data-i18n="page">Page</span><input type="number" min="1" value="1" data-page-input="compiled" aria-label="Target PDF page"></label><span class="page-count">/ <span data-page-count="compiled">—</span></span><button type="button" data-viewer-action="next" data-viewer="compiled" class="control-button" aria-label="Next target page">›</button></div>
                   <div class="zoom-controls"><button type="button" data-viewer-action="zoom-out" data-viewer="compiled" class="control-button" aria-label="Zoom out">−</button><span data-zoom-label="compiled">Fit</span><button type="button" data-viewer-action="zoom-in" data-viewer="compiled" class="control-button" aria-label="Zoom in">+</button><button type="button" data-viewer-action="fit" data-viewer="compiled" class="fit-button" data-i18n="fit">Fit</button></div>
                 </div>
+                <p class="pdf-page-status is-hidden" data-page-status="compiled" role="status" aria-live="polite" aria-atomic="true"></p>
                 <div class="pdf-stage" data-stage="compiled" tabindex="0" aria-label="Compiled target PDF pages">
                   <div class="pdf-placeholder" data-placeholder="compiled"><span class="placeholder-icon" aria-hidden="true">PDF</span><p data-i18n="pdfWait">PDF will appear when you select a paper.</p></div>
                   <canvas data-canvas="compiled" class="pdf-canvas is-hidden" role="img" aria-label="Rendered compiled PDF page"></canvas>
@@ -180,6 +186,7 @@
                   <div class="page-controls"><button type="button" data-viewer-action="prev" data-viewer="official" class="control-button" aria-label="Previous reference page">‹</button><label><span data-i18n="page">Page</span><input type="number" min="1" value="1" data-page-input="official" aria-label="Reference PDF page"></label><span class="page-count">/ <span data-page-count="official">—</span></span><button type="button" data-viewer-action="next" data-viewer="official" class="control-button" aria-label="Next reference page">›</button></div>
                   <div class="zoom-controls"><button type="button" data-viewer-action="zoom-out" data-viewer="official" class="control-button" aria-label="Zoom out">−</button><span data-zoom-label="official">Fit</span><button type="button" data-viewer-action="zoom-in" data-viewer="official" class="control-button" aria-label="Zoom in">+</button><button type="button" data-viewer-action="fit" data-viewer="official" class="fit-button" data-i18n="fit">Fit</button></div>
                 </div>
+                <p class="pdf-page-status is-hidden" data-page-status="official" role="status" aria-live="polite" aria-atomic="true"></p>
                 <div class="pdf-stage" data-stage="official" tabindex="0" aria-label="Official reference PDF pages">
                   <div class="pdf-placeholder" data-placeholder="official"><span class="placeholder-icon" aria-hidden="true">PDF</span><p data-i18n="pdfWait">PDF will appear when you select a paper.</p></div>
                   <canvas data-canvas="official" class="pdf-canvas is-hidden" role="img" aria-label="Rendered official PDF page"></canvas>

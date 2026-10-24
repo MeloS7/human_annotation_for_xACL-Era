@@ -51,9 +51,9 @@ const STRINGS = {
     loadingSession: "Loading annotation record…",
     currentPaper: "CURRENT PAPER", importJson: "Import JSON", exportJson: "Export JSON", saveNow: "Save now", importing: "Importing and saving…",
     previousPaper: "← Previous", nextPaper: "Next →", paperNavigation: "Paper navigation", compareLabel: "COMPARE THE TWO VERSIONS", pdfComparison: "PDF comparison",
-    targetOnlyScore: "Score the compiled PDF; use the official PDF as reference", expandViewers: "Expand viewers",
+    targetOnlyScore: "Score the compiled PDF; use the official PDF as reference", expandViewers: "Expand viewers", syncPageTurns: "Sync page turns",
     targetPdf: "TARGET PDF", compiledArxiv: "Compiled arXiv LaTeX", referencePdf: "REFERENCE PDF", officialConference: "Official conference PDF",
-    openNewTab: "Open in new tab", page: "Page", fit: "Fit", pdfWait: "PDF will appear when you select a paper.",
+    openNewTab: "Open in new tab", page: "Page", fit: "Fit", pdfWait: "PDF will appear when you select a paper.", firstPageReached: "First page reached", lastPageReached: "Last page reached",
     pageCountPending: "Page count pending", rubricLabel: "FIXED RUBRIC", annotationTitle: "Alignment annotation",
     figure: "Figure", table: "Table", equation: "Equation", compiledPdf: "Compiled PDF", officialPdf: "Official PDF", present: "Present", absent: "Absent", presenceUncertain: "Uncertain",
     naHelp: "N/A means this item type is absent in both PDFs.", scoreOneObjectHelp: "Use 1 when this entire item type is present officially but missing from the compiled PDF, absent officially but added in the compiled PDF, or largely non-corresponding. Score partial omissions by impact (2–4).",
@@ -127,9 +127,9 @@ const STRINGS = {
     loadingSession: "正在加载标注记录…",
     currentPaper: "当前论文", importJson: "导入 JSON", exportJson: "导出 JSON", saveNow: "立即保存", importing: "正在导入并保存…",
     previousPaper: "← 上一篇", nextPaper: "下一篇 →", paperNavigation: "论文导航", compareLabel: "对照两个版本", pdfComparison: "PDF 对照",
-    targetOnlyScore: "只评分编译版 PDF；官方 PDF 用作参照", expandViewers: "展开 PDF 查看器",
+    targetOnlyScore: "只评分编译版 PDF；官方 PDF 用作参照", expandViewers: "展开 PDF 查看器", syncPageTurns: "同步翻页",
     targetPdf: "评分对象", compiledArxiv: "arXiv LaTeX 编译 PDF", referencePdf: "对照参照", officialConference: "会议官方 PDF",
-    openNewTab: "在新标签页打开", page: "页", fit: "适应窗口", pdfWait: "选择论文后将在此显示 PDF。",
+    openNewTab: "在新标签页打开", page: "页", fit: "适应窗口", pdfWait: "选择论文后将在此显示 PDF。", firstPageReached: "已到第一页", lastPageReached: "已到最后一页",
     pageCountPending: "等待读取页数", rubricLabel: "固定评分标准", annotationTitle: "版本对齐标注",
     figure: "图片", table: "表格", equation: "公式", compiledPdf: "编译版 PDF", officialPdf: "官方 PDF", present: "存在", absent: "不存在", presenceUncertain: "无法判断",
     naHelp: "N/A 表示两份 PDF 中都没有该类内容。", scoreOneObjectHelp: "官方版有而编译版完全缺失、官方版没有而编译版整体新增，或两版内容大幅不对应时选 1。部分缺失按影响程度选 2–4。",
@@ -193,7 +193,7 @@ const state = {
   loginErrorKey: "", sessionErrorKey: "", sessionErrorDetail: "",
   sessionLoading: false, switching: false, sessionReady: false, rubricReady: false, guidanceReady: false, dirty: false, dirtyVersion: 0,
   savingPromise: null, saveTimer: null, saveBlocked: false, saveError: "", importing: false, toastTimer: null,
-  pdfjsPromise: null, viewers: { compiled: null, official: null }, focusViewers: false,
+  pdfjsPromise: null, viewers: { compiled: null, official: null }, focusViewers: false, syncPdfNavigation: false,
   localRecovery: null, localRecoveryConflict: false,
 };
 
@@ -236,6 +236,7 @@ function setLanguage(language) {
     button.setAttribute("aria-pressed", String(active));
   });
   updateStaticAria();
+  renderBoundaryStatuses();
   const focusButton = $("#focus-viewers");
   if (focusButton) focusButton.textContent = state.focusViewers ? (state.language === "zh" ? "返回标注" : "Return to annotation") : t("expandViewers");
   if (state.manifest) {
@@ -473,6 +474,7 @@ function bindEvents() {
   $("#notes").addEventListener("input", () => updateTextField("notes"));
   $("#reviewed-full-scope").addEventListener("change", () => mutateActive((row) => { row.reviewed_full_scope = $("#reviewed-full-scope").checked; }));
   $("#focus-viewers").addEventListener("click", toggleViewerFocus);
+  $("#sync-pdf-pages").addEventListener("change", (event) => setPdfSyncNavigation(event.currentTarget.checked));
   document.addEventListener("click", onDocumentClick);
   document.addEventListener("change", onDocumentChange);
   window.addEventListener("resize", onWindowResize, { passive: true });
@@ -505,7 +507,10 @@ function onDocumentChange(event) {
   const flagInput = event.target.closest("[data-flag-key]");
   if (flagInput) updateFlag(flagInput.dataset.flagKey, flagInput.checked);
   const pageInput = event.target.closest("[data-page-input]");
-  if (pageInput) goToPage(pageInput.dataset.pageInput, Number(pageInput.value));
+  if (pageInput) {
+    clearBoundaryStatuses();
+    goToPage(pageInput.dataset.pageInput, Number(pageInput.value));
+  }
 }
 
 function setAuthMode(mode) {
@@ -913,6 +918,7 @@ function selectPaper(sampleId) {
   const index = state.papers.findIndex((paper) => paper.sample_id === sampleId);
   if (index < 0) return;
   if (!state.sessionReady) return;
+  clearBoundaryStatuses();
   state.activeIndex = index;
   state.activeSampleId = sampleId;
   ensureAnnotation(sampleId);
@@ -1645,7 +1651,7 @@ async function getPdfJs() {
   return state.pdfjsPromise;
 }
 function viewerState(id) {
-  if (!state.viewers[id]) state.viewers[id] = { generation: 0, pdf: null, loadingTask: null, renderTask: null, page: 1, scale: null, fit: true, paperSampleId: null, pageCount: null, resizeObserver: null };
+  if (!state.viewers[id]) state.viewers[id] = { generation: 0, pdf: null, loadingTask: null, renderTask: null, page: 1, scale: null, fit: true, paperSampleId: null, pageCount: null, error: false, boundaryKey: null, resizeObserver: null };
   return state.viewers[id];
 }
 async function loadPaperPdfs(paper) {
@@ -1661,7 +1667,7 @@ async function loadPdf(id, info, sampleId) {
   viewer.generation += 1;
   const generation = viewer.generation;
   cancelViewerWork(viewer);
-  viewer.pdf = null; viewer.page = 1; viewer.scale = null; viewer.fit = true; viewer.paperSampleId = sampleId;
+  viewer.pdf = null; viewer.page = 1; viewer.scale = null; viewer.fit = true; viewer.paperSampleId = sampleId; viewer.error = false;
   const url = safePdfUrl(info?.path);
   const open = $(`[data-pdf-open="${id}"]`);
   const stage = $(`[data-stage="${id}"]`);
@@ -1694,7 +1700,7 @@ async function loadPdf(id, info, sampleId) {
     viewer.loadingTask = loadingTask;
     const pdf = await loadingTask.promise;
     if (generation !== viewer.generation) { await pdf.destroy().catch(() => {}); return; }
-    viewer.pdf = pdf;
+    viewer.pdf = pdf; viewer.error = false;
     viewer.pageCount = pdf.numPages;
     setViewerCount(id, pdf.numPages);
     renderDynamicLabels();
@@ -1718,8 +1724,11 @@ function setViewerCount(id, count) {
   const input = $(`[data-page-input="${id}"]`);
   input.value = "1"; input.max = count ? String(count) : "1"; input.disabled = !count;
   for (const action of ["prev", "next", "zoom-in", "zoom-out", "fit"]) $(`[data-viewer-action="${action}"][data-viewer="${id}"]`).disabled = !count;
+  updateViewerArrowAvailability();
 }
 function showPdfError(id, message) {
+  viewerState(id).error = true;
+  clearBoundaryStatuses();
   const stage = $(`[data-stage="${id}"]`);
   const canvas = $(`[data-canvas="${id}"]`);
   const placeholder = $(`[data-placeholder="${id}"]`);
@@ -1736,7 +1745,8 @@ function showPdfError(id, message) {
 function clearViewer(id, message = t("pdfWait")) {
   const viewer = viewerState(id);
   viewer.generation += 1; cancelViewerWork(viewer); viewer.paperSampleId = null;
-  viewer.pageCount = null;
+  viewer.page = 1; viewer.scale = null; viewer.fit = true; viewer.error = false; viewer.pageCount = null;
+  setBoundaryStatus(id, null);
   const canvas = $(`[data-canvas="${id}"]`);
   clearRenderedIdentity(canvas);
   $(`[data-stage="${id}"]`).setAttribute("aria-busy", "false");
@@ -1787,6 +1797,13 @@ async function renderPage(id, pageNumber, expectedGeneration) {
     await renderTask.promise;
     if (expectedGeneration !== viewer.generation || renderSequence !== viewer.renderSequence) return;
     viewer.renderTask = null;
+    if (viewer.error) {
+      viewer.error = false;
+      viewer.pageCount = viewer.pdf.numPages;
+      setViewerCount(id, viewer.pdf.numPages);
+      pageInput.value = String(page);
+      $(`[data-error="${id}"]`).classList.add("is-hidden");
+    }
     canvas.dataset.renderedSample = viewer.paperSampleId;
     canvas.dataset.renderedPage = String(page);
     canvas.classList.remove("is-hidden");
@@ -1832,12 +1849,74 @@ function installResizeObserver(id) {
 function goToPage(id, page) {
   const viewer = viewerState(id);
   if (!viewer.pdf || !Number.isFinite(page)) return;
-  renderPage(id, page, viewer.generation);
+  const targetPage = Math.max(1, Math.min(viewer.pdf.numPages, Math.round(page)));
+  if (targetPage === viewer.page && !viewer.error) {
+    $(`[data-page-input="${id}"]`).value = String(targetPage);
+    return;
+  }
+  renderPage(id, targetPage, viewer.generation);
+}
+function setPdfSyncNavigation(enabled) {
+  state.syncPdfNavigation = Boolean(enabled);
+  clearBoundaryStatuses();
+  updateViewerArrowAvailability();
+}
+function synchronizedViewersReady() {
+  const sampleId = state.activeSampleId;
+  return Boolean(sampleId && ["compiled", "official"].every((id) => {
+    const viewer = viewerState(id);
+    return viewer.pdf && !viewer.error && viewer.paperSampleId === sampleId;
+  }));
+}
+function updateViewerArrowAvailability() {
+  const synchronizedReady = !state.syncPdfNavigation || synchronizedViewersReady();
+  for (const id of ["compiled", "official"]) {
+    const viewer = viewerState(id);
+    const sideReady = viewer.pdf && !viewer.error && viewer.paperSampleId === state.activeSampleId;
+    for (const action of ["prev", "next"]) {
+      const button = $(`[data-viewer-action="${action}"][data-viewer="${id}"]`);
+      if (button) button.disabled = !sideReady || !synchronizedReady;
+    }
+  }
+}
+function setBoundaryStatus(id, key) {
+  const viewer = viewerState(id);
+  viewer.boundaryKey = key || null;
+  const status = $(`[data-page-status="${id}"]`);
+  if (!status) return;
+  status.textContent = viewer.boundaryKey ? t(viewer.boundaryKey) : "";
+  status.classList.toggle("is-hidden", !viewer.boundaryKey);
+}
+function clearBoundaryStatuses() {
+  for (const id of ["compiled", "official"]) setBoundaryStatus(id, null);
+}
+function renderBoundaryStatuses() {
+  for (const id of ["compiled", "official"]) {
+    const viewer = viewerState(id);
+    const status = $(`[data-page-status="${id}"]`);
+    if (!status) continue;
+    status.textContent = viewer.boundaryKey ? t(viewer.boundaryKey) : "";
+    status.classList.toggle("is-hidden", !viewer.boundaryKey);
+  }
+}
+function moveSynchronizedViewers(delta) {
+  if (!synchronizedViewersReady()) return;
+  for (const id of ["compiled", "official"]) {
+    const viewer = viewerState(id);
+    const targetPage = Math.max(1, Math.min(viewer.pdf.numPages, viewer.page + delta));
+    const boundaryKey = delta < 0 && targetPage <= 1
+      ? "firstPageReached"
+      : delta > 0 && targetPage >= viewer.pdf.numPages ? "lastPageReached" : null;
+    setBoundaryStatus(id, boundaryKey);
+    if (targetPage !== viewer.page) renderPage(id, targetPage, viewer.generation);
+  }
 }
 function handleViewerAction(id, action) {
   const viewer = viewerState(id);
   if (!viewer.pdf) return;
-  if (action === "prev") goToPage(id, viewer.page - 1);
+  if (action === "prev" && state.syncPdfNavigation) moveSynchronizedViewers(-1);
+  else if (action === "next" && state.syncPdfNavigation) moveSynchronizedViewers(1);
+  else if (action === "prev") goToPage(id, viewer.page - 1);
   else if (action === "next") goToPage(id, viewer.page + 1);
   else if (action === "fit") { viewer.fit = true; viewer.scale = null; renderPage(id, viewer.page, viewer.generation); }
   else if (action === "zoom-in" || action === "zoom-out") {

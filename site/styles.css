@@ -172,10 +172,17 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .comparison-section, .annotation-section { padding-top: 1px; }
 .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin: 0 0 11px; }
 .section-heading h3 { margin: 4px 0 0; color: #253044; font-size: 15px; letter-spacing: -.02em; }
-.comparison-actions { display: flex; align-items: center; gap: 8px; }
+.comparison-actions { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 8px; }
 .scope-note { display: inline-flex; align-items: center; gap: 6px; color: #637084; font-size: 9px; }
 .scope-dot { width: 6px; height: 6px; border-radius: 50%; background: #0fa37a; }
 .focus-button { min-height: 29px; padding: 0 8px; font-size: 9px; }
+.sync-toggle { position: relative; display: inline-flex; align-items: center; gap: 7px; min-height: 29px; border: 1px solid #e2e6ed; border-radius: 7px; padding: 0 8px; background: white; color: #596679; cursor: pointer; font-size: 9px; font-weight: 650; white-space: nowrap; }
+.sync-toggle:hover { border-color: #ccd0fa; background: #f8f8ff; color: var(--indigo-dark); }
+.sync-toggle-track { position: relative; flex: 0 0 auto; width: 28px; height: 16px; border-radius: 999px; background: #cfd5df; transition: background .15s; }
+.sync-toggle-track::after { position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: white; box-shadow: 0 1px 3px rgb(16 24 40 / 22%); content: ""; transition: transform .15s; }
+.sync-toggle input:checked + .sync-toggle-track { background: var(--indigo); }
+.sync-toggle input:checked + .sync-toggle-track::after { transform: translateX(12px); }
+.sync-toggle input:focus-visible + .sync-toggle-track { outline: 3px solid rgb(79 70 229 / 38%); outline-offset: 2px; }
 .publication-notice { display: grid; grid-template-columns: 20px minmax(0, 1fr); align-items: start; gap: 9px; margin: 0 0 12px; border: 1px solid #d9e4f2; border-radius: 8px; padding: 10px 12px; background: #f5f8fd; color: #53627a; }
 .publication-notice-mark { display: grid; width: 18px; height: 18px; place-items: center; border: 1px solid #c9d7eb; border-radius: 50%; color: #4b6590; font-family: Georgia, serif; font-size: 11px; font-style: italic; font-weight: 700; }
 .publication-notice p { display: grid; gap: 3px; margin: 0; font-size: 9px; line-height: 1.5; }
@@ -200,6 +207,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .page-controls label { display: inline-flex; align-items: center; gap: 5px; }
 .page-controls input { width: 43px; height: 24px; border: 1px solid #e1e5ec; border-radius: 5px; padding: 0 4px; color: #344054; font-size: 9px; text-align: center; }
 .page-count { color: #8991a0; font-variant-numeric: tabular-nums; }
+.pdf-page-status { margin: 0; padding: 4px 10px 2px; color: #956a18; font-size: 8px; line-height: 1.3; text-align: right; }
 .control-button { display: inline-grid; width: 25px; height: 25px; place-items: center; border: 1px solid #e2e6ed; border-radius: 5px; background: white; color: #596679; cursor: pointer; font-size: 15px; line-height: 1; }
 .control-button:hover:not(:disabled), .fit-button:hover { border-color: #ccd0fa; background: #f4f4ff; color: var(--indigo-dark); }
 .control-button:disabled { opacity: .38; cursor: not-allowed; }
@@ -380,8 +388,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .paper-heading h2 { font-size: 19px; }
   .paper-stepper { align-self: stretch; justify-content: space-between; }
   .section-heading { align-items: start; flex-direction: column; gap: 7px; }
-  .comparison-actions { width: 100%; align-items: start; justify-content: space-between; }
-  .scope-note { max-width: 65%; line-height: 1.4; }
+  .comparison-actions { width: 100%; align-items: center; justify-content: flex-start; }
+  .scope-note { flex: 1 1 100%; max-width: none; line-height: 1.4; }
   .viewer-grid { grid-template-columns: 1fr; gap: 10px; }
   .pdf-stage { min-height: 300px; height: 52vh; }
   .viewer-grid.is-focus { grid-template-columns: 1fr; grid-auto-rows: minmax(360px, 1fr); overflow: auto; }
