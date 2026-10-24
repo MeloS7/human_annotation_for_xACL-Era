@@ -5,6 +5,7 @@ import {
   OBJECT_SCORE_KEYS,
   deriveObjectPresence,
   integratedObjectFields,
+  migrateLegacyObjectScores,
   objectScoringMode,
   setIntegratedObjectScore,
   validateIntegratedObjectScores,
@@ -89,7 +90,88 @@ test("inconsistent score-presence mappings and unsupported protocol shapes are r
   assert.equal(objectScoringMode(malformed), "unsupported");
 });
 
-test("legacy rows are recognized without assigning fields or changing original values", () => {
+test("legacy rows migrate on a clone, resetting only the three object dimensions", () => {
+  const legacy = {
+    scores: {
+      text_alignment: 4, figure_alignment: 3, table_alignment: "na", equation_alignment: 2,
+      structure_alignment: 5, content_coverage: 4, overall_alignment: 3, visual_integrity: 5,
+    },
+    objects: {
+      figure: { compiled: "present", official: "present" },
+      table: { compiled: "absent", official: "absent" },
+      equation: { compiled: "absent", official: "present" },
+    },
+    evidence: "original evidence", notes: "original notes", flags: ["appendix_difference"],
+    reviewed_full_scope: true, status: "completed", updated_at: "2020-01-01T00:00:00.000Z",
+  };
+  const record = {
+    schema: "revisionlens.alignment-annotations.v1", dataset_id: "study", manifest_sha256: "manifest",
+    rubric_version: "rubric", annotator_id: "A01", revision: 7,
+    created_at: "2019-01-01T00:00:00.000Z", updated_at: "2020-01-01T00:00:00.000Z",
+    annotations: { RL01: legacy, RL02: row() },
+  };
+  const before = structuredClone(record);
+  const migrationTime = "2026-10-24T12:00:00.000Z";
+  const result = migrateLegacyObjectScores(record, migrationTime);
+  const migrated = result.record.annotations.RL01;
+  assert.equal(result.changed, true);
+  assert.deepEqual(result.convertedSampleIds, ["RL01"]);
+  assert.deepEqual(result.unsupportedSampleIds, []);
+  assert.notEqual(result.record, record);
+  assert.deepEqual(migrated.scores, {
+    text_alignment: 4, figure_alignment: null, table_alignment: null, equation_alignment: null,
+    structure_alignment: 5, content_coverage: 4, overall_alignment: 3, visual_integrity: 5,
+  });
+  assert.deepEqual(migrated.objects, {
+    figure: { compiled: null, official: null },
+    table: { compiled: null, official: null },
+    equation: { compiled: null, official: null },
+  });
+  assert.deepEqual(migrated.object_score_reasons, { figure: null, table: null, equation: null });
+  assert.equal(migrated.scoring_protocol, INTEGRATED_SCORING_PROTOCOL);
+  assert.equal(migrated.evidence, legacy.evidence);
+  assert.equal(migrated.notes, legacy.notes);
+  assert.deepEqual(migrated.flags, legacy.flags);
+  assert.equal(migrated.status, "draft");
+  assert.equal(migrated.reviewed_full_scope, false);
+  assert.equal(migrated.updated_at, migrationTime);
+  assert.equal(result.record.created_at, record.created_at);
+  assert.equal(result.record.revision, record.revision);
+  assert.equal(result.record.updated_at, migrationTime);
+  assert.equal(objectScoringMode(result.record.annotations.RL02), "integrated");
+  assert.deepEqual(record, before, "migration must not mutate the server/input record");
+
+  const second = migrateLegacyObjectScores(result.record, "2026-10-25T00:00:00.000Z");
+  assert.equal(second.changed, false);
+  assert.deepEqual(second.record, result.record, "already integrated rows must stay unchanged");
+});
+
+test("partially extended or malformed rows block migration without partial changes", () => {
+  const legacy = {
+    scores: {
+      text_alignment: 4, figure_alignment: 3, table_alignment: "na", equation_alignment: 2,
+      structure_alignment: 5, content_coverage: 4, overall_alignment: 3, visual_integrity: 5,
+    },
+    objects: Object.fromEntries(OBJECT_SCORE_KEYS.map((key) => [key, { compiled: "present", official: "present" }])),
+    evidence: "", notes: "", flags: [], reviewed_full_scope: false, status: "draft", updated_at: "2020-01-01T00:00:00.000Z",
+  };
+  const partial = { ...row(), object_score_reasons: { figure: null } };
+  const record = { revision: 3, annotations: { RL01: legacy, RL02: partial } };
+  const before = structuredClone(record);
+  const result = migrateLegacyObjectScores(record, "2026-10-24T12:00:00.000Z");
+  assert.equal(result.changed, false);
+  assert.deepEqual(result.convertedSampleIds, []);
+  assert.deepEqual(result.unsupportedSampleIds, ["RL02"]);
+  assert.deepEqual(result.record, before, "a bad row must prevent partial migration of the whole record");
+
+  const malformedLegacy = { ...legacy, unexpected: "unknown extension" };
+  const malformedResult = migrateLegacyObjectScores({ annotations: { RL03: malformedLegacy } });
+  assert.equal(malformedResult.changed, false);
+  assert.deepEqual(malformedResult.unsupportedSampleIds, ["RL03"]);
+  assert.deepEqual(malformedResult.record.annotations.RL03, malformedLegacy);
+});
+
+test("legacy format detection does not mutate its input", () => {
   const legacy = {
     scores: { figure_alignment: 3 },
     objects: { figure: { compiled: "present", official: "absent" } },

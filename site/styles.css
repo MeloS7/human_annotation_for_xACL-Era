@@ -237,9 +237,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .object-protocol-notice { display: grid; gap: 7px; margin-top: 13px; border: 1px solid #ead8a7; border-radius: 9px; padding: 11px; background: #fffaf0; color: #71581b; }
 .object-protocol-notice > strong { font-size: 10px; }
 .object-protocol-notice > p { margin: 0; font-size: 9px; line-height: 1.5; }
-.legacy-object-summary { display: grid; gap: 5px; }
-.legacy-object-item { display: grid; grid-template-columns: minmax(110px, .8fr) repeat(3, minmax(90px, 1fr)); gap: 8px; border-top: 1px solid #efe5ca; padding-top: 5px; color: #71581b; font-size: 8px; }
-.legacy-object-item strong { color: #57461d; }
 .rubric-scoring { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 13px; }
 .score-card { min-width: 0; border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: white; box-shadow: var(--shadow-sm); }
 .score-card[data-key="overall_alignment"] { grid-column: 1 / -1; border-color: #d4d5fb; background: linear-gradient(120deg, #fff, #fafaff); }
@@ -384,7 +381,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .viewer-grid.is-focus .pdf-stage { height: 55vh; }
   .viewer-grid.is-focus .pdf-panel { min-height: 440px; }
   .focus-exit { top: 65px; right: 10px; }
-  .legacy-object-item { grid-template-columns: 1fr 1fr; }
   .rubric-scoring { grid-template-columns: 1fr; }
   .score-card[data-key="overall_alignment"] { grid-column: auto; }
   .annotation-details-grid { grid-template-columns: 1fr; }

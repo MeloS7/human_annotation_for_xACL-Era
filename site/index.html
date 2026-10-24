@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
   <title>xACL-Era · PDF alignment annotation</title>
-  <link rel="stylesheet" href="./styles.css?v=20261024-integrated-presence">
+  <link rel="stylesheet" href="./styles.css?v=20261024-auto-current-rules">
   <script src="./vendor/supabase/supabase.js"></script>
-  <script type="module" src="./app.js?v=20261024-integrated-presence"></script>
+  <script type="module" src="./app.js?v=20261024-auto-current-rules"></script>
 </head>
 <body>
   <div class="app-shell" id="top">
@@ -215,10 +215,8 @@
               </div>
             </div>
             <div id="object-protocol-notice" class="object-protocol-notice is-hidden" role="note">
-              <strong id="object-protocol-title" data-i18n="legacyObjectTitle">Existing object ratings use the previous recording rules</strong>
+              <strong id="object-protocol-title" data-i18n="unsupportedObjectTitle">Object-score format is not supported</strong>
               <p id="object-protocol-message"></p>
-              <div id="legacy-object-summary" class="legacy-object-summary"></div>
-              <button id="convert-legacy-object-scores" class="button button-secondary is-hidden" type="button" data-i18n="convertLegacyObjectScores">Review object ratings using updated rules</button>
             </div>
             <div id="rubric-scoring" class="rubric-scoring"></div>
             <div class="annotation-details-grid">

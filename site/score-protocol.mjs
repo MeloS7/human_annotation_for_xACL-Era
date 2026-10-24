@@ -7,6 +7,18 @@ export const OBJECT_SCORE_REASONS = Object.freeze([
 export const INTEGRATED_SCORING_PROTOCOL = "integrated-presence-v1";
 
 const owns = (value, key) => Object.prototype.hasOwnProperty.call(value || {}, key);
+const SCORE_FIELDS = Object.freeze([
+  "text_alignment", "figure_alignment", "table_alignment", "equation_alignment",
+  "structure_alignment", "content_coverage", "overall_alignment", "visual_integrity",
+]);
+const LEGACY_ANNOTATION_FIELDS = Object.freeze([
+  "scores", "objects", "evidence", "notes", "flags", "reviewed_full_scope", "status", "updated_at",
+]);
+
+function hasExactlyKeys(value, expected) {
+  return Boolean(value && typeof value === "object" && !Array.isArray(value) &&
+    Object.keys(value).length === expected.length && expected.every((key) => owns(value, key)));
+}
 
 export function objectScoringMode(row) {
   const hasProtocol = owns(row, "scoring_protocol");
@@ -27,6 +39,55 @@ export function integratedObjectFields() {
   return {
     scoring_protocol: INTEGRATED_SCORING_PROTOCOL,
     object_score_reasons: Object.fromEntries(OBJECT_SCORE_KEYS.map((key) => [key, null])),
+  };
+}
+
+export function migrateLegacyObjectScores(record, updatedAt = new Date().toISOString()) {
+  const migrated = structuredClone(record);
+  const annotations = migrated?.annotations;
+  const convertedSampleIds = [];
+  const unsupportedSampleIds = [];
+  if (!annotations || typeof annotations !== "object" || Array.isArray(annotations)) {
+    return { record: migrated, changed: false, convertedSampleIds, unsupportedSampleIds };
+  }
+
+  const legacyRows = [];
+  for (const [sampleId, row] of Object.entries(annotations)) {
+    const mode = objectScoringMode(row);
+    if (mode === "unsupported" || (mode === "legacy" &&
+        (!hasExactlyKeys(row, LEGACY_ANNOTATION_FIELDS) ||
+         !hasExactlyKeys(row.scores, SCORE_FIELDS) ||
+         !hasExactlyKeys(row.objects, OBJECT_SCORE_KEYS) ||
+         OBJECT_SCORE_KEYS.some((key) => !hasExactlyKeys(row.objects[key], ["compiled", "official"]))))) {
+      unsupportedSampleIds.push(sampleId);
+    } else if (mode === "legacy") {
+      legacyRows.push([sampleId, row]);
+    }
+  }
+
+  // Avoid partially migrating a record if any row has an unknown format.
+  if (unsupportedSampleIds.length) {
+    return { record: migrated, changed: false, convertedSampleIds, unsupportedSampleIds };
+  }
+
+  for (const [sampleId, row] of legacyRows) {
+    for (const key of OBJECT_SCORE_KEYS) {
+      row.scores[`${key}_alignment`] = null;
+      row.objects[key] = { compiled: null, official: null };
+    }
+    Object.assign(row, integratedObjectFields(), {
+      reviewed_full_scope: false,
+      status: "draft",
+      updated_at: updatedAt,
+    });
+    convertedSampleIds.push(sampleId);
+  }
+  if (convertedSampleIds.length) migrated.updated_at = updatedAt;
+  return {
+    record: migrated,
+    changed: convertedSampleIds.length > 0,
+    convertedSampleIds,
+    unsupportedSampleIds,
   };
 }
 

@@ -3,16 +3,16 @@ import {
   OBJECT_SCORE_KEYS,
   OBJECT_SCORE_REASONS,
   integratedObjectFields,
+  migrateLegacyObjectScores,
   objectScoringMode,
   setIntegratedObjectScore,
   validateIntegratedObjectScores,
-} from "./score-protocol.mjs?v=20261024-integrated-presence";
+} from "./score-protocol.mjs?v=20261024-auto-current-rules";
 
 const SCORE_KEYS = [
   "text_alignment", "figure_alignment", "table_alignment", "equation_alignment",
   "structure_alignment", "content_coverage", "overall_alignment", "visual_integrity",
 ];
-const PRESENCE_VALUES = ["present", "absent", "uncertain"];
 const FLAG_KEYS = ["critical_difference", "appendix_difference", "references_difference", "rendering_problem"];
 const RECORD_SCHEMA = "revisionlens.alignment-annotations.v1";
 const PACKAGE_BASE_URL = new URL("./", import.meta.url);
@@ -58,10 +58,7 @@ const STRINGS = {
     figure: "Figure", table: "Table", equation: "Equation", compiledPdf: "Compiled PDF", officialPdf: "Official PDF", present: "Present", absent: "Absent", presenceUncertain: "Uncertain",
     naHelp: "N/A means this item type is absent in both PDFs.", scoreOneObjectHelp: "Use 1 when this entire item type is present officially but missing from the compiled PDF, absent officially but added in the compiled PDF, or largely non-corresponding. Score partial omissions by impact (2–4).",
     objectReasonPrompt: "Why is this item rated 1? Select one reason to complete the rating.", reasonMissing: "Present officially; entirely missing in compiled PDF", reasonAdded: "Absent officially; added in compiled PDF", reasonNonCorresponding: "Present in both, largely non-corresponding",
-    legacyObjectTitle: "Existing object ratings use the previous recording rules", legacyObjectHelp: "The original ratings and presence entries are shown read-only and remain unchanged. To use the updated rules, explicitly reset only the three figure, table and equation ratings and presence entries; all other fields are retained.",
-    unsupportedObjectTitle: "Object-rating format is not recognized",
-    legacyScore: "Score", legacyCompiled: "Compiled", legacyOfficial: "Official", legacyNoScore: "Not scored", legacyUnknown: "Unknown", convertLegacyObjectScores: "Review object ratings using updated rules",
-    confirmLegacyConversion: "Reset only the figure, table, and equation scores and their presence entries? Text, structure, coverage, overall and visual scores, notes, evidence, flags and annotator identity will be kept. The paper will return to draft and full-scope review will reset.",
+    unsupportedObjectTitle: "Object-score format is not supported",
     unsupportedObjectProtocol: "These object ratings use an unsupported format and are locked. Contact the study coordinator before editing them.",
     scoreOneReasonRequired: "Choose a reason for each object score of 1 before completing this paper.", objectMappingInvalid: "An object score and its stored presence do not match. Re-select that score or contact the study coordinator.",
     saveProtocolError: "Unsaved changes were not sent because paper {sample} has invalid object-score data. Review that paper’s object scores first.",
@@ -90,7 +87,7 @@ const STRINGS = {
     importFailed: "Could not import the annotation file.", importedUnsaved: "Changes imported locally. Save to commit them.",
     completed: "Completed", noEvidence: "Add evidence with page references for scores below 5, uncertain ratings, or any flags.",
     noFullScope: "Confirm that you reviewed the full main-body scope.", missingScores: "Complete all eight scores.",
-    criticalCap: "A critical content flag requires Overall Alignment of 1 or 2, or Uncertain.", needBothAbsent: "N/A means this object type is absent in both PDFs.", naRequired: "Select N/A when neither PDF contains this object type.", oneSidedScore: "A figure, table, or equation present in only one PDF cannot receive score 5.",
+    criticalCap: "A critical content flag requires Overall Alignment of 1 or 2, or Uncertain.",
     completedSaved: "Paper marked complete and saved.", draftSaved: "Paper returned to draft.",
     pageLabelTarget: "Target PDF page", pageLabelOfficial: "Reference PDF page", canvasTarget: "Rendered compiled PDF page", canvasOfficial: "Rendered official PDF page", previousTarget: "Previous target page", nextTarget: "Next target page",
     previousReference: "Previous reference page", nextReference: "Next reference page", scoreFor: "Score for", paper: "paper", of: "of",
@@ -138,10 +135,7 @@ const STRINGS = {
     figure: "图片", table: "表格", equation: "公式", compiledPdf: "编译版 PDF", officialPdf: "官方 PDF", present: "存在", absent: "不存在", presenceUncertain: "无法判断",
     naHelp: "N/A 表示两份 PDF 中都没有该类内容。", scoreOneObjectHelp: "官方版有而编译版完全缺失、官方版没有而编译版整体新增，或两版内容大幅不对应时选 1。部分缺失按影响程度选 2–4。",
     objectReasonPrompt: "此项为何评为 1？请选择一个原因以完成评分。", reasonMissing: "官方版存在；编译版完全缺失", reasonAdded: "官方版没有；编译版新增", reasonNonCorresponding: "两版都有，但内容大幅不对应",
-    legacyObjectTitle: "已有图表公式评分采用旧记录规则", legacyObjectHelp: "原评分和存在状态只读显示，不会自动更改。如需使用新规则，请明确重置图片、表格和公式三项评分及其存在状态；其他字段会保留。",
-    unsupportedObjectTitle: "无法识别图表公式评分格式",
-    legacyScore: "分数", legacyCompiled: "编译版", legacyOfficial: "官方版", legacyNoScore: "未评分", legacyUnknown: "未知", convertLegacyObjectScores: "按新规则重新标注图表公式",
-    confirmLegacyConversion: "是否只重置图片、表格、公式的分数及其存在状态？正文、结构、覆盖、总体和视觉评分，备注、证据、标记及标注者身份都会保留。该论文将恢复为草稿，并清除完整范围复核确认。",
+    unsupportedObjectTitle: "图表公式评分格式不受支持",
     unsupportedObjectProtocol: "这些图表公式评分使用了不支持的格式，当前已锁定。请联系研究协调者后再修改。",
     scoreOneReasonRequired: "完成论文前，请为每个图表公式的 1 分选择原因。", objectMappingInvalid: "图表公式评分与保存的存在状态不一致。请重新选择该分数，或联系研究协调者。",
     saveProtocolError: "由于论文 {sample} 的图表公式评分记录无效，修改尚未提交。请先检查该论文的相关评分。",
@@ -170,7 +164,7 @@ const STRINGS = {
     importFailed: "无法导入标注文件。", importedUnsaved: "内容已在本地载入，请保存后提交。",
     completed: "已完成", noEvidence: "评分低于5分、选择无法判断或设置差异标记时，请提供页码证据。",
     noFullScope: "请确认已检查完整正文范围。", missingScores: "请完成8项评分。",
-    criticalCap: "设置关键科学差异标记后，总体对齐必须为1、2或无法判断。", needBothAbsent: "N/A 表示两份 PDF 中都没有该类内容。", naRequired: "两份 PDF 均没有该类内容时，请选择 N/A。", oneSidedScore: "图片、表格或公式只出现在一份 PDF 中时，不能给5分。",
+    criticalCap: "设置关键科学差异标记后，总体对齐必须为1、2或无法判断。",
     completedSaved: "论文已标记为完成并保存。", draftSaved: "论文已恢复为草稿。",
     pageLabelTarget: "目标 PDF 页码", pageLabelOfficial: "参照 PDF 页码", canvasTarget: "编译版 PDF 页面", canvasOfficial: "官方 PDF 页面", previousTarget: "目标 PDF 上一页", nextTarget: "目标 PDF 下一页",
     previousReference: "参照 PDF 上一页", nextReference: "参照 PDF 下一页", scoreFor: "评分论文", paper: "篇", of: "/",
@@ -321,9 +315,8 @@ function blankAnnotation() {
 }
 function ensureAnnotation(sampleId) {
   if (!state.record.annotations[sampleId]) state.record.annotations[sampleId] = blankAnnotation();
-  // Existing rows are returned byte-for-byte as received. In particular, legacy
-  // object scores and independently recorded presence values must not be
-  // converted or supplemented just because a paper was opened.
+  // Existing rows are not rewritten here. Protocol migration happens only at
+  // the session, import, and explicit local-recovery boundaries.
   return state.record.annotations[sampleId];
 }
 function activePaper() { return state.papers.find((paper) => paper.sample_id === state.activeSampleId) || null; }
@@ -478,7 +471,6 @@ function bindEvents() {
   $("#import-button").addEventListener("click", () => $("#import-file").click());
   $("#import-file").addEventListener("change", importAnnotations);
   $("#complete-review").addEventListener("click", toggleComplete);
-  $("#convert-legacy-object-scores").addEventListener("click", convertLegacyObjectScores);
   $("#evidence").addEventListener("input", () => updateTextField("evidence"));
   $("#notes").addEventListener("input", () => updateTextField("notes"));
   $("#reviewed-full-scope").addEventListener("change", () => mutateActive((row) => { row.reviewed_full_scope = $("#reviewed-full-scope").checked; }));
@@ -671,15 +663,20 @@ async function continueCurrentProfile() {
 
 function enterAnnotationSession(record, annotatorId) {
   state.annotatorId = annotatorId;
-  state.record = normalizeRecord(record, annotatorId);
+  const migration = migrateLegacyObjectScores(normalizeRecord(record, annotatorId));
+  state.record = migration.record;
   state.currentProfileId = annotatorId;
   state.currentProfileRecord = normalizeRecord(record, annotatorId);
   state.profileSessionUnknown = false;
   state.sessionReady = true;
+  state.dirty = migration.changed;
+  state.dirtyVersion = migration.changed ? state.dirtyVersion + 1 : 0;
   state.saveBlocked = false;
   state.saveError = "";
   state.activeSampleId = null;
   state.activeIndex = -1;
+  state.localRecovery = null;
+  state.localRecoveryConflict = false;
   $("#period-filter").value = "all";
   $("#status-filter").value = "all";
   $("#paper-search").value = "";
@@ -693,7 +690,12 @@ function enterAnnotationSession(record, annotatorId) {
   selectResumePaper();
   renderSessionControls();
   renderSaveStatus();
-  setToast(t("sessionLoaded"), "success");
+  if (migration.changed && !state.localRecovery) scheduleSave();
+  if (migration.unsupportedSampleIds.length) {
+    setToast(`${t("unsupportedObjectProtocol")} (${migration.unsupportedSampleIds[0]})`, "error", 7000);
+  } else {
+    setToast(t("sessionLoaded"), "success");
+  }
 }
 
 function continueAfterRecoveryCode() {
@@ -1009,7 +1011,8 @@ function renderGuidance() {
   $("#publication-notice-title").textContent = localized(guidance.publication_notice.title);
   $("#publication-notice-text").textContent = localized(guidance.publication_notice.text);
   $("#guidance-details-title").textContent = localized(guidance.details_title);
-  $("#guidance-expanded-items").replaceChildren(...guidance.details.map((item) => {
+  const visibleDetails = guidance.details.filter((item) => item?.title?.en !== "Previously saved ratings");
+  $("#guidance-expanded-items").replaceChildren(...visibleDetails.map((item) => {
     const section = element("section", "guidance-detail");
     section.append(element("h4", "", localized(item.title)), element("p", "", localized(item.text)));
     return section;
@@ -1092,35 +1095,11 @@ function renderObjectReasonPanel(key, row, mode) {
 function renderObjectProtocolNotice(row) {
   const notice = $("#object-protocol-notice");
   const mode = objectScoringMode(row);
-  notice.classList.toggle("is-hidden", mode === "integrated");
-  const summary = $("#legacy-object-summary");
-  const convert = $("#convert-legacy-object-scores");
-  convert.classList.toggle("is-hidden", mode !== "legacy");
-  if (mode === "legacy") {
-    $("#object-protocol-title").textContent = t("legacyObjectTitle");
-    $("#object-protocol-message").textContent = t("legacyObjectHelp");
-    summary.replaceChildren(...OBJECT_SCORE_KEYS.map((key) => {
-      const item = element("div", "legacy-object-item");
-      const title = getDimension(`${key}_alignment`);
-      item.append(element("strong", "", title ? (state.language === "zh" && title.label_zh ? title.label_zh : title.label || title.label_zh || key) : t(key)));
-      const pair = row.objects?.[key] || {};
-      const score = row.scores?.[`${key}_alignment`];
-      item.append(element("span", "", `${t("legacyScore")}: ${score === null || score === undefined ? t("legacyNoScore") : score}`));
-      item.append(element("span", "", `${t("legacyCompiled")}: ${localizedPresence(pair.compiled)}`));
-      item.append(element("span", "", `${t("legacyOfficial")}: ${localizedPresence(pair.official)}`));
-      return item;
-    }));
-  } else {
-    $("#object-protocol-title").textContent = t("unsupportedObjectTitle");
-    $("#object-protocol-message").textContent = t("unsupportedObjectProtocol");
-    summary.replaceChildren();
-  }
-}
-function localizedPresence(value) {
-  if (value === "present") return t("present");
-  if (value === "absent") return t("absent");
-  if (value === "uncertain") return t("presenceUncertain");
-  return t("legacyUnknown");
+  const unsupported = mode !== "integrated";
+  notice.classList.toggle("is-hidden", !unsupported);
+  if (!unsupported) return;
+  $("#object-protocol-title").textContent = t("unsupportedObjectTitle");
+  $("#object-protocol-message").textContent = t("unsupportedObjectProtocol");
 }
 function makeScoreButton(key, option, label, definition) {
   const button = element("button", "score-option", label);
@@ -1169,8 +1148,7 @@ function renderValidation(showAll) {
 }
 function objectProtocolMessage(row) {
   const mode = objectScoringMode(row);
-  if (mode === "unsupported") return t("unsupportedObjectProtocol");
-  if (mode !== "integrated") return "";
+  if (mode !== "integrated") return t("unsupportedObjectProtocol");
   const issue = validateIntegratedObjectScores(row).find((item) =>
     item.error !== "missing_reason" || row.status === "completed");
   if (!issue) return "";
@@ -1189,11 +1167,7 @@ function validationErrors(row) {
   const flags = Array.isArray(row.flags) ? row.flags : [];
   if (SCORE_KEYS.some((key) => scores[key] === null || scores[key] === undefined)) errors.push(t("missingScores"));
   const mode = objectScoringMode(row);
-  if (mode === "legacy") {
-    if (OBJECT_SCORE_KEYS.some((key) => ["compiled", "official"].some((side) => !PRESENCE_VALUES.includes(row.objects?.[key]?.[side])))) errors.push(t("missingScores"));
-    if (OBJECT_SCORE_KEYS.some((key) => presenceBothAbsent(row.objects?.[key]) && scores[`${key}_alignment`] !== "na")) errors.push(t("naRequired"));
-    if (OBJECT_SCORE_KEYS.some((key) => oneSidedPresence(row.objects?.[key]) && scores[`${key}_alignment`] === 5)) errors.push(t("oneSidedScore"));
-  } else if (mode === "integrated") {
+  if (mode === "integrated") {
     const objectErrors = validateIntegratedObjectScores(row);
     if (objectErrors.some((item) => item.error === "missing_reason")) errors.push(t("scoreOneReasonRequired"));
     if (objectErrors.some((item) => item.error !== "missing_reason")) errors.push(t("objectMappingInvalid"));
@@ -1201,11 +1175,9 @@ function validationErrors(row) {
     errors.push(t("unsupportedObjectProtocol"));
   }
   if (!row.reviewed_full_scope) errors.push(t("noFullScope"));
-  const needsEvidence = flags.length > 0 || SCORE_KEYS.some((key) => [1, 2, 3, 4, "uncertain"].includes(scores[key])) ||
-    (mode === "legacy" && OBJECT_SCORE_KEYS.some((key) => [row.objects?.[key]?.compiled, row.objects?.[key]?.official].includes("uncertain")));
+  const needsEvidence = flags.length > 0 || SCORE_KEYS.some((key) => [1, 2, 3, 4, "uncertain"].includes(scores[key]));
   if (needsEvidence && !(typeof row.evidence === "string" && row.evidence.trim())) errors.push(t("noEvidence"));
   if (flags.includes("critical_difference") && ![1, 2, "uncertain"].includes(scores.overall_alignment)) errors.push(t("criticalCap"));
-  if (mode === "legacy" && OBJECT_SCORE_KEYS.some((key) => scores[`${key}_alignment`] === "na" && !canUseNa(`${key}_alignment`, row))) errors.push(t("needBothAbsent"));
   return [...new Set(errors)];
 }
 function toggleComplete() {
@@ -1259,35 +1231,11 @@ function setScore(key, value) {
   });
   renderAnnotation();
 }
-function canUseNa(key, row) {
-  const objectKey = String(key).replace("_alignment", "");
-  if (!OBJECT_SCORE_KEYS.includes(objectKey)) return false;
-  if (objectScoringMode(row) === "integrated") return true;
-  return objectScoringMode(row) === "legacy" && presenceBothAbsent(row?.objects?.[objectKey]);
-}
-function presenceBothAbsent(pair) { return pair?.compiled === "absent" && pair?.official === "absent"; }
-function oneSidedPresence(pair) {
-  return (pair?.compiled === "present" && pair?.official === "absent") || (pair?.compiled === "absent" && pair?.official === "present");
-}
 function setObjectScoreReason(key, reason) {
   if (!OBJECT_SCORE_KEYS.includes(key) || !OBJECT_SCORE_REASONS.includes(reason)) return;
   const row = activeAnnotation();
   if (!row || objectScoringMode(row) !== "integrated" || row.scores?.[`${key}_alignment`] !== 1) return;
   mutateActive((annotation) => setIntegratedObjectScore(annotation, key, 1, reason));
-  renderAnnotation();
-}
-function convertLegacyObjectScores() {
-  const row = activeAnnotation();
-  if (!row || objectScoringMode(row) !== "legacy" || !window.confirm(t("confirmLegacyConversion"))) return;
-  mutateActive((annotation) => {
-    Object.assign(annotation, integratedObjectFields());
-    for (const key of OBJECT_SCORE_KEYS) {
-      annotation.scores[key + "_alignment"] = null;
-      annotation.objects[key] = { compiled: null, official: null };
-    }
-    annotation.reviewed_full_scope = false;
-    annotation.status = "draft";
-  });
   renderAnnotation();
 }
 function updateFlag(key, checked) {
@@ -1550,7 +1498,12 @@ function offerLocalRecovery() {
 }
 function restoreLocalRecovery() {
   if (state.importing || !state.localRecovery || state.localRecoveryConflict) return;
-  const backup = normalizeRecord(state.localRecovery.record, state.annotatorId);
+  const migration = migrateLegacyObjectScores(normalizeRecord(state.localRecovery.record, state.annotatorId));
+  if (migration.unsupportedSampleIds.length) {
+    setToast(`${t("unsupportedObjectProtocol")} (${migration.unsupportedSampleIds[0]})`, "error", 7000);
+    return;
+  }
+  const backup = migration.record;
   backup.revision = state.record.revision;
   state.record = backup;
   state.dirty = true;
@@ -1618,7 +1571,7 @@ async function importAnnotations(event) {
     }
     if (!state.hosted) throw Object.assign(new Error(), { code: "service_unavailable" });
     expectedRevision = state.record.revision;
-    importCandidate = normalizeRecord(imported, state.annotatorId);
+    importCandidate = migrateLegacyObjectScores(normalizeRecord(imported, state.annotatorId)).record;
     const protocolIssue = recordObjectProtocolIssue(importCandidate);
     if (protocolIssue) {
       setToast(`${protocolIssue.message} (${protocolIssue.sampleId})`, "error", 7000);

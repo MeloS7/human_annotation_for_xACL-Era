@@ -2,7 +2,7 @@
 
 Guidance: `alignment-guidance-20261024-v3`. Protocol: `integrated-presence-v1`.
 
-The frozen 30 paper pairs, manifest, rubric version, and eight research dimensions remain the same. The updated guidance combines the former six independent presence questions with the three object scores. It makes score 1 reasons explicit and records the protocol so that earlier ratings retain their meaning.
+The frozen 30 paper pairs, manifest, rubric version, and eight research dimensions remain the same. The updated guidance combines the former six independent presence questions with the three object scores. It makes score 1 reasons explicit and records the protocol. All annotators use this current interface directly.
 
 ## Annotator behavior
 
@@ -39,13 +39,15 @@ The outer record schema remains `revisionlens.alignment-annotations.v1`. New ann
 
 These are additional fields alongside the existing scores, objects, evidence, notes, flags, full-scope confirmation, status, and timestamp. The example is a schema illustration, not a participant judgment. Each reason is null or one of `missing_in_compiled`, `added_in_compiled`, or `non_corresponding`. Non-null reasons apply only to score 1. The database rejects inconsistent score, reason, and presence combinations, including during draft saves.
 
-## Earlier ratings
+## Pre-study test records
 
-Rows without the two new fields retain the legacy independently reported presence protocol. Loading, viewing, importing, saving another paper, or editing their notes must not convert them or infer a score 1 reason. Existing object scores and presence remain visible as saved, with a legacy notice.
+The study coordinator confirmed that no real annotators used the previous recording workflow. The interface therefore has no legacy notice, read-only object ratings, migration button, or migration confirmation dialog.
 
-An explicit review action asks for confirmation before restarting only the three object scores and their presence. It initializes the new protocol, clears those three scores and reasons, returns the paper to draft, and clears full-scope confirmation. Other five scores, evidence, notes, and flags remain. Previously saved versions remain in immutable server history. Canceling leaves the original annotation untouched.
+On session entry, old JSON import, or local recovery, a known earlier-format test row automatically restarts only its three object scores and presence fields. It receives the current protocol and blank reasons, returns to draft, and clears full-scope confirmation. The other five scores, evidence, notes, flags, and identity are retained. Earlier saved versions remain in immutable server history. Completed status is not carried over because the three object ratings need fresh responses.
 
-Full-record history metadata identifies the guidance used for that save. A snapshot saved with current guidance can still contain untouched legacy rows; use each row's protocol marker when analyzing it, rather than assuming that all rows were rescored under the snapshot's guidance.
+The transformed record is saved using the normal revision checks and recovery behavior. Existing pending local recovery must not be overwritten by a background conversion. Records already using the integrated protocol are unchanged, so reopening a paper never erases current ratings. An unsupported or partially extended format is rejected rather than guessed into a valid record.
+
+This is a change to treatment of pre-study test data, not a change to the scoring criteria or stored protocol. The v3 guidance bytes and database metadata remain unchanged. The superseded transition-only paragraph titled “Previously saved ratings” is omitted from the current interface; the frozen source remains available for auditing.
 
 ## Database upgrade and deployment
 
