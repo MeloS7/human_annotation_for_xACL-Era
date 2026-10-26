@@ -795,6 +795,7 @@ async function auditFocusLayout(page, width, height, sampleId, compiledPage, off
   const auditedRecord = await saved(contextB, annotatorId, (record) =>
     record.annotations.RL01?.version_differences.length === differenceKeys.length &&
     record.annotations.RL01?.version_notes.length === 12000);
+  await waitForUiSave(pageB);
   const auditedRow = auditedRecord.annotations.RL01;
   assert.deepEqual(auditedRow.version_differences, differenceKeys);
   assert.equal(auditedRow.version_notes, longAuditNotes);
@@ -859,6 +860,7 @@ async function auditFocusLayout(page, width, height, sampleId, compiledPage, off
   await pageB.locator('[data-score-key="language_clarity"][data-option="5"]').click();
   await pageB.locator('#complete-review').click();
   await saved(contextB, annotatorId, (record) => record.annotations.RL01?.status === 'completed' && record.annotations.RL01?.scores.language_clarity === 5);
+  await waitForUiSave(pageB);
   const attemptedClear = structuredClone(await writingRecord(contextB, annotatorId));
   attemptedClear.annotations.RL01.reference_exposed = false;
   attemptedClear.annotations.RL01.updated_at = new Date().toISOString();
@@ -925,6 +927,7 @@ async function auditFocusLayout(page, width, height, sampleId, compiledPage, off
   await setScope(failurePage, true);
   await failurePage.locator('#complete-review').click();
   await saved(failureContext, failureId, (record) => record.annotations.RL01?.status === 'completed');
+  await waitForUiSave(failurePage);
   assert.equal(await failurePage.locator('#version-audit-toggle').isDisabled(), false);
   const failedProfileOfficialCount = failureContext.__writingControl.requests.official.length;
   failureContext.__writingControl.failNextSave = true;
