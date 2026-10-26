@@ -1,6 +1,6 @@
 # LaTeX writing quality: shared human / LLM protocol
 
-**Status: implemented; production release awaits the database migration and CI verification.** Protocol ID: `latex-writing-quality-v1`; rubric: `latex-writing-quality-rubric-v1`.
+**Status: implemented; local and GitHub verification passed. Production release awaits the database migration.** Protocol ID: `latex-writing-quality-v1`; rubric: `latex-writing-quality-rubric-v1`.
 
 本协议评价所选 arXiv 版本 LaTeX 中的正文、论述结构和技术表达，目的是判断它作为 academic writing 研究材料的内容质量。人工可通过同一源码生成的可读呈现阅读，LLM 可直接阅读 LaTeX。核心 source-only 任务可使用文本 LLM，不以视觉能力为前提。PDF 是一种呈现方式，编译成功、页面美观或与会议版完全一致都不是写作质量分数。
 

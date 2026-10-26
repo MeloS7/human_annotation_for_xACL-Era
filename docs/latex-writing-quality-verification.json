@@ -37,6 +37,12 @@
     "desktop_and_mobile_screenshot_review": "passed_after_auxiliary_scale_layout_fix",
     "syntax_and_whitespace": "passed"
   },
+  "github_verification": {
+    "status": "passed",
+    "source_commit": "4701d6d222426da48500cbdac51200a2f747bb75",
+    "run_url": "https://github.com/MeloS7/human_annotation_for_xACL-Era/actions/runs/40419488136",
+    "feature_branch_deployment": "skipped_as_required"
+  },
   "verified_behaviors": [
     "Alignment and document-quality records, history and metadata remain unchanged by migration 003.",
     "Existing identities and recovery codes yield blank new-protocol ratings rather than converted scores.",
