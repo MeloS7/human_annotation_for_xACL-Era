@@ -273,26 +273,23 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .score-scale-list b { color: #414a5b; }
 .overall-rule { margin: 7px 0 0; color: #7a7ea0; font-size: 8px; line-height: 1.4; }
 .visual-rule { color: #6c8983; }
-.annotation-details-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; gap: 10px; margin-top: 13px; }
-.evidence-card, .notes-card, .version-notes-card { min-width: 0; margin: 0; border: 1px solid var(--line); border-radius: 9px; padding: 11px; background: white; }
+.version-notes-card { min-width: 0; margin: 11px 0 0; border: 1px solid var(--line); border-radius: 9px; padding: 11px; background: white; }
 .field-description { margin: 2px 0 9px; color: #8992a1; font-size: 8px; line-height: 1.4; }
 .version-observations { margin-top: 13px; border: 1px solid #dfe5ed; border-radius: 10px; padding: 12px; background: #fbfcfe; }
 .version-observations > h4 { margin: 0; color: #475467; font-size: 10px; font-weight: 750; }
 .version-observations > .field-description { margin: 5px 0 10px; }
 .version-difference-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 14px; }
-.version-notes-card { margin-top: 11px; }
 .flag-option { display: flex; align-items: center; gap: 7px; color: #596577; font-size: 9px; line-height: 1.35; cursor: pointer; }
 .flag-option input, .check-label input { position: absolute; width: 1px; height: 1px; opacity: 0; }
 .flag-check { position: relative; display: inline-grid; flex: 0 0 auto; width: 15px; height: 15px; place-items: center; border: 1px solid #cbd2dd; border-radius: 4px; background: white; }
 .flag-option input:checked + .flag-check { border-color: var(--indigo); background: var(--indigo); }
 .flag-option input:checked + .flag-check::after { width: 6px; height: 3px; transform: rotate(-45deg) translateY(-1px); border-bottom: 1.5px solid white; border-left: 1.5px solid white; content: ""; }
 .flag-option input:focus-visible + .flag-check { outline: 3px solid rgb(79 70 229 / 30%); outline-offset: 2px; }
-.evidence-card label, .notes-card label, .version-notes-card label { display: flex; align-items: start; justify-content: space-between; gap: 7px; margin-bottom: 7px; color: #475467; font-size: 9px; font-weight: 750; }
+.version-notes-card label { display: flex; align-items: start; justify-content: space-between; gap: 7px; margin-bottom: 7px; color: #475467; font-size: 9px; font-weight: 750; }
 .required-hint, .optional-hint { color: #a06a0d; font-size: 7px; font-weight: 500; text-align: right; }
 .optional-hint { color: #929aaa; }
-.evidence-card textarea, .notes-card textarea, .version-notes-card textarea { display: block; width: 100%; min-height: 98px; resize: vertical; border: 1px solid #e1e5ec; border-radius: 6px; padding: 8px; color: #465266; font-size: 9px; line-height: 1.5; }
-.version-notes-card textarea { min-height: 68px; }
-.evidence-card textarea::placeholder, .notes-card textarea::placeholder, .version-notes-card textarea::placeholder { color: #a0a8b5; }
+.version-notes-card textarea { display: block; width: 100%; min-height: 68px; resize: vertical; border: 1px solid #e1e5ec; border-radius: 6px; padding: 8px; color: #465266; font-size: 9px; line-height: 1.5; }
+.version-notes-card textarea::placeholder { color: #a0a8b5; }
 .textarea-foot { display: flex; justify-content: space-between; gap: 8px; margin-top: 5px; color: #929aaa; font-size: 7px; line-height: 1.4; }
 .textarea-foot span:last-child { flex: 0 0 auto; font-variant-numeric: tabular-nums; }
 .completion-card { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, .8fr); align-items: center; gap: 17px; margin-top: 0; border: 1px solid #dfe5ed; border-radius: 10px; padding: 13px; background: #fbfcfd; }
@@ -327,8 +324,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .app-body { grid-template-columns: 245px minmax(0, 1fr); }
   .main-content { padding-right: 17px; padding-left: 17px; }
   .sidebar { padding-right: 12px; padding-left: 12px; }
-  .annotation-details-grid { grid-template-columns: minmax(190px, .75fr) minmax(0, 1.25fr); }
-  .notes-card { grid-column: 2; }
 }
 @media (max-width: 860px) {
   .topbar { grid-template-columns: auto minmax(0, 1fr) auto; height: 60px; }
@@ -393,8 +388,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .viewer-focus-toolbar { padding-right: 1px; padding-left: 1px; }
   .rubric-scoring { grid-template-columns: 1fr; }
   .score-card[data-key="overall_quality"] { grid-column: auto; }
-  .annotation-details-grid { grid-template-columns: 1fr; }
-  .notes-card { grid-column: auto; }
   .version-difference-list { grid-template-columns: 1fr; }
   .completion-card { grid-template-columns: 1fr; gap: 12px; }
   .completion-actions { align-items: end; flex-direction: column; }

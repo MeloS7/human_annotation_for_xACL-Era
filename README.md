@@ -17,7 +17,7 @@ Rate the compiled version itself using 1–5, or **Uncertain** if assessment is 
 
 Only Technical Presentation permits **N/A**, when the compiled main paper has no applicable technical objects. An object added to a different version does not automatically make this version defective. A missing object explicitly referenced within the compiled version is a document-quality issue. Scientific novelty and proof of scientific correctness are outside this task.
 
-Version differences are separate, optional observations. Changed experiments, numbers, figures or sections in the official version do not cap or automatically reduce any quality score. Empty version observations mean **not assessed**, not confirmed equality. Evidence/page references, version notes and private notes are optional, including for low or Uncertain scores.
+Version differences are separate, optional observations. Changed experiments, numbers, figures or sections in the official version do not cap or automatically reduce any quality score. Empty version observations mean **not assessed**, not confirmed equality. Version notes are optional, including for low or Uncertain scores. The participant UI no longer offers evidence/page-reference or private-note fields; values already stored in those record fields are preserved when scores or version observations are edited and saved.
 
 Completion requires six responses and confirmation that the compiled main paper was reviewed. A score of 1 does not require a special explanation. The official PDF does not need a complete alignment review.
 

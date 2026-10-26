@@ -18,6 +18,8 @@ const versionDifferenceKeys = [
   'text_revision', 'scientific_content_revision', 'technical_objects_revision',
   'structure_revision', 'references_revision', 'appendix_revision', 'identity_uncertain',
 ];
+const retainedEvidence = 'Pre-existing evidence:\nPage 2 — α/β.  ';
+const retainedNotes = 'Pre-existing private note: résumé; “keep spacing”.\n';
 const annotatorId = `QA_QUALITY_${process.pid}_${Date.now().toString(36)}`;
 const report = {
   software_test_only: true,
@@ -29,6 +31,10 @@ const report = {
 
 let server, browser, base, origin, recoveryCode;
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+function assertUtf8Bytes(actual, expected, label) {
+  assert.deepEqual(Buffer.from(actual, 'utf8'), Buffer.from(expected, 'utf8'), label);
+}
 
 function legacyRecoveryKey(id) {
   return `xacl.annotation.recovery:${encodeURIComponent(config.supabase_url)}:${encodeURIComponent(config.study_id)}:${config.manifest_sha256}:${encodeURIComponent(id)}`;
@@ -61,6 +67,18 @@ async function rpc(context, name, args = {}) {
 
 async function qualityRecord(context, id) {
   return (await rpc(context, 'xacl_quality_load_annotations', { p_annotator_id: id })).record;
+}
+
+async function saveQualityRecord(context, id, record) {
+  const response = await rpc(context, 'xacl_quality_save_annotations', {
+    p_annotator_id: id,
+    p_record: record,
+    p_guidance_version: config.guidance_version,
+    p_guidance_sha256: config.guidance_sha256,
+    p_operation: 'save',
+  });
+  assert.ok(response.record, `Could not seed the authorized quality RPC fixture: ${JSON.stringify(response)}`);
+  return response.record;
 }
 
 async function saved(context, id, predicate) {
@@ -354,8 +372,33 @@ async function checkLegacyStorageUntouched(page) {
   const emptyRecord = await qualityRecord(contextA, annotatorId);
   assert.deepEqual(Object.keys(emptyRecord).sort(), ['schema', 'protocol_id', 'dataset_id', 'manifest_sha256', 'rubric_version', 'annotator_id', 'revision', 'created_at', 'updated_at', 'annotations'].sort());
   assert.deepEqual(emptyRecord.annotations, {}, 'A new protocol must start with no copied or prefetched per-paper answers.');
+  assert.equal(await page.locator('.annotation-details-grid, .evidence-card, .notes-card').count(), 0);
+  assert.equal(await page.locator('#evidence, #notes, #evidence-count, #notes-count').count(), 0);
+  assert.equal(await page.locator('#version-difference-list').count(), 1);
+  assert.equal(await page.locator('#version-notes').count(), 1);
   await checkLegacyStorageUntouched(page);
-  report.checks.push('New profile and recovery code, English default, 0/30 unanswered quality progress, exactly six open score definitions, technical-only N/A, compiled target with optional official reference, no participant data import/export, and no legacy answers or local recovery access');
+
+  const seeded = structuredClone(emptyRecord);
+  const seedTime = new Date().toISOString();
+  seeded.annotations.RL01 = {
+    scores: Object.fromEntries(scoreKeys.map((key) => [key, null])),
+    version_differences: [], version_notes: '', evidence: retainedEvidence, notes: retainedNotes,
+    reviewed_full_scope: false, status: 'draft', updated_at: seedTime,
+  };
+  seeded.updated_at = seedTime;
+  const seededRecord = await saveQualityRecord(contextA, annotatorId, seeded);
+  assert.equal(seededRecord.revision, emptyRecord.revision + 1);
+  assertUtf8Bytes(seededRecord.annotations.RL01.evidence, retainedEvidence, 'Evidence bytes changed during authorized fixture seeding.');
+  assertUtf8Bytes(seededRecord.annotations.RL01.notes, retainedNotes, 'Private-note bytes changed during authorized fixture seeding.');
+  await page.reload();
+  await page.locator('#continue-profile').waitFor({ state: 'visible' });
+  await page.locator('#continue-profile').click();
+  await rendered(page, 'RL01');
+  assert.equal(await page.locator('#evidence, #notes').count(), 0);
+  assert.equal(await page.locator('#version-notes').isVisible(), true);
+  assert.equal(await page.locator('.score-scale-details[open]').count(), 6);
+  await checkLegacyStorageUntouched(page);
+  report.checks.push('New profile and recovery code, 0/30 unanswered progress, absent evidence/private-note controls, and a quality-RPC-seeded record with pre-existing hidden text restored unchanged');
 
   const scores = [5, 4, 3, 2, 1, 5];
   for (const [index, key] of scoreKeys.entries()) await page.locator(`[data-score-key="${key}"][data-option="${scores[index]}"]`).click();
@@ -365,8 +408,6 @@ async function checkLegacyStorageUntouched(page) {
     assert.equal(await input.isChecked(), true);
   }
   await page.locator('#version-notes').fill('Synthetic QA version observations; not a human judgment.');
-  await page.locator('#evidence').fill('Synthetic QA evidence, page 1.');
-  await page.locator('#notes').fill('Synthetic QA private note.');
   await page.locator('.check-label').filter({ has: page.locator('#reviewed-full-scope') }).click();
   await page.locator('#complete-review').click();
   const allFlags = await saved(contextA, annotatorId, (record) => record.annotations.RL01?.status === 'completed');
@@ -375,6 +416,8 @@ async function checkLegacyStorageUntouched(page) {
   assert.deepEqual(rowOne.scores, Object.fromEntries(scoreKeys.map((key, index) => [key, scores[index]])));
   assert.deepEqual(rowOne.version_differences, versionDifferenceKeys);
   assert.equal(rowOne.version_notes, 'Synthetic QA version observations; not a human judgment.');
+  assertUtf8Bytes(rowOne.evidence, retainedEvidence, 'Editing quality ratings changed the stored evidence bytes.');
+  assertUtf8Bytes(rowOne.notes, retainedNotes, 'Editing quality ratings changed the stored private-note bytes.');
   assert.equal(rowOne.reviewed_full_scope, true);
   assert.equal(rowOne.status, 'completed');
   const revisionAfterComplete = allFlags.revision;
@@ -389,8 +432,10 @@ async function checkLegacyStorageUntouched(page) {
   assert.deepEqual(await page.locator('[data-version-difference-key]').evaluateAll((nodes) => nodes.filter((node) => node.checked).map((node) => node.dataset.versionDifferenceKey)), []);
   const rowOneAfterReload = (await qualityRecord(contextA, annotatorId)).annotations.RL01;
   assert.deepEqual(rowOneAfterReload, rowOne);
+  assertUtf8Bytes(rowOneAfterReload.evidence, retainedEvidence, 'Reload/save changed the stored evidence bytes.');
+  assertUtf8Bytes(rowOneAfterReload.notes, retainedNotes, 'Reload/save changed the stored private-note bytes.');
   await checkLegacyStorageUntouched(page);
-  report.checks.push('All six scores, all seven unique version flags, optional notes/evidence, and compiled full-scope confirmation complete, save, and reload without alteration; resume selects first unfinished paper RL02');
+  report.checks.push('Editing all six scores and all seven optional version flags/notes preserves pre-existing evidence and private-note text byte-for-byte through completion, save, and reload; resume selects first unfinished paper RL02');
 
   const lowScores = {
     language_clarity: 1, coherence_flow: 2, structural_completeness: 3,
@@ -484,13 +529,13 @@ async function checkLegacyStorageUntouched(page) {
   await restoreProfile(other, annotatorId, recoveryCode);
   assert.equal(await other.locator('#completion-count').innerText(), '2 / 30');
   await checkLegacyStorageUntouched(other);
-  await page.locator('#notes').fill('Synthetic first-device writer.');
-  await saved(contextA, annotatorId, (record) => record.annotations.RL03?.notes === 'Synthetic first-device writer.');
-  await other.locator('#notes').fill('Synthetic stale second-device writer.');
+  await page.locator('#version-notes').fill('Synthetic first-device writer.');
+  await saved(contextA, annotatorId, (record) => record.annotations.RL03?.version_notes === 'Synthetic first-device writer.');
+  await other.locator('#version-notes').fill('Synthetic stale second-device writer.');
   await other.locator('#save-button').click();
   await other.waitForFunction(() => document.querySelector('#save-status')?.dataset.state === 'conflict', null, { timeout: 15000 });
   const authoritative = await qualityRecord(contextA, annotatorId);
-  assert.equal(authoritative.annotations.RL03.notes, 'Synthetic first-device writer.');
+  assert.equal(authoritative.annotations.RL03.version_notes, 'Synthetic first-device writer.');
   const newRecoveryRaw = await other.evaluate((key) => localStorage.getItem(key), qualityRecoveryKey(annotatorId));
   const newRecovery = JSON.parse(newRecoveryRaw);
   assert.equal(newRecovery.schema, 'xacl.document-quality-recovery.v1');
@@ -502,7 +547,7 @@ async function checkLegacyStorageUntouched(page) {
   assert.match(recoveryDownload.suggestedFilename(), /^document-quality-v1-.*-recovery\.json$/);
   const recoveryFile = JSON.parse(fs.readFileSync(await recoveryDownload.path(), 'utf8'));
   assert.equal(recoveryFile.protocol_id, 'document-quality-v1');
-  assert.equal(recoveryFile.record.annotations.RL03.notes, 'Synthetic stale second-device writer.');
+  assert.equal(recoveryFile.record.annotations.RL03.version_notes, 'Synthetic stale second-device writer.');
   await checkLegacyStorageUntouched(page);
   await checkLegacyStorageUntouched(other);
   report.checks.push('Recovery code restores the same profile on a second device; optimistic revision conflict protects the first writer, and only a namespaced private unsaved-recovery file is offered');

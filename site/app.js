@@ -50,8 +50,7 @@ const STRINGS = {
     overallDirect: "Judge overall quality directly; do not average the other dimensions.", visualTargetOnly: "Rate this compiled PDF itself.",
     versionDifferencesTitle: "Version differences (optional)", versionDifferencesHelp: "Record observed differences between versions if assessed. They do not affect quality scores or completion; leave blank if not assessed.",
     versionNotesTitle: "Version notes", versionNotesPlaceholder: "Add context for the optional version observations.", versionNotesHelp: "Leave blank if version differences were not assessed.",
-    evidenceTitle: "Evidence and page references", evidencePlaceholder: "Add evidence or page references if helpful.", evidenceNoNeed: "Evidence and page references are optional.",
-    notesTitle: "Private annotator notes", optional: "Optional", notesPlaceholder: "Add notes for your own review.", notesHelp: "Private notes are optional.",
+    optional: "Optional",
     fullScopeTitle: "I reviewed the full compiled main paper",
     fullScopeHelp: "Review the available main-paper content in the compiled PDF, including relevant technical objects. The official PDF is optional and is not required for quality ratings.",
     markComplete: "Mark paper complete", reopenPaper: "Reopen paper", footerNotice: "Quality ratings apply to the compiled PDF. The official conference PDF is an optional reference.",
@@ -116,8 +115,7 @@ const STRINGS = {
     overallDirect: "直接判断总体质量，不要计算其他分项的平均值。", visualTargetOnly: "评价此编译版 PDF 本身。",
     versionDifferencesTitle: "版本差异（选填）", versionDifferencesHelp: "如已检查，可记录观察到的版本差异。它们不影响质量评分或完成状态；未检查时留空。",
     versionNotesTitle: "版本说明", versionNotesPlaceholder: "可补充版本观察的背景信息。", versionNotesHelp: "未检查版本差异时请留空。",
-    evidenceTitle: "证据与页码", evidencePlaceholder: "如有帮助，可补充证据或页码。", evidenceNoNeed: "证据和页码均为选填。",
-    notesTitle: "标注者个人备注", optional: "选填", notesPlaceholder: "填写供自己复核的备注。", notesHelp: "个人备注为选填。",
+    optional: "选填",
     fullScopeTitle: "我已检查编译版正文全文", fullScopeHelp: "检查编译版中可用的正文内容及相关技术对象。官方 PDF 为可选参照，不是质量评分的必需内容。",
     markComplete: "将论文标记为完成", reopenPaper: "重新打开论文", footerNotice: "质量评分针对编译版 PDF。会议官方 PDF 仅作可选参考。",
     protocolBanner: "新的文档质量协议。此前的版本对齐评分已单独保留。请为每篇论文重新评分。",
@@ -439,9 +437,7 @@ function bindEvents() {
   $("#next-paper").addEventListener("click", () => movePaper(1));
   $("#save-button").addEventListener("click", () => flushSave(true));
   $("#complete-review").addEventListener("click", toggleComplete);
-  $("#version-notes").addEventListener("input", () => updateTextField("version_notes"));
-  $("#evidence").addEventListener("input", () => updateTextField("evidence"));
-  $("#notes").addEventListener("input", () => updateTextField("notes"));
+  $("#version-notes").addEventListener("input", updateVersionNotes);
   $("#reviewed-full-scope").addEventListener("change", () => mutateActive((row) => { row.reviewed_full_scope = $("#reviewed-full-scope").checked; }));
   $("#focus-viewers").addEventListener("click", toggleViewerFocus);
   $("#sync-pdf-pages").addEventListener("change", (event) => setPdfSyncNavigation(event.currentTarget.checked));
@@ -911,13 +907,11 @@ function renderActivePaper() {
 function renderBlankAnnotation() {
   $$('[data-score-key]').forEach((button) => { button.setAttribute("aria-pressed", "false"); button.disabled = true; });
   $$('[data-version-difference-key]').forEach((input) => { input.checked = false; input.disabled = true; });
-  for (const id of ["version-notes", "evidence", "notes"]) {
-    $("#" + id).value = "";
-    $("#" + id).disabled = true;
-  }
+  $("#version-notes").value = "";
+  $("#version-notes").disabled = true;
   $("#reviewed-full-scope").checked = false;
   $("#reviewed-full-scope").disabled = true;
-  for (const id of ["version-notes", "evidence", "notes"]) $("#" + id.replace("_", "-") + "-count").textContent = "0 / 12000";
+  $("#version-notes-count").textContent = "0 / 12000";
   $("#complete-review").disabled = true;
   $("#complete-review").removeAttribute("data-completed");
   $("#validation-message").textContent = "";
@@ -938,12 +932,9 @@ function renderAnnotation() {
     input.checked = row.version_differences.includes(input.dataset.versionDifferenceKey);
     input.disabled = false;
   }
-  for (const name of ["version_notes", "evidence", "notes"]) {
-    const id = name.replace("_", "-");
-    $("#" + id).value = row[name];
-    $("#" + id).disabled = false;
-    $("#" + id + "-count").textContent = Array.from(row[name]).length + " / 12000";
-  }
+  $("#version-notes").value = row.version_notes;
+  $("#version-notes").disabled = false;
+  $("#version-notes-count").textContent = Array.from(row.version_notes).length + " / 12000";
   $("#reviewed-full-scope").checked = row.reviewed_full_scope === true;
   $("#reviewed-full-scope").disabled = false;
   $("#complete-review").disabled = false;
@@ -1131,13 +1122,11 @@ function updateVersionDifference(key, checked) {
     row.version_differences = checked ? [...new Set([...values, key])] : values.filter((value) => value !== key);
   }, { keepCompleted: true });
 }
-function updateTextField(name) {
-  if (!["version_notes", "evidence", "notes"].includes(name)) return;
-  const id = name.replace("_", "-");
-  const node = $("#" + id);
+function updateVersionNotes() {
+  const node = $("#version-notes");
   const value = node.value;
-  $("#" + id + "-count").textContent = Array.from(value).length + " / 12000";
-  mutateActive((row) => { row[name] = value; }, { keepCompleted: true });
+  $("#version-notes-count").textContent = Array.from(value).length + " / 12000";
+  mutateActive((row) => { row.version_notes = value; }, { keepCompleted: true });
 }
 
 function renderSaveStatus() {

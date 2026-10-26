@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
   <title>xACL-Era · document quality review</title>
-  <link rel="stylesheet" href="./styles.css?v=20261026-quality-v1">
+  <link rel="stylesheet" href="./styles.css?v=20261026-quality-v2">
   <script src="./vendor/supabase/supabase.js"></script>
-  <script type="module" src="./app.js?v=20261026-quality-v1"></script>
+  <script type="module" src="./app.js?v=20261026-quality-v2"></script>
 </head>
 <body>
   <div class="app-shell" id="top">
@@ -222,18 +222,6 @@
               </div>
             </div>
             <div id="rubric-scoring" class="rubric-scoring"></div>
-            <div class="annotation-details-grid">
-              <div class="evidence-card">
-                <label for="evidence"><span data-i18n="evidenceTitle">Evidence and page references</span><span class="optional-hint" data-i18n="optional">Optional</span></label>
-                <textarea id="evidence" rows="5" maxlength="12000" data-i18n-placeholder="evidencePlaceholder" placeholder="Add evidence or page references if helpful."></textarea>
-                <div class="textarea-foot"><span data-i18n="evidenceNoNeed">Page references can help explain a rating.</span><span id="evidence-count">0 / 12000</span></div>
-              </div>
-              <div class="notes-card">
-                <label for="notes"><span data-i18n="notesTitle">Private annotator notes</span><span class="optional-hint" data-i18n="optional">Optional</span></label>
-                <textarea id="notes" rows="5" maxlength="12000" data-i18n-placeholder="notesPlaceholder" placeholder="Add notes for your own review."></textarea>
-                <div class="textarea-foot"><span data-i18n="notesHelp">These notes are included in your annotation output.</span><span id="notes-count">0 / 12000</span></div>
-              </div>
-            </div>
             <section class="version-observations" aria-labelledby="version-observations-title">
               <h4 id="version-observations-title" data-i18n="versionDifferencesTitle">Version differences (optional)</h4>
               <p class="field-description" data-i18n="versionDifferencesHelp">Record observed differences between versions if assessed. They do not affect quality scores or completion; leave blank if not assessed.</p>
