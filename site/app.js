@@ -51,7 +51,7 @@ const STRINGS = {
     loadingSession: "Loading annotation record…",
     currentPaper: "CURRENT PAPER", importJson: "Import JSON", exportJson: "Export JSON", saveNow: "Save now", importing: "Importing and saving…",
     previousPaper: "← Previous", nextPaper: "Next →", paperNavigation: "Paper navigation", compareLabel: "COMPARE THE TWO VERSIONS", pdfComparison: "PDF comparison",
-    targetOnlyScore: "Score the compiled PDF; use the official PDF as reference", expandViewers: "Expand viewers", syncPageTurns: "Sync page turns",
+    targetOnlyScore: "Score the compiled PDF; use the official PDF as reference", expandViewers: "Expand viewers", returnToAnnotation: "Return to annotation", syncPageTurns: "Sync page turns",
     targetPdf: "TARGET PDF", compiledArxiv: "Compiled arXiv LaTeX", referencePdf: "REFERENCE PDF", officialConference: "Official conference PDF",
     openNewTab: "Open in new tab", page: "Page", fit: "Fit", pdfWait: "PDF will appear when you select a paper.", firstPageReached: "First page reached", lastPageReached: "Last page reached",
     pageCountPending: "Page count pending", rubricLabel: "FIXED RUBRIC", annotationTitle: "Alignment annotation",
@@ -127,7 +127,7 @@ const STRINGS = {
     loadingSession: "正在加载标注记录…",
     currentPaper: "当前论文", importJson: "导入 JSON", exportJson: "导出 JSON", saveNow: "立即保存", importing: "正在导入并保存…",
     previousPaper: "← 上一篇", nextPaper: "下一篇 →", paperNavigation: "论文导航", compareLabel: "对照两个版本", pdfComparison: "PDF 对照",
-    targetOnlyScore: "只评分编译版 PDF；官方 PDF 用作参照", expandViewers: "展开 PDF 查看器", syncPageTurns: "同步翻页",
+    targetOnlyScore: "只评分编译版 PDF；官方 PDF 用作参照", expandViewers: "展开 PDF 查看器", returnToAnnotation: "返回标注", syncPageTurns: "同步翻页",
     targetPdf: "评分对象", compiledArxiv: "arXiv LaTeX 编译 PDF", referencePdf: "对照参照", officialConference: "会议官方 PDF",
     openNewTab: "在新标签页打开", page: "页", fit: "适应窗口", pdfWait: "选择论文后将在此显示 PDF。", firstPageReached: "已到第一页", lastPageReached: "已到最后一页",
     pageCountPending: "等待读取页数", rubricLabel: "固定评分标准", annotationTitle: "版本对齐标注",
@@ -237,8 +237,7 @@ function setLanguage(language) {
   });
   updateStaticAria();
   renderBoundaryStatuses();
-  const focusButton = $("#focus-viewers");
-  if (focusButton) focusButton.textContent = state.focusViewers ? (state.language === "zh" ? "返回标注" : "Return to annotation") : t("expandViewers");
+  renderViewerFocusLayout();
   if (state.manifest) {
     renderPaperList();
     renderRubric();
@@ -793,11 +792,7 @@ async function switchAnnotator() {
     state.localRecovery = null;
     state.localRecoveryConflict = false;
     state.focusViewers = false;
-    $("#viewer-grid").classList.remove("is-focus");
-    $("#focus-viewers").setAttribute("aria-pressed", "false");
-    $("#focus-viewers").textContent = t("expandViewers");
-    const focusExit = $("[data-exit-focus]");
-    if (focusExit) focusExit.remove();
+    renderViewerFocusLayout();
     for (const side of ["compiled", "official"]) clearViewer(side, t("pdfWait"));
     const recoveryBanner = $("#recovery-banner");
     if (recoveryBanner) recoveryBanner.remove();
@@ -1931,19 +1926,30 @@ function onWindowResize() {
     if (viewer.fit && viewer.pdf) renderPage(id, viewer.page, viewer.generation);
   }
 }
+function renderViewerFocusLayout() {
+  const focusMode = Boolean(state.focusViewers);
+  const grid = $("#viewer-grid");
+  const toolbar = $("#viewer-focus-toolbar");
+  const normalSlot = $("#sync-pdf-pages-normal-slot");
+  const focusSlot = $("#sync-pdf-pages-focus-slot");
+  const syncToggle = $(".sync-toggle");
+  const focusButton = $("#focus-viewers");
+  const exitButton = $("[data-exit-focus]", toolbar);
+
+  const targetSlot = focusMode ? focusSlot : normalSlot;
+  if (syncToggle.parentElement !== targetSlot) targetSlot.append(syncToggle);
+  grid.classList.toggle("is-focus", focusMode);
+  toolbar.hidden = !focusMode;
+  toolbar.classList.toggle("is-hidden", !focusMode);
+  focusButton.setAttribute("aria-pressed", String(focusMode));
+  focusButton.textContent = focusMode ? t("returnToAnnotation") : t("expandViewers");
+  exitButton.textContent = t("returnToAnnotation");
+}
 function toggleViewerFocus() {
   if (state.importing) return;
   state.focusViewers = !state.focusViewers;
-  const grid = $("#viewer-grid");
-  grid.classList.toggle("is-focus", state.focusViewers);
-  $("#focus-viewers").setAttribute("aria-pressed", String(state.focusViewers));
-  $("#focus-viewers").textContent = state.focusViewers ? (state.language === "zh" ? "返回标注" : "Return to annotation") : t("expandViewers");
-  const existingExit = $("[data-exit-focus]", grid);
-  if (state.focusViewers && !existingExit) {
-    const exit = element("button", "button button-secondary focus-exit", state.language === "zh" ? "返回标注" : "Return to annotation");
-    exit.type = "button"; exit.dataset.exitFocus = "true";
-    grid.prepend(exit);
-  } else if (!state.focusViewers && existingExit) existingExit.remove();
+  renderViewerFocusLayout();
+  (state.focusViewers ? $("#sync-pdf-pages") : $("#focus-viewers")).focus({ preventScroll: true });
   onWindowResize();
 }
 

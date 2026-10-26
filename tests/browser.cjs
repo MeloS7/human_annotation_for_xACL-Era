@@ -91,16 +91,66 @@ async function setSync(p,enabled,keyboard=false){
  }
  assert.equal(await toggle.isChecked(),enabled);
 }
+async function assertSyncTogglePlacement(p,focused){
+ const placement=await p.evaluate(()=>{
+  const toggle=document.querySelector('#sync-pdf-pages'),node=toggle?.closest('.sync-toggle'),toolbar=document.querySelector('#viewer-focus-toolbar');
+  return {single:document.querySelectorAll('#sync-pdf-pages').length===1,sameNode:toggle===window.__originalSyncToggle,
+   inFocus:node?.parentElement===document.querySelector('#sync-pdf-pages-focus-slot'),inNormal:node?.parentElement===document.querySelector('#sync-pdf-pages-normal-slot'),
+   toolbarHidden:toolbar?.hidden===true,toolbarVisible:toolbar?.hidden===false,exitCount:document.querySelectorAll('[data-exit-focus]').length};
+ });
+ assert.equal(placement.single,true,'sync switch must have one stable DOM identity');assert.equal(placement.sameNode,true,'sync switch must be moved, not cloned');
+ assert.equal(placement.inFocus,focused);assert.equal(placement.inNormal,!focused);assert.equal(placement.toolbarHidden,!focused);assert.equal(placement.toolbarVisible,focused);
+ assert.equal(placement.exitCount,1,'the static return control must remain in the DOM');
+ if(focused){assert.ok(await p.locator('#viewer-focus-toolbar .sync-toggle').isVisible());assert.ok(await p.locator('[data-exit-focus]').isVisible());}
+}
+async function expandedViewerLayout(p,width,height,sampleId,compiledPage,officialPage){
+ await p.evaluate(()=>{
+  for(const side of ['compiled','official']){
+   const stage=document.querySelector(`[data-stage="${side}"]`);stage.dataset.resizeRenderMutations='0';
+   stage.__resizeRenderObserver=new MutationObserver(records=>{stage.dataset.resizeRenderMutations=String(Number(stage.dataset.resizeRenderMutations)+records.length);});
+   stage.__resizeRenderObserver.observe(stage,{attributes:true,attributeFilter:['aria-busy']});
+  }
+ });
+ await p.setViewportSize({width,height});await p.locator('#official-viewer').scrollIntoViewIfNeeded();
+ await p.waitForFunction(()=>['compiled','official'].every(side=>{
+  const stage=document.querySelector(`[data-stage="${side}"]`);
+  return Number(stage?.dataset.resizeRenderMutations)>0&&stage.getAttribute('aria-busy')==='false';
+ }),null,{timeout:60000});
+ await p.evaluate(()=>{for(const side of ['compiled','official'])document.querySelector(`[data-stage="${side}"]`).__resizeRenderObserver.disconnect();});
+ await renderedPages(p,sampleId,compiledPage,officialPage);
+ return p.evaluate(()=>{
+  const rect=selector=>{const r=document.querySelector(selector).getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right};};
+  const toolbar=document.querySelector('#viewer-focus-toolbar'),toggle=toolbar.querySelector('.sync-toggle'),exit=toolbar.querySelector('[data-exit-focus]');
+  const hit=(node)=>{const r=node.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2,top=document.elementFromPoint(x,y);return x>=0&&x<=innerWidth&&y>=0&&y<=innerHeight&&(top===node||node.contains(top));};
+  return {width:innerWidth,documentWidth:document.documentElement.scrollWidth,topbar:rect('.topbar'),toolbar:rect('#viewer-focus-toolbar'),target:rect('#compiled-viewer'),reference:rect('#official-viewer'),
+   toolbarVisible:!toolbar.hidden,switchVisible:toggle.getBoundingClientRect().height>0,exitVisible:exit.getBoundingClientRect().height>0,
+   switchHit:hit(toggle),exitHit:hit(exit),compiledPage:document.querySelector('[data-canvas="compiled"]').dataset.renderedPage,officialPage:document.querySelector('[data-canvas="official"]').dataset.renderedPage};
+ });
+}
 async function exerciseSyncedPdfNavigation(p,artifacts){
  const toggle=p.locator('#sync-pdf-pages');
  assert.equal(await toggle.getAttribute('role'),'switch');assert.equal(await toggle.isChecked(),false);assert.equal(await toggle.getAttribute('aria-labelledby'),'sync-pdf-pages-label');
+ await toggle.evaluate(node=>{window.__originalSyncToggle=node;});await assertSyncTogglePlacement(p,false);
  await p.locator('[data-viewer-action="next"][data-viewer="compiled"]').click();await renderedPages(p,'RL01',2,1);
  await setPageInput(p,'RL01','compiled',5);await setPageInput(p,'RL01','official',6);await renderedPages(p,'RL01',5,6);
  await setSync(p,true,true);await renderedPages(p,'RL01',5,6);
  await p.locator('#focus-viewers').click();assert.equal((await p.locator('#viewer-grid').getAttribute('class')).includes('is-focus'),true);
+ await assertSyncTogglePlacement(p,true);assert.equal(await p.evaluate(()=>document.activeElement===document.querySelector('#sync-pdf-pages')),true,'entering expanded mode should focus the visible switch');
  await p.locator('[data-viewer-action="next"][data-viewer="official"]').click();await renderedPages(p,'RL01',6,7);
+ await setSync(p,false);await renderedPages(p,'RL01',6,7);
+ await p.locator('[data-viewer-action="next"][data-viewer="compiled"]').click();await renderedPages(p,'RL01',7,7);
+ await p.locator('[data-viewer-action="prev"][data-viewer="official"]').click();await renderedPages(p,'RL01',7,6);
+ await setSync(p,true);await renderedPages(p,'RL01',7,6);
+ await p.locator('[data-viewer-action="next"][data-viewer="official"]').click();await renderedPages(p,'RL01',8,7);
+ await p.locator('.language-button[data-language="zh"]').click();assert.equal(await p.locator('#sync-pdf-pages-label').innerText(),'同步翻页');assert.equal(await p.locator('[data-exit-focus]').innerText(),'返回标注');await renderedPages(p,'RL01',8,7);
+ await p.locator('.language-button[data-language="en"]').click();assert.equal(await p.locator('[data-exit-focus]').innerText(),'Return to annotation');await renderedPages(p,'RL01',8,7);
  await p.locator('[data-exit-focus]').click();assert.equal((await p.locator('#viewer-grid').getAttribute('class')).includes('is-focus'),false);
- await p.locator('[data-viewer-action="prev"][data-viewer="compiled"]').click();await renderedPages(p,'RL01',5,6);
+ await assertSyncTogglePlacement(p,false);assert.equal(await p.evaluate(()=>document.activeElement.id),'focus-viewers');await renderedPages(p,'RL01',8,7);
+ await p.locator('#focus-viewers').click();await assertSyncTogglePlacement(p,true);await setSync(p,false);await renderedPages(p,'RL01',8,7);await p.keyboard.press('Escape');
+ assert.equal((await p.locator('#viewer-grid').getAttribute('class')).includes('is-focus'),false);await assertSyncTogglePlacement(p,false);
+ assert.equal(await p.evaluate(()=>document.activeElement.id),'focus-viewers');assert.equal(await toggle.isChecked(),false);await renderedPages(p,'RL01',8,7);
+ await setSync(p,true);await renderedPages(p,'RL01',8,7);
+ await setPageInput(p,'RL01','compiled',5);await setPageInput(p,'RL01','official',6);await renderedPages(p,'RL01',5,6);
  await setPageInput(p,'RL01','compiled',1);await setPageInput(p,'RL01','official',2);await renderedPages(p,'RL01',1,2);
  await p.locator('.language-button[data-language="zh"]').click();assert.equal(await p.locator('#sync-pdf-pages-label').innerText(),'同步翻页');
  await p.locator('[data-viewer-action="prev"][data-viewer="official"]').click();await renderedPages(p,'RL01',1,1);
@@ -132,15 +182,33 @@ async function exerciseSyncedPdfNavigation(p,artifacts){
  assert.equal(await p.locator('[data-page-status="compiled"]').isHidden(),true);assert.equal(await p.locator('[data-page-status="official"]').isHidden(),true);
  await p.locator('[data-viewer-action="next"][data-viewer="official"]').click();await renderedPages(p,'RL04',13,12);
  assert.equal(await p.locator('[data-page-status="compiled"]').innerText(),'Last page reached');assert.equal(await p.locator('[data-page-status="official"]').innerText(),'Last page reached');
+ await p.locator('#focus-viewers').click();await assertSyncTogglePlacement(p,true);
+ await p.locator('.language-button[data-language="zh"]').click();assert.equal(await p.locator('#sync-pdf-pages-label').innerText(),'同步翻页');assert.equal(await p.locator('[data-exit-focus]').innerText(),'返回标注');await renderedPages(p,'RL04',13,12);
+ const mobileFocus=await expandedViewerLayout(p,390,844,'RL04',13,12);
+ assert.ok(mobileFocus.documentWidth<=390,`Expanded viewers overflow at 390px: ${mobileFocus.documentWidth}px`);
+ assert.ok(mobileFocus.toolbar.top>=mobileFocus.topbar.bottom-1&&mobileFocus.toolbar.bottom<=844,'Expanded toolbar must remain in the viewport below the sticky top bar');
+ assert.ok(mobileFocus.switchHit&&mobileFocus.exitHit,'Expanded switch and return button must remain hit-testable after scrolling to the second PDF');
+ assert.deepEqual([mobileFocus.compiledPage,mobileFocus.officialPage],['13','12']);
+ await p.screenshot({path:path.join(artifacts,'expanded-viewers-mobile.png')});
+ await setSync(p,false);await renderedPages(p,'RL04',13,12);await setSync(p,true);await renderedPages(p,'RL04',13,12);
+ await p.locator('.language-button[data-language="en"]').click();assert.equal(await p.locator('#sync-pdf-pages-label').innerText(),'Sync page turns');assert.equal(await p.locator('[data-exit-focus]').innerText(),'Return to annotation');
+ const tabletFocus=await expandedViewerLayout(p,712,900,'RL04',13,12);
+ assert.ok(tabletFocus.documentWidth<=712,`Expanded viewers overflow at 712px: ${tabletFocus.documentWidth}px`);
+ assert.ok(tabletFocus.toolbar.bottom<tabletFocus.target.top&&tabletFocus.toolbar.bottom<tabletFocus.reference.top,'Toolbar must occupy its own row above both PDF panels');
+ assert.deepEqual([tabletFocus.compiledPage,tabletFocus.officialPage],['13','12']);
+ const desktopFocus=await expandedViewerLayout(p,1600,1050,'RL04',13,12);
+ assert.ok(desktopFocus.documentWidth<=1600,`Expanded viewers overflow at 1600px: ${desktopFocus.documentWidth}px`);
+ assert.deepEqual([desktopFocus.compiledPage,desktopFocus.officialPage],['13','12']);
+ await p.screenshot({path:path.join(artifacts,'expanded-viewers-desktop.png')});
+ await p.locator('[data-exit-focus]').click();await assertSyncTogglePlacement(p,false);await renderedPages(p,'RL04',13,12);
  await p.setViewportSize({width:390,height:844});
- const mobileWidth=await p.evaluate(()=>document.documentElement.scrollWidth);assert.ok(mobileWidth<=390,`Synced PDF controls overflow at 390px: ${mobileWidth}px`);
- assert.ok(await toggle.isVisible());await p.locator('.pdf-panel-target').screenshot({path:path.join(artifacts,'synced-boundary-mobile.png')});
- await p.setViewportSize({width:1600,height:1050});await renderedPages(p,'RL04',13,12);
+ await p.locator('.pdf-panel-target').screenshot({path:path.join(artifacts,'synced-boundary-mobile.png')});
+ await p.setViewportSize({width:1600,height:1050});
  await p.locator('.pdf-panel-target').screenshot({path:path.join(artifacts,'synced-boundary-desktop.png')});
  await p.locator('[data-viewer-action="prev"][data-viewer="official"]').click();await renderedPages(p,'RL04',12,11);
  assert.equal(await p.locator('[data-page-status="compiled"]').isHidden(),true);assert.equal(await p.locator('[data-page-status="official"]').isHidden(),true);
  await setSync(p,false);await p.locator('[data-viewer-action="next"][data-viewer="compiled"]').click();await renderedPages(p,'RL04',13,11);
- report.checks.push('Optional page-turn sync preserves independent offsets and direct jumps, moves both rendered PDFs by one relative page, clamps each range independently, localizes boundary status, resets pages on paper change, survives rapid turns followed by a paper switch without stale canvases, works in expanded viewers, and resets to off after reload');
+ report.checks.push('Optional page-turn sync preserves independent offsets and direct jumps, moves both rendered PDFs by one relative page, clamps each range independently, localizes boundary status, resets pages on paper change, survives rapid turns followed by a paper switch without stale canvases, remains operable in expanded viewers with stable DOM identity and keyboard exit, and preserves both page identities across mode/language changes at 1600px, 712px, and 390px');
 }
 async function exerciseSyncAvailability(p){
  const context=p.context(),pattern='**/pdfs/RL04/official.pdf*';
@@ -169,13 +237,37 @@ async function exerciseSyncAvailability(p){
 }
 async function assertSteppedTo(p,id,index){
  await rendered(p,id);
- await p.waitForFunction(()=>{
-  const heading=document.querySelector('.paper-heading'),title=document.querySelector('#active-paper-title'),topbar=document.querySelector('.topbar');
-  if(!heading||!title||!topbar||document.activeElement!==title)return false;
-  const headingTop=heading.getBoundingClientRect().top,titleRect=title.getBoundingClientRect(),topbarBottom=topbar.getBoundingClientRect().bottom;
-  const scrollMarginTop=parseFloat(getComputedStyle(heading).scrollMarginTop)||0;
-  return Math.abs(headingTop-scrollMarginTop)<=2&&headingTop>=topbarBottom-1&&titleRect.top<innerHeight&&titleRect.bottom>topbarBottom;
- },null,{timeout:8000});
+ try {
+  await p.waitForFunction(()=>{
+   const heading=document.querySelector('.paper-heading'),title=document.querySelector('#active-paper-title'),topbar=document.querySelector('.topbar');
+   if(!heading||!title||!topbar||document.activeElement!==title)return false;
+   const headingTop=heading.getBoundingClientRect().top,titleRect=title.getBoundingClientRect(),topbarBottom=topbar.getBoundingClientRect().bottom;
+   const scrollMarginTop=parseFloat(getComputedStyle(heading).scrollMarginTop)||0;
+   return Math.abs(headingTop-scrollMarginTop)<=2&&headingTop>=topbarBottom-1&&titleRect.top<innerHeight&&titleRect.bottom>topbarBottom;
+  },null,{timeout:8000});
+ } catch(error) {
+  let diagnostics={id,diagnosticError:'unavailable'};
+  try {
+   diagnostics=await p.evaluate(id=>{
+    const rect=element=>{if(!element)return null;const r=element.getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right,width:r.width,height:r.height};};
+    const heading=document.querySelector('.paper-heading'),title=document.querySelector('#active-paper-title'),topbar=document.querySelector('.topbar');
+    const stages={};
+    for(const side of ['compiled','official']){
+     const stage=document.querySelector(`[data-stage="${side}"]`),canvas=document.querySelector(`[data-canvas="${side}"]`);
+     stages[side]={busy:stage?.getAttribute('aria-busy')??null,renderedSample:canvas?.dataset.renderedSample??null,renderedPage:canvas?.dataset.renderedPage??null,canvasHidden:canvas?.classList.contains('is-hidden')??null};
+    }
+    return {id,focusedId:document.activeElement?.id||null,focusedTag:document.activeElement?.tagName||null,heading:rect(heading),title:rect(title),topbar:rect(topbar),
+     scrollMarginTop:heading?getComputedStyle(heading).scrollMarginTop:null,scrollY,innerH:innerHeight,documentH:document.documentElement.scrollHeight,
+     focusClass:document.querySelector('#viewer-grid')?.className??null,focusMode:document.querySelector('#viewer-grid')?.classList.contains('is-focus')??null,
+     sample:document.querySelector('[data-sample-id][aria-current="true"]')?.dataset.sampleId??null,stages};
+   },id);
+  } catch(diagnosticError) { diagnostics={id,diagnosticError:String(diagnosticError)}; }
+  const screenshot=path.join(artifacts,`assert-stepped-to-failure-${id}-${Date.now()}.png`);
+  try { await p.screenshot({path:screenshot});diagnostics.screenshot=screenshot; }
+  catch(screenshotError) { diagnostics.screenshotError=String(screenshotError); }
+  console.error(`assertSteppedTo waiter failed: ${JSON.stringify(diagnostics)}`);
+  throw error;
+ }
  const layout=await p.evaluate(()=>{
   const heading=document.querySelector('.paper-heading'),title=document.querySelector('#active-paper-title'),topbar=document.querySelector('.topbar');
   const headingRect=heading.getBoundingClientRect(),titleRect=title.getBoundingClientRect(),topbarRect=topbar.getBoundingClientRect();
@@ -311,7 +403,9 @@ async function create(p,name){
  const importedLegacy=await saved(contextB,names.b,r=>r.annotations.RL03?.scoring_protocol==='integrated-presence-v1'&&r.annotations.RL03.notes===legacy.notes&&r.annotations.RL03.scores.figure_alignment===null);
  const convertedImport=importedLegacy.annotations.RL03;assert.deepEqual(convertedImport.object_score_reasons,{figure:null,table:null,equation:null});assert.deepEqual(convertedImport.objects,{figure:{compiled:null,official:null},table:{compiled:null,official:null},equation:{compiled:null,official:null}});assert.deepEqual(convertedImport.scores,{...legacy.scores,figure_alignment:null,table_alignment:null,equation_alignment:null});assert.equal(convertedImport.reviewed_full_scope,false);assert.equal(convertedImport.status,'draft');assert.equal(convertedImport.evidence,legacy.evidence);assert.deepEqual(convertedImport.flags,legacy.flags);
  await other.locator('[data-sample-id="RL03"]').click();assert.equal(await other.locator('#object-protocol-notice').isHidden(),true);assert.equal(await other.locator('#convert-legacy-object-scores').count(),0);assert.equal(await other.locator('[data-score-key="figure_alignment"][data-option="3"]').isDisabled(),false);report.checks.push('Old-format imported paper auto-resets only three object ratings before server save; other scores, notes, evidence, flags and identities stay intact and current controls are editable');
- await other.locator('#switch-annotator').click();await other.locator('#load-session').waitFor({state:'visible'});assert.equal(await tokenFor(contextB),null);assert.ok(await other.locator('#annotation-app').isHidden());report.checks.push('Switch flushes saved content and signs out local anonymous session; original data remains retrievable with recovery code');
+ await other.locator('#sync-pdf-pages').evaluate(node=>{window.__originalSyncToggle=node;});await other.locator('#focus-viewers').click();await assertSyncTogglePlacement(other,true);
+ // Deliberately dispatch through the viewer overlay to exercise the reset path while focus mode is still active.
+ await other.locator('#switch-annotator').evaluate(button=>button.click());await other.locator('#load-session').waitFor({state:'visible'});await assertSyncTogglePlacement(other,false);assert.equal(await other.evaluate(()=>document.activeElement.id),'annotator-id');assert.equal(await tokenFor(contextB),null);assert.ok(await other.locator('#annotation-app').isHidden());report.checks.push('Switch restores the single sync switch to its normal slot before signing out of an expanded viewer session; original data remains retrievable with recovery code');
  const mobile=await fresh(contextB);await mobile.setViewportSize({width:390,height:844});await mobile.screenshot({path:path.join(artifacts,'hosted-login-mobile.png')});assert.equal(await mobile.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);report.checks.push('Create/restore landing page fits 390px mobile screen');
  const contextC=await freshContext(),currentRules=await fresh(contextC);await create(currentRules,names.c);
  let seeded=await rpc(contextC,'xacl_load_annotations',{p_annotator_id:names.c}).then(r=>r.record);seeded.annotations.RL01=legacyAnnotation('Server-side old-format note.','Server-side old-format evidence.');seeded.updated_at='2026-10-20T12:00:00.000Z';

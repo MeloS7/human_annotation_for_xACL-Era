@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
   <title>xACL-Era · PDF alignment annotation</title>
-  <link rel="stylesheet" href="./styles.css?v=20261024-sync-pdf-pages">
+  <link rel="stylesheet" href="./styles.css?v=20261026-expanded-pdf-sync">
   <script src="./vendor/supabase/supabase.js"></script>
-  <script type="module" src="./app.js?v=20261024-sync-pdf-pages"></script>
+  <script type="module" src="./app.js?v=20261026-expanded-pdf-sync"></script>
 </head>
 <body>
   <div class="app-shell" id="top">
@@ -146,11 +146,13 @@
               <div><span class="section-kicker" data-i18n="compareLabel">COMPARE THE TWO VERSIONS</span><h3 id="comparison-title" data-i18n="pdfComparison">PDF comparison</h3></div>
               <div class="comparison-actions">
                 <span class="scope-note"><span class="scope-dot" aria-hidden="true"></span><span data-i18n="targetOnlyScore">Score the compiled PDF; use the official PDF as reference</span></span>
-                <label class="sync-toggle" for="sync-pdf-pages">
-                  <span id="sync-pdf-pages-label" data-i18n="syncPageTurns">Sync page turns</span>
-                  <input id="sync-pdf-pages" class="sr-only" type="checkbox" role="switch" aria-labelledby="sync-pdf-pages-label">
-                  <span class="sync-toggle-track" aria-hidden="true"></span>
-                </label>
+                <div id="sync-pdf-pages-normal-slot" class="sync-toggle-slot">
+                  <label class="sync-toggle" for="sync-pdf-pages">
+                    <span id="sync-pdf-pages-label" data-i18n="syncPageTurns">Sync page turns</span>
+                    <input id="sync-pdf-pages" class="sr-only" type="checkbox" role="switch" aria-labelledby="sync-pdf-pages-label">
+                    <span class="sync-toggle-track" aria-hidden="true"></span>
+                  </label>
+                </div>
                 <button id="focus-viewers" class="button button-quiet focus-button" type="button" aria-pressed="false" data-i18n="expandViewers">Expand viewers</button>
               </div>
             </div>
@@ -159,6 +161,10 @@
               <p><strong id="publication-notice-title">Allowed publication differences</strong><span id="publication-notice-text">Publisher-added headers and footers, conference information, copyright notices, page numbers, and publisher identifiers may differ without an alignment penalty.</span></p>
             </aside>
             <div class="viewer-grid" id="viewer-grid">
+              <div id="viewer-focus-toolbar" class="viewer-focus-toolbar is-hidden" hidden>
+                <div id="sync-pdf-pages-focus-slot" class="sync-toggle-slot"></div>
+                <button id="exit-viewer-focus" class="button button-secondary focus-exit" type="button" data-exit-focus data-i18n="returnToAnnotation">Return to annotation</button>
+              </div>
               <section class="pdf-panel pdf-panel-target" id="compiled-viewer" aria-label="Compiled arXiv PDF">
                 <div class="pdf-panel-header">
                   <div class="pdf-panel-label"><span class="pdf-side-number">01</span><div><span class="pdf-role" data-i18n="targetPdf">TARGET PDF</span><h4 data-i18n="compiledArxiv">Compiled arXiv LaTeX</h4></div></div>

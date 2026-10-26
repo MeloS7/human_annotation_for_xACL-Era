@@ -176,6 +176,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .scope-note { display: inline-flex; align-items: center; gap: 6px; color: #637084; font-size: 9px; }
 .scope-dot { width: 6px; height: 6px; border-radius: 50%; background: #0fa37a; }
 .focus-button { min-height: 29px; padding: 0 8px; font-size: 9px; }
+.sync-toggle-slot { display: inline-flex; align-items: center; min-width: 0; }
 .sync-toggle { position: relative; display: inline-flex; align-items: center; gap: 7px; min-height: 29px; border: 1px solid #e2e6ed; border-radius: 7px; padding: 0 8px; background: white; color: #596679; cursor: pointer; font-size: 9px; font-weight: 650; white-space: nowrap; }
 .sync-toggle:hover { border-color: #ccd0fa; background: #f8f8ff; color: var(--indigo-dark); }
 .sync-toggle-track { position: relative; flex: 0 0 auto; width: 28px; height: 16px; border-radius: 999px; background: #cfd5df; transition: background .15s; }
@@ -223,12 +224,13 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .pdf-panel-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 29px; padding: 0 11px; border-top: 1px solid #edf0f4; color: #8791a1; font-size: 8px; }
 .pdf-panel-footer [data-pdf-hash] { overflow: hidden; max-width: 62%; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; text-overflow: ellipsis; white-space: nowrap; }
 .inline-alert { margin: 10px 0 0; border: 1px solid #f5c9c5; border-radius: 7px; padding: 9px 11px; background: var(--red-soft); color: #952d26; font-size: 10px; line-height: 1.5; }
-.viewer-grid.is-focus { position: fixed; z-index: 50; inset: 68px 0 0; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 16px; background: #f4f6fa; }
-.viewer-grid.is-focus .pdf-stage { height: calc(100vh - 189px); max-height: none; }
+.viewer-focus-toolbar { position: sticky; top: 0; z-index: 2; display: flex; grid-column: 1 / -1; align-items: center; justify-content: space-between; gap: 10px; min-width: 0; min-height: 42px; padding: 5px 2px 8px; border-bottom: 1px solid #dce1eb; background: #f4f6fa; }
+.viewer-focus-toolbar[hidden] { display: none !important; }
+.viewer-grid.is-focus { position: fixed; z-index: 50; inset: 68px 0 0; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: auto minmax(0, 1fr); gap: 12px; overflow: hidden; padding: 8px 16px 16px; background: #f4f6fa; }
+.viewer-grid.is-focus .pdf-stage { flex: 1 1 auto; min-height: 0; height: auto; max-height: none; }
 .viewer-grid.is-focus .pdf-panel { min-height: 0; }
-.viewer-grid.is-focus ~ * { position: relative; }
 .viewer-grid.is-focus .pdf-panel-header { min-height: 58px; }
-.focus-exit { position: fixed; z-index: 60; top: 74px; right: 24px; border-color: #cfd4e2; box-shadow: var(--shadow-md); }
+.focus-exit { flex: 0 0 auto; min-height: 31px; border-color: #cfd4e2; box-shadow: var(--shadow-sm); }
 
 .annotation-section { margin-top: 31px; padding-top: 21px; border-top: 1px solid var(--line); }
 .annotation-heading { align-items: center; margin-bottom: 14px; }
@@ -358,7 +360,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .sidebar { top: 60px; }
   .topbar { position: sticky; }
   .viewer-grid.is-focus { inset: 60px 0 0; }
-  .focus-exit { top: 65px; right: 12px; }
 }
 @media (max-width: 680px) {
   .topbar { grid-template-columns: auto 1fr auto; gap: 10px; padding: 0 11px; }
@@ -392,10 +393,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .scope-note { flex: 1 1 100%; max-width: none; line-height: 1.4; }
   .viewer-grid { grid-template-columns: 1fr; gap: 10px; }
   .pdf-stage { min-height: 300px; height: 52vh; }
-  .viewer-grid.is-focus { grid-template-columns: 1fr; grid-auto-rows: minmax(360px, 1fr); overflow: auto; }
+  .viewer-grid.is-focus { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto; grid-auto-rows: minmax(440px, auto); align-content: start; overflow-x: hidden; overflow-y: auto; padding: 0 9px 10px; }
   .viewer-grid.is-focus .pdf-stage { height: 55vh; }
   .viewer-grid.is-focus .pdf-panel { min-height: 440px; }
-  .focus-exit { top: 65px; right: 10px; }
+  .viewer-focus-toolbar { padding-right: 1px; padding-left: 1px; }
   .rubric-scoring { grid-template-columns: 1fr; }
   .score-card[data-key="overall_alignment"] { grid-column: auto; }
   .annotation-details-grid { grid-template-columns: 1fr; }
