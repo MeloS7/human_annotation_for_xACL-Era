@@ -37,7 +37,7 @@ jobs:
           node-version: '24'
       - run: python scripts/verify_site.py
       - run: python tests/backend_setup.py
-      - run: node --check site/app.js && node --check site/cloud.mjs
+      - run: node --check site/app.js && node --check site/cloud.mjs && node --check site/writing-protocol.mjs
       - run: bash scripts/test_database.sh
       - run: python -m pip install "psycopg[binary]==3.2.12"
       - run: python tests/database_upgrade.py
@@ -50,10 +50,14 @@ jobs:
       - run: python tests/quality_upgrade.py
         env:
           QA_DATABASE_URL: postgresql://postgres:disposable_ci_password@localhost:5432/postgres
+      - run: python tests/writing_backend_setup.py
+      - run: python tests/writing_upgrade.py
+        env:
+          QA_DATABASE_URL: postgresql://postgres:disposable_ci_password@localhost:5432/postgres
       - run: node --test tests/frontend*.mjs
       - run: npm install --prefix .runtime/browser-deps --no-save playwright@1.62.1
       - run: .runtime/browser-deps/node_modules/.bin/playwright install --with-deps chromium
-      - run: node tests/browser_quality.cjs
+      - run: node tests/browser_writing.cjs
         env:
           QA_DATABASE_URL: postgresql://postgres:disposable_ci_password@localhost:5432/postgres
           PLAYWRIGHT_MODULE: ${{ github.workspace }}/.runtime/browser-deps/node_modules/playwright

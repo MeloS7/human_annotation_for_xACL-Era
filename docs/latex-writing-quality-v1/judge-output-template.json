@@ -1,0 +1,25 @@
+{
+  "protocol_id": "latex-writing-quality-v1",
+  "rubric_version": "latex-writing-quality-rubric-v1",
+  "input_condition": "source_only",
+  "reviewed_declared_scope": false,
+  "core_scores": {
+    "language_clarity": null,
+    "coherence_flow": null,
+    "structural_completeness": null,
+    "technical_expression": null,
+    "overall_writing_quality": null
+  },
+  "judge_audit": {
+    "language_clarity": {"explanation": "", "evidence_block_ids": []},
+    "coherence_flow": {"explanation": "", "evidence_block_ids": []},
+    "structural_completeness": {"explanation": "", "evidence_block_ids": []},
+    "technical_expression": {"explanation": "", "evidence_block_ids": []},
+    "overall_writing_quality": {"explanation": "", "evidence_block_ids": []}
+  },
+  "input_limitations": [],
+  "auxiliary_checks": {
+    "pdf_visual_integrity": {"status": "not_assessed", "score": null, "issue_codes": []},
+    "conference_version_audit": {"status": "not_assessed", "observations": []}
+  }
+}

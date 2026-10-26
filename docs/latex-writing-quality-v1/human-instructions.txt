@@ -1,0 +1,15 @@
+Assess the writing represented by the selected target LaTeX source version. Use the supplied PDF or readable source view as a reading aid. The source version and declared scope must match the study packet.
+
+Read the declared main-paper scope and relevant supplied supporting material. Rate the five dimensions using the shared scoring anchors: Language Clarity & Fluency; Coherence & Logical Flow; Structural Completeness; Technical Expression & Referential Clarity; and Overall Writing Quality.
+
+Use 1–5. Choose Uncertain when the available material prevents a defensible judgment. All five dimensions apply; a paper without figures or equations can still explain concepts, methods, procedures or analysis. Do not require a fixed section template or experimental paper format.
+
+Judge Overall directly rather than averaging the other scores. Evaluate how clearly and completely the manuscript communicates its own account, not its novelty, acceptance merit, external truth, or scientific correctness. Harmless stylistic preferences do not prevent a score of 5.
+
+For Technical Expression, consider the wording, definitions, notation, steps, mathematical explanations, source-readable table text, captions and explanatory links. Image aesthetics, plot legibility and PDF layout are outside the core score. Missing evidence that is indispensable for a judgment calls for Uncertain, not a guessed high or low score.
+
+Record PDF display defects in the separate optional visual check. A font, overlap or clipping problem is not automatically poor source writing. If display problems block understanding, consult a readable representation of the same source; otherwise mark the affected core dimensions Uncertain.
+
+The official conference PDF is not needed for primary writing scores. Complete the primary assessment before any separate conference-version audit. Changed sections, figures, values or wording in another version do not themselves lower writing scores or establish a missing part in this version.
+
+Confirm the declared reading scope. Evidence, page numbers and personal notes are not mandatory participant fields. Earlier protocol scores remain separate; rate this protocol anew.

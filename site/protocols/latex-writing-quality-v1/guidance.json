@@ -1,0 +1,87 @@
+{
+  "schema": "xacl.latex-writing-quality-guidance.v1",
+  "version": "latex-writing-quality-guidance-20261026-v1",
+  "protocol_id": "latex-writing-quality-v1",
+  "title": {
+    "en": "Quick guidance",
+    "zh": "快速说明"
+  },
+  "scope": {
+    "en": "Rate the writing represented by the selected arXiv LaTeX source. The PDF is a reading aid; assess visual defects separately.",
+    "zh": "评价选定 arXiv LaTeX 源码中的写作内容。PDF 用于辅助阅读；视觉缺陷单独检查。"
+  },
+  "quick_rules": [
+    {
+      "en": "Read the target manuscript and rate its five writing dimensions. Assess the source-level content, not LaTeX coding style or scientific novelty.",
+      "zh": "阅读目标论文并评价五项写作维度。评价源码中的内容，不评价 LaTeX 代码风格或科学创新性。"
+    },
+    {
+      "en": "Use 1–5 or Uncertain. All five dimensions apply even without figures or equations; no core N/A is used.",
+      "zh": "使用 1–5 分或“无法判断”。无图表或公式也可评价五项；核心项不使用 N/A。"
+    },
+    {
+      "en": "Judge Overall directly. The optional PDF visual check is separate and never caps writing scores or completion.",
+      "zh": "总体写作质量直接判断。PDF 视觉检查为独立选填项，不限制写作分数或完成状态。"
+    },
+    {
+      "en": "If a display or preprocessing problem blocks assessment, choose Uncertain for affected writing dimensions. The official PDF is available for an optional audit after core completion.",
+      "zh": "若显示或预处理问题妨碍判断，相关写作维度选“无法判断”。核心评分完成后可选择核查官方 PDF。"
+    }
+  ],
+  "publication_notice": {
+    "title": {
+      "en": "PDF as a reading aid",
+      "zh": "PDF 用于辅助阅读"
+    },
+    "text": {
+      "en": "Rate the writing represented by this arXiv source version. Display defects and publication-format differences are separate from writing quality; a different conference version is not a quality standard.",
+      "zh": "评价此 arXiv 源码版本中的写作内容。显示缺陷和出版排版差异与写作质量分开记录；不同会议版本不是质量标准。"
+    }
+  },
+  "details_title": {
+    "en": "Detailed guidance",
+    "zh": "详细说明"
+  },
+  "details": [
+    {
+      "title": {
+        "en": "Completeness and technical expression",
+        "zh": "完整性与技术表达"
+      },
+      "text": {
+        "en": "Judge completeness relative to this paper type, stated aims and its own dependencies. Do not require an experimental template or a fixed section order. Assess definitions, methods, notation, explanations and links; do not infer the contents of unsupplied images.",
+        "zh": "相对于论文类型、明确目的和自身依赖评价完整性，不要求实验模板或固定章节顺序。评价定义、方法、符号、解释和指向联系，不推断未提供图片的内容。"
+      }
+    },
+    {
+      "title": {
+        "en": "Writing versus display problems",
+        "zh": "写作问题与显示问题"
+      },
+      "text": {
+        "en": "A confirmed source omission can affect the relevant writing dimension. A rendering or preprocessing failure alone is not poor writing. If no readable same-source representation is available, mark the affected writing rating Uncertain and record a visual issue separately.",
+        "zh": "已证实的源码遗漏可影响相关写作维度。仅有渲染或预处理失败不代表写作差；若无法取得同源可读内容，相关写作项选“无法判断”，视觉问题单独记录。"
+      }
+    },
+    {
+      "title": {
+        "en": "Optional conference-version audit",
+        "zh": "可选会议版本核查"
+      },
+      "text": {
+        "en": "Complete the five writing ratings first. You may then reveal the official reference to record version observations. These observations are optional and do not cap scores. Reference exposure in this interface is recorded; it does not prove what you read elsewhere.",
+        "zh": "先完成五项写作评分，再按需显示官方参考并记录版本观察。版本观察为选填，不限制分数。页面会记录参考已显示的状态；这不能证明你在其他地方阅读过什么。"
+      }
+    },
+    {
+      "title": {
+        "en": "New protocol, fresh ratings",
+        "zh": "新协议，重新评分"
+      },
+      "text": {
+        "en": "Earlier alignment and document-quality ratings remain archived separately. No old score or visual check is copied. Rate the five writing dimensions anew; evidence, page numbers and personal notes are not required fields.",
+        "zh": "此前的对齐及文档质量评分单独归档保留。不复制任何旧分数或视觉检查。请重新评价五项写作；无需填写证据、页码或个人备注。"
+      }
+    }
+  ]
+}

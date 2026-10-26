@@ -20,6 +20,16 @@ For the integrated object-scoring update, see `integrated-scoring-verification.j
 
 ## Document quality protocol v1 (2026-10-26)
 
-The active frontend uses the separately versioned six-dimension document-quality protocol. Frozen alignment assets and database payloads remain unchanged. Run the original SQL baseline, upgrade and race checks before applying `002_document_quality.sql`; then run `quality_backend_setup.py`, `quality_upgrade.py` and `browser_quality.cjs`. The quality upgrade regression must establish that legacy records/history are unchanged, existing profiles start with blank quality ratings, cross-protocol payloads and unauthorized reads are rejected, version observations do not cap scores, history is immutable, and stale saves conflict.
+This earlier release uses the separately versioned six-dimension document-quality protocol. Frozen alignment assets and database payloads remain unchanged. Run the original SQL baseline, upgrade and race checks before applying `002_document_quality.sql`; then run `quality_backend_setup.py`, `quality_upgrade.py` and `browser_quality.cjs`. The quality upgrade regression must establish that legacy records/history are unchanged, existing profiles start with blank quality ratings, cross-protocol payloads and unauthorized reads are rejected, version observations do not cap scores, history is immutable, and stale saves conflict.
 
 The reviewed migration must be installed in production before the new frontend is deployed. Local and CI fixtures are software tests, not collected human judgments. The original alignment verification records above remain historical evidence and are not relabeled as quality-protocol validation.
+
+## LaTeX writing protocol v1 (2026-10-26)
+
+Run the complete legacy baseline (`backend_setup.py`, the original SQL setup and backend tests, `database_upgrade.py`, `database_concurrency.py`) on a fresh disposable database. Then run `quality_backend_setup.py` and `quality_upgrade.py` to install/test 002. Finally run `writing_backend_setup.py` and `writing_upgrade.py`, which install/test 003. Do not rerun old migrations after 003 when testing archive-write revocation. Frontend unit coverage retains the archived v1/v2 adapter contracts alongside the active v3 contract; the active browser regression is `browser_writing.cjs`.
+
+Required evidence: both old protocols' rows/history/metadata remain unchanged; existing profiles and new devices obtain blank writing records; protocol identities and local recovery remain isolated; five core responses plus scope suffice without the optional visual check; low/uncertain visual ratings and version flags do not cap core ratings; strict nested validation rejects old scores and N/A; reference exposure cannot reverse or be deleted through a later record save; stale saves conflict; direct private data access and old protocol saves are denied. Browser verification covers official-PDF request gating, full completion/audit/reopen flows, optional visual clear/save/reload, primary single-view navigation, and normal/expanded synchronized viewing with responsive controls.
+
+The production health endpoint must match all new hashes before the frontend release. Public health checks and software fixtures do not establish empirical rubric validity or source/conference alignment. Real ratings are never used as disposable fixtures.
+
+See `latex-writing-quality-verification.json` for the new protocol's completed local checks and its separate production-release status.

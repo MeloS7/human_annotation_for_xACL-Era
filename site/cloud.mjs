@@ -1,13 +1,24 @@
 import { QUALITY_PROTOCOL_ID, QUALITY_RECORD_SCHEMA, qualityRecordIssue } from "./quality-protocol.mjs";
+import {
+  VERSION_DIFFERENCE_KEYS as WRITING_VERSION_DIFFERENCE_KEYS,
+  VISUAL_ISSUE_KEYS,
+  WRITING_PROTOCOL_ID,
+  WRITING_RECORD_SCHEMA,
+  WRITING_SCORE_KEYS,
+  writingRecordIssue,
+} from "./writing-protocol.mjs";
 
 const SITE_BASE_URL = new URL("./", import.meta.url);
 const LEGACY_CONFIG_SCHEMA = "xacl.hosted-config.v1";
 const QUALITY_CONFIG_SCHEMA = "xacl.hosted-config.v2";
+const WRITING_CONFIG_SCHEMA = "xacl.hosted-config.v3";
 const MANIFEST_SCHEMA = "revisionlens.alignment30.manifest.v1";
 const LEGACY_RUBRIC_SCHEMA = "revisionlens.alignment-rubric.v1";
 const QUALITY_RUBRIC_SCHEMA = "xacl.document-quality-rubric.v1";
+const WRITING_RUBRIC_SCHEMA = "xacl.latex-writing-quality-rubric.v1";
 const LEGACY_GUIDANCE_SCHEMA = "revisionlens.alignment-guidance.v1";
 const QUALITY_GUIDANCE_SCHEMA = "xacl.document-quality-guidance.v1";
+const WRITING_GUIDANCE_SCHEMA = "xacl.latex-writing-quality-guidance.v1";
 const LEGACY_RECORD_SCHEMA = "revisionlens.alignment-annotations.v1";
 const AUTH_MODE = "anonymous_recovery_v1";
 const LEGACY_RPC_NAMES = Object.freeze({
@@ -26,9 +37,18 @@ const QUALITY_RPC_NAMES = Object.freeze({
   load: "xacl_quality_load_annotations",
   save: "xacl_quality_save_annotations",
 });
+const WRITING_RPC_NAMES = Object.freeze({
+  health: "xacl_writing_annotation_health",
+  register: "xacl_writing_register_annotator",
+  resume: "xacl_writing_resume_annotator",
+  current: "xacl_writing_current_annotations",
+  load: "xacl_writing_load_annotations",
+  save: "xacl_writing_save_annotations",
+});
 const RPC_NAMES = new Set([
   ...Object.values(LEGACY_RPC_NAMES),
   ...Object.values(QUALITY_RPC_NAMES),
+  ...Object.values(WRITING_RPC_NAMES),
 ]);
 
 export class HostedAdapterError extends Error {
@@ -59,6 +79,14 @@ function hasExactlyKeys(value, expected) {
 
 function isQualityConfig(config) {
   return config.schema === QUALITY_CONFIG_SCHEMA;
+}
+
+function isWritingConfig(config) {
+  return config.schema === WRITING_CONFIG_SCHEMA;
+}
+
+function isProtocolConfig(config) {
+  return isQualityConfig(config) || isWritingConfig(config);
 }
 
 function parseJsonBytes(bytes) {
@@ -115,6 +143,13 @@ function validateConfig(config) {
       config.rubric_path === "protocols/document-quality-v1/rubric.json" &&
       validSha256(config.rubric_sha256) &&
       config.guidance_path === "protocols/document-quality-v1/guidance.json" &&
+      config.sample_rubric_version === "alignment-rubric-v1") ||
+    (config.schema === WRITING_CONFIG_SCHEMA && hasExactlyKeys(config, qualityConfigKeys) &&
+      config.protocol_id === WRITING_PROTOCOL_ID && config.record_schema === WRITING_RECORD_SCHEMA &&
+      config.rubric_version === "latex-writing-quality-rubric-v1" &&
+      config.rubric_path === "protocols/latex-writing-quality-v1/rubric.json" &&
+      validSha256(config.rubric_sha256) &&
+      config.guidance_path === "protocols/latex-writing-quality-v1/guidance.json" &&
       config.sample_rubric_version === "alignment-rubric-v1")
   );
   if (!schemaValid || typeof config.study_id !== "string" || !config.study_id ||
@@ -136,12 +171,12 @@ function validateConfig(config) {
     supabase_url: serviceUrl.origin,
     manifest_sha256: config.manifest_sha256.toLowerCase(),
     guidance_sha256: config.guidance_sha256.toLowerCase(),
-    ...(isQualityConfig(config) ? { rubric_sha256: config.rubric_sha256.toLowerCase() } : {}),
+    ...(isProtocolConfig(config) ? { rubric_sha256: config.rubric_sha256.toLowerCase() } : {}),
   };
 }
 
 function validateManifest(manifest, config, rubric) {
-  const sampleRubricVersion = isQualityConfig(config) ? config.sample_rubric_version : rubric.version;
+  const sampleRubricVersion = isProtocolConfig(config) ? config.sample_rubric_version : rubric.version;
   if (!isPlainObject(manifest) || manifest.schema !== MANIFEST_SCHEMA ||
       manifest.dataset_id !== config.study_id || manifest.rubric_version !== sampleRubricVersion ||
       !Array.isArray(manifest.papers) || manifest.papers.length !== 30) fail("manifest_invalid");
@@ -155,6 +190,37 @@ function validateManifest(manifest, config, rubric) {
 }
 
 function validateRubric(rubric, manifest, config) {
+  if (isWritingConfig(config)) {
+    const bilingual = (value) => isPlainObject(value) && typeof value.en === "string" && value.en.trim() &&
+      typeof value.zh === "string" && value.zh.trim();
+    const scoreLevels = ["1", "2", "3", "4", "5"];
+    const validFlags = (flags, expectedKeys) => Array.isArray(flags) && flags.length === expectedKeys.length &&
+      flags.every((flag, index) => hasExactlyKeys(flag, ["key", "label", "label_zh"]) &&
+        flag.key === expectedKeys[index] && typeof flag.label === "string" && flag.label.trim() &&
+        typeof flag.label_zh === "string" && flag.label_zh.trim());
+    const dimensionsValid = Array.isArray(rubric?.dimensions) && rubric.dimensions.length === WRITING_SCORE_KEYS.length &&
+      rubric.dimensions.every((dimension, index) =>
+        hasExactlyKeys(dimension, ["key", "label", "definition", "allows_na", "scale", "label_zh", "definition_zh", "scale_zh"]) &&
+        dimension.key === WRITING_SCORE_KEYS[index] && dimension.allows_na === false &&
+        ["label", "definition", "label_zh", "definition_zh"].every((key) => typeof dimension[key] === "string" && dimension[key].trim()) &&
+        hasExactlyKeys(dimension.scale, scoreLevels) && scoreLevels.every((level) => typeof dimension.scale[level] === "string" && dimension.scale[level].trim()) &&
+        hasExactlyKeys(dimension.scale_zh, scoreLevels) && scoreLevels.every((level) => typeof dimension.scale_zh[level] === "string" && dimension.scale_zh[level].trim()));
+    const auxiliary = rubric?.auxiliary_pdf_visual_integrity;
+    const auxiliaryValid = isPlainObject(auxiliary) && auxiliary.included_in_core_scores === false &&
+      auxiliary.unobserved === "not_assessed" && auxiliary.unassessable === "uncertain" &&
+      ["label", "label_zh", "definition", "definition_zh"].every((key) =>
+        typeof auxiliary[key] === "string" && auxiliary[key].trim()) &&
+      hasExactlyKeys(auxiliary.scale, scoreLevels) &&
+      scoreLevels.every((level) => typeof auxiliary.scale[level] === "string" && auxiliary.scale[level].trim()) &&
+      hasExactlyKeys(auxiliary.scale_zh, scoreLevels) &&
+      scoreLevels.every((level) => typeof auxiliary.scale_zh[level] === "string" && auxiliary.scale_zh[level].trim());
+    if (!isPlainObject(rubric) || rubric.schema !== WRITING_RUBRIC_SCHEMA ||
+        rubric.protocol_id !== WRITING_PROTOCOL_ID || rubric.version !== config.rubric_version ||
+        !bilingual(rubric.title) || !bilingual(rubric.scope) || !dimensionsValid || !auxiliaryValid ||
+        !validFlags(rubric.version_difference_flags, WRITING_VERSION_DIFFERENCE_KEYS) ||
+        !validFlags(rubric.visual_issue_flags, VISUAL_ISSUE_KEYS)) fail("rubric_invalid");
+    return;
+  }
   if (isQualityConfig(config)) {
     if (!isPlainObject(rubric) || rubric.schema !== QUALITY_RUBRIC_SCHEMA ||
         rubric.protocol_id !== QUALITY_PROTOCOL_ID || rubric.version !== config.rubric_version ||
@@ -166,12 +232,14 @@ function validateRubric(rubric, manifest, config) {
 }
 
 function validateGuidance(guidance, config) {
-  const quality = isQualityConfig(config);
-  const schema = quality ? QUALITY_GUIDANCE_SCHEMA : LEGACY_GUIDANCE_SCHEMA;
+  const quality = isProtocolConfig(config);
+  const schema = isWritingConfig(config) ? WRITING_GUIDANCE_SCHEMA :
+    quality ? QUALITY_GUIDANCE_SCHEMA : LEGACY_GUIDANCE_SCHEMA;
+  const protocolId = quality ? config.protocol_id : null;
   const bilingual = (value) => isPlainObject(value) && typeof value.en === "string" && value.en.trim() &&
     typeof value.zh === "string" && value.zh.trim();
   if (!isPlainObject(guidance) || guidance.schema !== schema ||
-      (quality && guidance.protocol_id !== QUALITY_PROTOCOL_ID) || guidance.version !== config.guidance_version ||
+      (quality && guidance.protocol_id !== protocolId) || guidance.version !== config.guidance_version ||
       !bilingual(guidance.title) || !bilingual(guidance.scope) || !Array.isArray(guidance.quick_rules) ||
       guidance.quick_rules.length < 1 || guidance.quick_rules.length > 4 || !guidance.quick_rules.every(bilingual) ||
       !bilingual(guidance.publication_notice?.title) || !bilingual(guidance.publication_notice?.text) ||
@@ -190,11 +258,11 @@ export async function loadHostedAssets({
   const siteBase = new URL(baseUrl);
   const [configFile] = await Promise.all([readStaticJson("config.json", siteBase, fetchImpl)]);
   const config = validateConfig(configFile.value);
-  const quality = isQualityConfig(config);
+  const protocolConfig = isProtocolConfig(config);
   const [manifestFile, rubricFile, guidanceFile] = await Promise.all([
     readStaticJson("manifest.json", siteBase, fetchImpl),
-    readStaticJson(quality ? config.rubric_path : "rubric.json", siteBase, fetchImpl),
-    readStaticJson(quality ? config.guidance_path : "guidance.json", siteBase, fetchImpl),
+    readStaticJson(protocolConfig ? config.rubric_path : "rubric.json", siteBase, fetchImpl),
+    readStaticJson(protocolConfig ? config.guidance_path : "guidance.json", siteBase, fetchImpl),
   ]);
   const [manifestHash, rubricHash, guidanceHash] = await Promise.all([
     sha256Hex(manifestFile.bytes, cryptoProvider),
@@ -202,7 +270,7 @@ export async function loadHostedAssets({
     sha256Hex(guidanceFile.bytes, cryptoProvider),
   ]);
   if (manifestHash !== config.manifest_sha256 || guidanceHash !== config.guidance_sha256 ||
-      (quality && rubricHash !== config.rubric_sha256)) fail("static_hash_mismatch");
+      (protocolConfig && rubricHash !== config.rubric_sha256)) fail("static_hash_mismatch");
   const rubric = rubricFile.value;
   const manifest = manifestFile.value;
   const guidance = guidanceFile.value;
@@ -224,10 +292,13 @@ function safeRpcFailure(name, status, payload) {
   }
   if (code === "name_taken") return new HostedAdapterError("name_taken", status);
   if (code === "profile_exists") return new HostedAdapterError("profile_exists", status);
+  if (Object.values(WRITING_RPC_NAMES).includes(name) && ["writing_record_invalid", "invalid_record"].includes(code)) {
+    return new HostedAdapterError("writing_record_invalid", status);
+  }
   if (["invalid_access", "invalid_access_code", "invalid_credentials", "unauthorized", "forbidden"].includes(code) || status === 401 || status === 403) {
     return new HostedAdapterError("invalid_credentials", status);
   }
-  if ([LEGACY_RPC_NAMES.health, QUALITY_RPC_NAMES.health].includes(name) &&
+  if ([LEGACY_RPC_NAMES.health, QUALITY_RPC_NAMES.health, WRITING_RPC_NAMES.health].includes(name) &&
       (status === 404 || ["study_not_ready", "study_mismatch"].includes(code))) {
     return new HostedAdapterError("backend_not_ready", status);
   }
@@ -287,7 +358,9 @@ export function createHostedAdapter(config, {
 } = {}) {
   const checkedConfig = validateConfig(config);
   const quality = isQualityConfig(checkedConfig);
-  const rpcNames = quality ? QUALITY_RPC_NAMES : LEGACY_RPC_NAMES;
+  const writing = isWritingConfig(checkedConfig);
+  const recordIssue = quality ? qualityRecordIssue : writingRecordIssue;
+  const rpcNames = writing ? WRITING_RPC_NAMES : quality ? QUALITY_RPC_NAMES : LEGACY_RPC_NAMES;
   const createClient = supabaseLibrary?.createClient;
   if (typeof fetchImpl !== "function" || typeof createClient !== "function") fail("service_unavailable");
 
@@ -312,21 +385,21 @@ export function createHostedAdapter(config, {
     try { result = await client.rpc(name, args); } catch (error) { throw safeRpcFailure(name, error?.status || 0, error); }
     if (result?.error) throw safeRpcFailure(name, result.error.status || result.status || 0, result.error);
     const payload = Array.isArray(result?.data) && result.data.length === 1 ? result.data[0] : result?.data;
-    if (!isPlainObject(payload)) fail([LEGACY_RPC_NAMES.health, QUALITY_RPC_NAMES.health].includes(name) ? "backend_not_ready" : "service_unavailable");
+    if (!isPlainObject(payload)) fail([LEGACY_RPC_NAMES.health, QUALITY_RPC_NAMES.health, WRITING_RPC_NAMES.health].includes(name) ? "backend_not_ready" : "service_unavailable");
     if (typeof payload.error === "string" || typeof payload.code === "string") throw safeRpcFailure(name, 200, payload);
     return payload;
   }
 
   function checkedRecord(payload, annotatorId = null) {
     const record = isPlainObject(payload?.record) ? payload.record : payload;
-    if (quality) {
-      const issue = qualityRecordIssue(record, {
+    if (quality || writing) {
+      const issue = recordIssue(record, {
         annotatorId: annotatorId === null ? undefined : annotatorId,
         datasetId: checkedConfig.study_id,
         manifestSha256: checkedConfig.manifest_sha256,
         rubricVersion: rubricVersion || checkedConfig.rubric_version,
       });
-      if (issue) fail("service_unavailable");
+      if (issue) fail(writing ? "writing_record_invalid" : "service_unavailable");
     } else if (!isPlainObject(record) || record.schema !== LEGACY_RECORD_SCHEMA || !validAnnotatorId(record.annotator_id) ||
         (annotatorId !== null && record.annotator_id !== annotatorId) ||
         record.dataset_id !== checkedConfig.study_id || record.manifest_sha256 !== checkedConfig.manifest_sha256 ||
@@ -405,12 +478,12 @@ export function createHostedAdapter(config, {
     async save(annotatorId, record, operation = "save") {
       if (!validAnnotatorId(annotatorId) || !isPlainObject(record) || record.annotator_id !== annotatorId ||
           !["save", "import"].includes(operation)) fail("service_unavailable");
-      if (quality && qualityRecordIssue(record, {
+      if ((quality || writing) && recordIssue(record, {
         annotatorId,
         datasetId: checkedConfig.study_id,
         manifestSha256: checkedConfig.manifest_sha256,
         rubricVersion: rubricVersion || checkedConfig.rubric_version,
-      })) fail("service_unavailable");
+      })) fail(writing ? "writing_record_invalid" : "service_unavailable");
       const payload = await rpc(rpcNames.save, {
         p_annotator_id: annotatorId,
         p_record: record,
@@ -436,14 +509,14 @@ export function createHostedAdapter(config, {
 }
 
 export function assertHostedHealth(health, assets) {
-  const quality = isQualityConfig(assets.config);
+  const protocolConfig = isProtocolConfig(assets.config);
   if (!isPlainObject(health) || health.ready !== true ||
       health.dataset_id !== assets.manifest.dataset_id ||
       health.manifest_sha256 !== assets.manifestHash ||
       health.rubric_version !== assets.rubric.version ||
       health.guidance_version !== assets.guidance.version ||
       health.guidance_sha256 !== assets.guidanceHash ||
-      (quality && (health.protocol_id !== assets.config.protocol_id ||
+      (protocolConfig && (health.protocol_id !== assets.config.protocol_id ||
         health.record_schema !== assets.config.record_schema ||
         health.rubric_sha256 !== assets.rubricHash)) ||
       health.auth_mode !== AUTH_MODE) fail("backend_not_ready");

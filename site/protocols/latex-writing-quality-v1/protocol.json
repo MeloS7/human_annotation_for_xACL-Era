@@ -1,0 +1,82 @@
+{
+  "protocol_id": "latex-writing-quality-v1",
+  "record_schema": "xacl.latex-writing-annotations.v1",
+  "record_keys": [
+    "schema",
+    "protocol_id",
+    "dataset_id",
+    "manifest_sha256",
+    "rubric_version",
+    "annotator_id",
+    "revision",
+    "created_at",
+    "updated_at",
+    "annotations"
+  ],
+  "annotation_keys": [
+    "scores",
+    "auxiliary_checks",
+    "version_differences",
+    "version_notes",
+    "reference_exposed",
+    "reviewed_full_scope",
+    "status",
+    "updated_at"
+  ],
+  "score_keys": [
+    "language_clarity",
+    "coherence_flow",
+    "structural_completeness",
+    "technical_expression",
+    "overall_writing_quality"
+  ],
+  "na_keys": [],
+  "visual_issue_keys": [
+    "missing_glyphs",
+    "overlap",
+    "clipping",
+    "unexpected_blank_regions",
+    "unreadable_objects"
+  ],
+  "version_difference_keys": [
+    "text_revision",
+    "scientific_content_revision",
+    "technical_objects_revision",
+    "structure_revision",
+    "references_revision",
+    "appendix_revision",
+    "identity_uncertain"
+  ],
+  "pdf_visual_shape": {
+    "keys": [
+      "status",
+      "score",
+      "issue_codes"
+    ],
+    "statuses": [
+      "not_assessed",
+      "assessed"
+    ],
+    "not_assessed": {
+      "score": null,
+      "issue_codes": []
+    },
+    "assessed_score_values": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      "uncertain"
+    ]
+  },
+  "reference_exposed_rule": "Boolean, initially false; monotonic false to true. Opening the official audit after core completion records true; subsequent core edits retain it. This logs interface exposure, not actual reading or external access.",
+  "completion_rule": "Five non-null core ratings (1-5 or uncertain) and reviewed_full_scope=true. Auxiliary PDF check and version observations do not gate completion.",
+  "study_id": "revisionlens-alignment30-v1",
+  "manifest_sha256": "d60e722740919ee30896e2c4a84df256970c0b67c36e831af18a3a68ed3df071",
+  "rubric_version": "latex-writing-quality-rubric-v1",
+  "rubric_sha256": "a5a6696e57bc70720c8305b2a1e530de892e203d3c951e09c4cd20ec8b430dfa",
+  "guidance_version": "latex-writing-quality-guidance-20261026-v1",
+  "guidance_sha256": "7d7a76a2ba140306843b3d955c73f095b083a0938ecd4f5b20cc3494c46b6ce6",
+  "rpc_prefix": "xacl_writing_"
+}

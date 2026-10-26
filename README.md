@@ -1,81 +1,85 @@
-# xACL-Era · Document quality annotation
+# xACL-Era · LaTeX writing quality annotation
 
-An English-first, bilingual website for independent annotators reviewing a frozen sample of 30 compiled arXiv papers. The official conference PDF is an optional reference. The current protocol is **document-quality-v1**.
+An English-first, bilingual website for independent human ratings of a frozen 30-paper sample. The protocol is **latex-writing-quality-v1**: five source-level writing scores and a separate optional target-PDF visual check. Release requires the matching database migration and successful verification.
 
 ## What is scored
 
-Rate the compiled version itself using 1–5, or **Uncertain** if assessment is blocked. All six score definitions open by default.
-
-| Dimension | Scope |
+| Core dimension | Scope |
 |---|---|
-| Language Clarity & Fluency | Sentence-level clarity, grammar and terminology |
-| Coherence & Logical Flow | Connections between sentences, paragraphs and explanations |
-| Structural Completeness | A complete, navigable account appropriate to the paper type |
-| Technical Presentation | Applicable figures, tables, equations, captions and their links to the text |
-| Visual Integrity & Legibility | Legibility, glyphs, overlap, clipping, corruption and abnormal blank areas |
-| Overall Document Quality | Direct judgment of clarity, coherence and usability; no calculated average |
+| Language Clarity & Fluency | Comprehensible wording, grammar and terminology |
+| Coherence & Logical Flow | Connections across sentences, sections and supporting explanations |
+| Structural Completeness | A complete account for the paper type, stated aims and its own dependencies |
+| Technical Expression & Referential Clarity | Definitions, concepts, methods, notation, explanations and referential links |
+| Overall Writing Quality | A direct overall judgment; no component average or weighted total |
 
-Only Technical Presentation permits **N/A**, when the compiled main paper has no applicable technical objects. An object added to a different version does not automatically make this version defective. A missing object explicitly referenced within the compiled version is a document-quality issue. Scientific novelty and proof of scientific correctness are outside this task.
+Each core response is **1–5 or Uncertain**. No core N/A is used: a paper without figures or equations can still explain concepts, methods or analysis. Completion requires all five responses and confirmation of the declared reading scope. Uncertain is an answered rating, not evidence that a paper is qualified. A completed annotation is not an acceptance decision.
 
-Version differences are separate, optional observations. Changed experiments, numbers, figures or sections in the official version do not cap or automatically reduce any quality score. Empty version observations mean **not assessed**, not confirmed equality. Version notes are optional, including for low or Uncertain scores. The participant UI no longer offers evidence/page-reference or private-note fields; values already stored in those record fields are preserved when scores or version observations are edited and saved.
+The target is the writing represented by the selected arXiv LaTeX source version. Humans read its compiled PDF as a convenient representation; a source-reading LLM need not compile a PDF. The shared canonical anchors, input proposal and English instructions are under `docs/latex-writing-quality-v1/`. The model rubric is byte-identical to the active site rubric. Human PDF and model source-only conditions must be reported as different reading representations.
 
-Completion requires six responses and confirmation that the compiled main paper was reviewed. A score of 1 does not require a special explanation. The official PDF does not need a complete alignment review.
+The frozen UI manifest identifies arXiv versions and PDF hashes, but does not contain source-bundle hashes. Before a source-only judge run is compared with these human ratings, its run manifest must bind the actual source files and any local compilation patches to the frozen PDF target. This interface release does not itself build or validate that source packet.
+
+Judge communication rather than novelty, scientific truth, code elegance or preferred typesetting. Completeness does not mean matching the conference version or following a fixed experimental section template. A confirmed source omission can affect writing quality; a preprocessing or display failure alone cannot. If display problems block judgment and no readable same-source view is available, use Uncertain for the affected writing dimensions.
+
+## Independent auxiliary activities
+
+**PDF Visual Integrity & Legibility** is optional, with 1–5 or Uncertain and separate visual issue codes. It is stored under `auxiliary_checks.pdf_visual_integrity`, outside `scores`. Its default is not_assessed with no score or issues. Rate it before recording visual issues; Clear visual check resets this auxiliary object. It never caps writing scores or blocks completion. Editing it preserves an already completed core annotation.
+
+**Conference-version audit** is optional and follows core completion. Until explicitly opened, the official PDF is hidden and is not downloaded by this interface. Opening the audit reveals the official PDF and version observations and records `reference_exposed: true`. Closing, reloading or editing core scores does not reset that flag. This records interface exposure, not what a person read elsewhere. Version observations never cap writing scores. The images, structure or numeric results in a later conference version are not automatic penalties.
+
+Evidence/page-reference and private-note inputs remain absent. Version notes are optional. Earlier fields and records remain in their original protocol archive.
 
 ## Annotator workflow
 
-1. Create a pseudonymous nickname and save the generated personal recovery code. Existing nicknames, device sessions and recovery codes continue to work.
-2. Start the new protocol with all scores unanswered and 0/30 completed. No earlier score, including Visual Integrity, is copied into this protocol.
-3. Scores save automatically. Wait for **Saved** before closing or changing device. Continue on the same browser resumes the first unfinished paper in this protocol.
-4. On another device, restore using the same nickname and recovery code. The code is not stored in annotation records.
-5. Use the bottom Previous/Next controls after reviewing a paper. Moving to another paper preserves its draft; only **Mark paper complete** marks it completed.
+1. Create a pseudonymous nickname, save the generated recovery code, or continue an existing profile. Existing identities and recovery codes work with the new protocol.
+2. Begin with 0/30 completed and all five writing ratings unanswered. No earlier writing, alignment or visual scores are copied.
+3. Read the target manuscript, rate the five dimensions using the expanded definitions, confirm the reading scope and mark it complete. The visual check may be left unassessed.
+4. Optionally open the conference-version audit. The two-view comparison preserves independent page offsets and offers Sync page turns in normal and expanded modes. Primary reading without a reference moves only the target PDF.
+5. Use bottom Previous/Next navigation. Wait for Saved before closing. Continue resumes the first unfinished writing annotation; recovery on another device uses the same nickname and recovery code.
 
-**Sync page turns** starts off. When enabled, either PDF's arrows move both viewers by one page relative to their own current pages, clamped independently to each PDF's first/last page. Direct page-number entry, zoom and Fit remain independent. The same switch stays available in the expanded viewers' toolbar, including while scrolling on mobile. Return to annotation or Escape exits expanded mode without changing either page or the switch setting.
+Normal annotation-data export belongs to the maintainer. The browser offers private emergency recovery downloads only when unsaved work needs protection. Optimistic revision conflicts never overwrite the other device's saved answer.
 
-Normal annotation-data export is a maintainer operation. The browser retains emergency private downloads for unsaved recovery only. Recovery storage is namespaced by protocol; an older alignment backup is neither applied nor deleted by the quality interface.
+## Protocol archives and storage
 
-## Preserve the alignment archive
+The original manifest, selection, provenance, alignment rubric/guidance and all 60 PDFs remain byte-identical under `frozen-assets.json`. The six-dimension document-quality assets remain byte-identical under `quality-assets.json`; their configuration is preserved at `site/protocols/document-quality-v1/config.json`. New writing assets and that archived config are locked by `writing-assets.json`. The manifest's original alignment rubric identifies sample provenance, not the active scoring rubric.
 
-The original alignment rubric, guidance, sample manifest, provenance, selection and all 60 PDFs remain byte-identical under `frozen-assets.json`. The legacy configuration is also preserved at `site/protocols/alignment-v1/config.json`. The unchanged sample manifest's `rubric_version: alignment-rubric-v1` describes its original sampling package; the active scoring rubric is independently identified in `site/config.json`.
+Alignment records/history remain in their original tables. The six-dimension and new writing protocols use different protocol keys in the existing multi-protocol `xacl_private.quality_protocol_config`, `quality_annotation_records` and immutable `quality_annotation_history` tables. Existing rows, timestamps, hashes and history are not relabeled or migrated. New records have a different schema, rubric and guidance. Old saves are revoked so cached older interfaces cannot change archived ratings.
 
-The original `xacl_private.annotation_records` and `annotation_history` remain in place. Their answers, revisions, timestamps and instruction hashes are not migrated or relabeled. Installing the quality migration revokes the old browser save RPC so a cached alignment frontend cannot overwrite archived answers.
+Profile identities, recovery-code hashes and authenticated device bindings are shared. All active records pass the new protocol validator; old JSON and old local recovery copies cannot be applied. Each protocol has an isolated local recovery namespace. Recorded reference exposure can move only from false to true, including when a later whole-record save tries to remove that paper's row.
 
-New quality records and immutable history are stored separately in `xacl_private.quality_annotation_records` and `quality_annotation_history`, bound to `protocol_id`, the frozen cohort, and the new rubric/guidance versions and hashes. Nicknames and authenticated device bindings are shared; annotation payloads are not.
+## Database migration and deployment
 
-Old alignment JSON cannot be imported as quality ratings. Existing alignment scores remain version-audit observations, not retrospective writing-quality judgments.
+Anonymous Sign-Ins must remain enabled in Supabase. `site/config.json` contains only a public publishable key, never an administrator credential.
 
-## Database upgrade and deployment
+Before publishing this frontend, the database owner must execute **`supabase/setup-writing.sql`**. It is the exact reviewed bundle of the additive `003_latex_writing.sql` migration and requires the existing 001 and 002 migrations. It creates no participants or recovery codes. It is idempotent for the recognized frozen metadata and rejects unexpected drift.
 
-The Supabase project already used by this website must retain Anonymous Sign-Ins. `site/config.json` contains a public publishable client key, never an administrator credential.
+For a new database, apply `setup.sql`, then `setup-quality.sql`, then `setup-writing.sql`. Writing must be last: rerunning older setup bundles can reinstate old API write permissions. New health, protocol, rubric, guidance and cohort hashes must match before scoring is enabled. The active frontend calls only `xacl_writing_*` RPCs; it never falls back to archived saves.
 
-**Before publishing the new frontend**, execute `supabase/setup-quality.sql` as database owner in the project's SQL Editor. It is the reviewed bundle of `supabase/002_document_quality.sql`. It requires the existing alignment schema, creates no identities or recovery codes, preserves old data, and starts quality records unanswered. Reapplying it is idempotent; unknown protocol metadata is rejected.
+GitHub verifies a feature branch without deployment. Only a successful main-branch workflow deploys `site/` to Pages. Do not publish the new interface before the production writing health endpoint is ready.
 
-For a new database, apply the original `supabase/setup.sql` first, followed by `supabase/setup-quality.sql`. The quality migration must be the final step because the original setup reinstates the legacy API permissions.
+## Maintainer export and reproducibility
 
-`xacl_quality_annotation_health` must match the active protocol, rubric, guidance and cohort hashes before scoring is enabled. The frontend fails closed instead of falling back to the alignment API. GitHub Pages deploys only `site/` after verification; branch checks do not publish a preview automatically.
-
-## Maintainer access and verification
-
-Participant records are private, protected by authenticated anonymous-user bindings, revocation checks, row-level security and narrow RPCs. Concurrent saves use optimistic revisions. Immutable history retains every saved quality revision with its protocol and scoring metadata.
-
-Maintainers export through their privileged database connection or Supabase SQL Editor. For example:
+Use a privileged database connection or Supabase SQL Editor, and select the protocol explicitly:
 
 ```sql
 SELECT protocol_id, annotator_id, revision, current_record, saved_at
 FROM xacl_private.quality_annotation_records
+WHERE protocol_id = 'latex-writing-quality-v1'
 ORDER BY annotator_id;
 ```
 
-History and the separate alignment archive can be exported by the maintainer in the same way. No privileged credential belongs in browser code, the public repository, or annotation files.
+History and earlier protocols remain separately exportable. Do not put privileged credentials, recovery codes, individual answers or test outputs in the public repository.
+
+Run legacy database baselines before applying the new migration, then writing checks:
 
 ```bash
 python3 scripts/verify_site.py
 python3 tests/backend_setup.py
 python3 tests/quality_backend_setup.py
+python3 tests/writing_backend_setup.py
 node --test tests/frontend*.mjs
-XACL_DISPOSABLE_DATABASE=1 QA_DATABASE_URL=... python3 tests/quality_upgrade.py
-XACL_DISPOSABLE_DATABASE=1 QA_DATABASE_URL=... node tests/browser_quality.cjs
+# A disposable 001+002 database is required here; writing_upgrade applies 003.
+XACL_DISPOSABLE_DATABASE=1 QA_DATABASE_URL=... python3 tests/writing_upgrade.py
+XACL_DISPOSABLE_DATABASE=1 QA_DATABASE_URL=... node tests/browser_writing.cjs
 ```
 
-Use disposable databases for test fixtures, never the real annotation database. See `docs/verification.md` for environment requirements. The original `tests/browser.cjs` documents the historical alignment interface; the active browser regression is `tests/browser_quality.cjs`.
-
-The frozen cohort remains early15/late15, three papers per research area across ten areas. Protocol changes do not resample papers or validate all 600 source articles. Three raters on 30 papers still provide 30 paper units; choosing an automatic judge using these ratings is calibration, not an independent test.
+See `docs/verification.md` for the complete ordered baseline. The older browser suites are historical UI evidence. All software fixtures are isolated from real ratings. The frozen sample remains 15 early and 15 late papers across ten areas; this UI does not resample or validate every source article in the 600-paper dataset. A 30-paper set used to select a judge is calibration, not an independent test.

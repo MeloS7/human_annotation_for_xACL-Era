@@ -1,0 +1,239 @@
+{
+  "schema": "xacl.latex-writing-quality-rubric.v1",
+  "protocol_id": "latex-writing-quality-v1",
+  "version": "latex-writing-quality-rubric-v1",
+  "status": "implementation_version",
+  "target": "The manuscript text, organization, and technical expression represented by the fixed target LaTeX source snapshot.",
+  "core_score_values": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    "uncertain"
+  ],
+  "aggregation": "Overall Writing Quality is a direct judgment. Do not calculate an average or weighted total, or cap it using auxiliary findings.",
+  "shared_rules": [
+    "The same canonical anchors apply to human and model ratings of the same source version and declared scope; record their different reading representations.",
+    "Normal stylistic variation and minor copyediting preferences do not prevent a 5. Use the anchors without forcing a balanced score distribution.",
+    "Evaluate communication, not novelty, acceptance merit, external factual truth, scientific correctness, source-code elegance, or preferred LaTeX formatting.",
+    "Do not require a fixed section sequence, empirical experiment, figure, table, or equation. Apply the criteria to the paper type and stated purpose.",
+    "Technical expression includes definitions, concepts, procedures and analysis, so all five core dimensions apply even when there are no figures or equations. No core N/A is allowed.",
+    "Use uncertain for an affected dimension when missing evidence or a preprocessing/presentation limitation prevents a defensible judgment; do not turn missing evidence into a low score.",
+    "A confirmed missing or placeholder source passage is a source defect. A parser failure on an existing file or an input truncation is a pipeline limitation. Distinguish their causes.",
+    "Do not claim visual inspection of an image from its filename or caption. Mark an affected judgment uncertain if unsupplied visual content is indispensable.",
+    "PDF rendering quality and conference-version differences are separate auxiliary findings. Neither causes an automatic core-score penalty.",
+    "Review the declared primary scope and relevant explicitly supplied supporting material. A legitimately available appendix may carry details; not all detail must be repeated in the main text.",
+    "If transport or context truncation prevents a full-scope run, do not publish whole-paper final scores. Return an incomplete assessment with uncertain core scores and arrange a complete-coverage run."
+  ],
+  "dimensions": [
+    {
+      "key": "language_clarity",
+      "label": "Language Clarity & Fluency",
+      "definition": "Assess sentence-level comprehensibility, wording, grammar and clear use of terminology in the target manuscript. Scientific truth and preference for a particular English style are outside this dimension.",
+      "allows_na": false,
+      "scale": {
+        "1": "Most of the relevant prose is unintelligible or too ambiguous to recover its meaning.",
+        "2": "Frequent severe wording or grammatical problems obscure important meanings across substantial passages.",
+        "3": "Recurring unclear, ambiguous or awkward passages require substantial rereading or reader reconstruction, although the main meanings can be recovered.",
+        "4": "A few localized wording, grammar or terminology problems require minor clarification; the main meanings remain readily understandable.",
+        "5": "The prose is clear and fluent, with sufficiently precise wording for its purpose. Harmless stylistic differences or minor copyediting preferences do not reduce this score."
+      },
+      "label_zh": "语言清晰度与流畅性",
+      "definition_zh": "评价目标论文句子的可理解性、措辞、语法和术语表达；不评价科学事实真伪，也不因偏好某种英文风格扣分。",
+      "scale_zh": {
+        "1": "大部分相关文字无法理解，或含义模糊到难以还原。",
+        "2": "频繁且严重的措辞或语法问题，遮蔽多个重要段落的含义。",
+        "3": "反复出现含混或不自然的表述，需明显重读或推断，但主要含义仍可还原。",
+        "4": "少量局部措辞、语法或术语问题需要澄清，主要含义仍易于理解。",
+        "5": "表达清楚、流畅，措辞足以准确传达目的；无碍理解的风格差异或轻微润色偏好不扣分。"
+      }
+    },
+    {
+      "key": "coherence_flow",
+      "label": "Coherence & Logical Flow",
+      "definition": "Assess how sentences, paragraphs, sections, claims and supporting explanations connect within the target version. Judge whether the communicated argument can be followed, not whether its scientific claims are true.",
+      "allows_na": false,
+      "scale": {
+        "1": "The manuscript lacks a recoverable main line of exposition; most connections cannot be followed.",
+        "2": "Major disconnections, unexplained jumps or internal contradictions block understanding of important parts of the exposition.",
+        "3": "Repeated weak transitions, unexplained dependencies, repetition or inconsistent exposition require the reader to reconstruct important connections.",
+        "4": "The exposition is followable, with a few local jumps, repetitions or weak transitions that need minor revision.",
+        "5": "Ideas and supporting explanations progress coherently; the reader can follow the main line without supplying missing connections."
+      },
+      "label_zh": "连贯性与逻辑展开",
+      "definition_zh": "评价目标版本句子、段落、章节、论点和支撑解释之间的联系；判断读者能否跟随论述，而非科学结论是否正确。",
+      "scale_zh": {
+        "1": "缺少可还原的主要论述线索，大部分联系无法跟随。",
+        "2": "严重脱节、无解释跳跃或内部矛盾妨碍理解重要论述。",
+        "3": "反复出现衔接不足、悬空依赖、重复或表述不一致，需要读者重建重要联系。",
+        "4": "论述可以跟随，存在少量局部跳跃、重复或衔接不足，需要轻微修订。",
+        "5": "思想与支撑解释展开连贯，读者无需自行补足缺失联系即可跟随主线。"
+      }
+    },
+    {
+      "key": "structural_completeness",
+      "label": "Structural Completeness",
+      "definition": "Assess whether the manuscript supplies a complete account for its paper type, stated aims and own content dependencies. Do not assess coverage of the conference version or demand a particular section template.",
+      "allows_na": false,
+      "scale": {
+        "1": "The target account is severely fragmented, with most essential narrative content demonstrably absent or replaced by placeholders.",
+        "2": "Major missing, truncated or unfinished parts prevent understanding of the problem, approach, analysis or other essential account appropriate to this paper.",
+        "3": "Several substantive narrative gaps or dangling dependencies leave parts incomplete, although the central account can still be reconstructed.",
+        "4": "The principal account is complete; a few local omissions or organizational gaps need minor clarification.",
+        "5": "The manuscript presents a complete, navigable account for its stated scope and paper type, without material narrative gaps. Valid detail in supplied supporting material is acceptable."
+      },
+      "label_zh": "结构完整性",
+      "definition_zh": "相对于论文类型、明确目标和自身内容依赖，评价论述是否完整；不要求覆盖会议版内容，也不强制特定章节模板。",
+      "scale_zh": {
+        "1": "论述严重残缺，大部分关键叙述内容已证实缺失或仍是占位内容。",
+        "2": "重要部分缺失、截断或未完成，妨碍理解该类型论文的核心问题、方法、分析或其他必要论述。",
+        "3": "多个实质叙述缺口或悬空依赖使部分内容不完整，但仍可还原中心论述。",
+        "4": "主要论述完整，仅有少量局部遗漏或组织缺口需澄清。",
+        "5": "就声明范围和论文类型而言，论述完整且易于定位，没有实质叙述缺口；细节合理放在已提供的支持材料中可以接受。"
+      }
+    },
+    {
+      "key": "technical_expression",
+      "label": "Technical Expression & Referential Clarity",
+      "definition": "Assess the clarity of concepts, definitions, symbols, methods, steps, mathematical explanations, source-readable tables, captions and cross-references. This is communication of technical material, not proof of correctness or evaluation of unsupplied image pixels.",
+      "allows_na": false,
+      "scale": {
+        "1": "Most of the essential technical account cannot be interpreted because its expressions, definitions or referential links are missing or uninterpretable.",
+        "2": "Major undefined concepts or symbols, ambiguous steps or broken explanatory dependencies prevent understanding of important technical content.",
+        "3": "Recurring insufficient definitions, ambiguous notation, unclear captions or unexplained links require substantial reader inference.",
+        "4": "The key technical account is understandable; a few local definitions, explanations or referential links need clarification.",
+        "5": "Technical concepts and relevant expressions are sufficiently defined and explained; the supplied methods, notation and referential links support clear understanding within the declared scope."
+      },
+      "label_zh": "技术表达与引用指向清晰度",
+      "definition_zh": "评价概念、定义、符号、方法步骤、数学说明、源码可读的表格、图表说明和交叉引用；不证明科学正确性，也不评价未提供的图片像素。",
+      "scale_zh": {
+        "1": "大部分必要技术内容因表达、定义或指向联系缺失或不可解读而无法理解。",
+        "2": "重要概念或符号未定义、步骤含混或解释依赖断裂，妨碍理解关键技术内容。",
+        "3": "反复出现定义不足、符号含混、说明不清或关联未解释，需要大量读者推断。",
+        "4": "关键技术论述可以理解，少量局部定义、解释或指向联系需要澄清。",
+        "5": "技术概念及相关表达定义和说明充分，已提供的方法、符号及指向联系支持理解声明范围内的内容。"
+      }
+    },
+    {
+      "key": "overall_writing_quality",
+      "label": "Overall Writing Quality",
+      "definition": "Directly judge the target manuscript as clear, coherent and sufficiently complete scientific writing suitable for use as an academic-writing research document. Do not average component scores or require scientific novelty, perfect typesetting or agreement with another version.",
+      "allows_na": false,
+      "scale": {
+        "1": "The manuscript is largely unusable as an understandable scientific account because of pervasive writing or confirmed content-completeness problems.",
+        "2": "Serious writing or content-completeness problems require substantial rewriting or restoration before the main account is understandable.",
+        "3": "The main account is usable, but noticeable writing or narrative problems require substantial reader reconstruction or meaningful revision.",
+        "4": "The manuscript is clear and usable overall, with localized writing issues needing minor revision.",
+        "5": "The manuscript communicates a clear, coherent and sufficiently complete scientific account for its stated purpose and scope. Minor stylistic preferences do not reduce this score."
+      },
+      "label_zh": "总体写作质量",
+      "definition_zh": "直接评价目标论文是否清楚、连贯且足够完整，能作为学术写作研究材料；不计算分项平均，也不要求创新性、完美排版或与另一版本一致。",
+      "scale_zh": {
+        "1": "普遍的写作问题或已证实的内容缺失，使论文大部分无法作为可理解的科学论述使用。",
+        "2": "严重写作或内容完整性问题，需要大量重写或恢复，才能理解主要论述。",
+        "3": "主要论述基本可用，但明显写作或叙述问题需要读者大量推断或进行实质修订。",
+        "4": "论文总体清楚可用，局部写作问题需要轻微修订。",
+        "5": "就其明确目的和范围，论文传达清楚、连贯且足够完整的科学论述；轻微风格偏好不扣分。"
+      }
+    }
+  ],
+  "auxiliary_pdf_visual_integrity": {
+    "included_in_core_scores": false,
+    "requires": "Actual observation of the target rendered PDF, identified by its hash.",
+    "unobserved": "not_assessed",
+    "unassessable": "uncertain",
+    "scale": {
+      "1": "Most displayed content cannot be read normally.",
+      "2": "Multiple important displayed parts are difficult or impossible to read.",
+      "3": "Localized rendering defects impede reading of some displayed content.",
+      "4": "Minor visual defects do not materially impede reading.",
+      "5": "The inspected target PDF is visually intact and legible."
+    },
+    "source_only_rule": "Return not_assessed with a null score and no issue codes; do not infer rendering quality from LaTeX.",
+    "core_interpretation": "If display defects block a human core judgment, consult a readable same-source representation; otherwise mark the affected core judgment uncertain rather than penalizing source writing.",
+    "label": "PDF Visual Integrity & Legibility",
+    "label_zh": "PDF 视觉完整性与可读性",
+    "definition": "Optional: rate only the displayed target PDF. This does not contribute to writing scores or completion.",
+    "definition_zh": "选填：仅评价显示的目标 PDF；不计入写作评分，也不影响完成状态。",
+    "scale_zh": {
+      "1": "大部分显示内容无法正常阅读。",
+      "2": "多处重要显示内容难以或无法阅读。",
+      "3": "局部渲染缺陷影响部分内容阅读。",
+      "4": "轻微视觉缺陷，不明显影响阅读。",
+      "5": "检查的目标 PDF 视觉完整、清晰可读。"
+    }
+  },
+  "title": {
+    "en": "Source-level writing quality",
+    "zh": "源码写作质量"
+  },
+  "scope": {
+    "en": "Rate the writing represented by the selected arXiv LaTeX source. The PDF is a reading aid; assess visual defects separately.",
+    "zh": "评价选定 arXiv LaTeX 源码中的写作内容。PDF 用于辅助阅读；视觉缺陷单独检查。"
+  },
+  "version_difference_flags": [
+    {
+      "key": "text_revision",
+      "label": "Text or wording revision",
+      "label_zh": "文字或措辞修订"
+    },
+    {
+      "key": "scientific_content_revision",
+      "label": "Methods, experiments, results or conclusions differ",
+      "label_zh": "方法、实验、结果或结论不同"
+    },
+    {
+      "key": "technical_objects_revision",
+      "label": "Figures, tables or equations differ",
+      "label_zh": "图表或公式不同"
+    },
+    {
+      "key": "structure_revision",
+      "label": "Section organization differs",
+      "label_zh": "章节组织不同"
+    },
+    {
+      "key": "references_revision",
+      "label": "Reference list differs",
+      "label_zh": "参考文献不同"
+    },
+    {
+      "key": "appendix_revision",
+      "label": "Appendix differs, added or absent",
+      "label_zh": "附录不同、新增或缺失"
+    },
+    {
+      "key": "identity_uncertain",
+      "label": "Paper identity needs verification",
+      "label_zh": "论文身份待核实"
+    }
+  ],
+  "visual_issue_flags": [
+    {
+      "key": "missing_glyphs",
+      "label": "Missing or incorrect glyphs",
+      "label_zh": "字形缺失或错误"
+    },
+    {
+      "key": "overlap",
+      "label": "Overlapping content",
+      "label_zh": "内容重叠"
+    },
+    {
+      "key": "clipping",
+      "label": "Clipped content",
+      "label_zh": "内容裁切"
+    },
+    {
+      "key": "unexpected_blank_regions",
+      "label": "Unexpected blank regions",
+      "label_zh": "异常空白区域"
+    },
+    {
+      "key": "unreadable_objects",
+      "label": "Unreadable figures, tables or equations",
+      "label_zh": "图表或公式无法辨认"
+    }
+  ]
+}

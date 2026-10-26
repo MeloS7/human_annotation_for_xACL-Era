@@ -21,7 +21,7 @@ import {
 const siteRoot = new URL("../site/", import.meta.url);
 const protocolRoot = new URL("protocols/document-quality-v1/", siteRoot);
 const fileBytes = new Map([
-  ["config.json", new Uint8Array(await readFile(new URL("config.json", siteRoot)))],
+  ["config.json", new Uint8Array(await readFile(new URL("config.json", protocolRoot)))],
   ["manifest.json", new Uint8Array(await readFile(new URL("manifest.json", siteRoot)))],
   ["protocols/document-quality-v1/rubric.json", new Uint8Array(await readFile(new URL("rubric.json", protocolRoot)))],
   ["protocols/document-quality-v1/guidance.json", new Uint8Array(await readFile(new URL("guidance.json", protocolRoot)))],

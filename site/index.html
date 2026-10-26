@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <title>xACL-Era · document quality review</title>
-  <link rel="stylesheet" href="./styles.css?v=20261026-quality-v2">
+  <title>xACL-Era · source-level writing quality</title>
+  <link rel="stylesheet" href="./styles.css?v=20261027-writing-v1">
   <script src="./vendor/supabase/supabase.js"></script>
-  <script type="module" src="./app.js?v=20261026-quality-v2"></script>
+  <script type="module" src="./app.js?v=20261027-writing-v1"></script>
 </head>
 <body>
   <div class="app-shell" id="top">
@@ -128,7 +128,7 @@
             </div>
           </div>
 
-          <aside id="protocol-banner" class="protocol-banner" role="note" data-i18n="protocolBanner">New document-quality protocol. Previous alignment ratings are preserved separately. Please rate each paper anew.</aside>
+          <aside id="protocol-banner" class="protocol-banner" role="note" data-i18n="protocolBanner">New writing-quality protocol. Previous alignment and document-quality ratings are preserved separately. Please rate each paper anew.</aside>
 
           <section id="all-complete-banner" class="all-complete-banner is-hidden" role="status" aria-live="polite"></section>
 
@@ -142,9 +142,9 @@
 
           <section class="comparison-section" aria-labelledby="comparison-title">
             <div class="section-heading">
-              <div><span class="section-kicker" data-i18n="compareLabel">REVIEW THE COMPILED PAPER</span><h3 id="comparison-title" data-i18n="pdfComparison">PDF viewers</h3></div>
+              <div><span class="section-kicker" data-i18n="compareLabel">TARGET PDF · SAME-SOURCE READING AID</span><h3 id="comparison-title" data-i18n="pdfComparison">Target paper PDF</h3></div>
               <div class="comparison-actions">
-                <span class="scope-note"><span class="scope-dot" aria-hidden="true"></span><span data-i18n="targetOnlyScore">Rate the compiled PDF. The official PDF is an optional reference.</span></span>
+                <span class="scope-note"><span class="scope-dot" aria-hidden="true"></span><span data-i18n="targetOnlyScore">Rate writing represented by the selected LaTeX source; use this PDF as a reading aid.</span></span>
                 <div id="sync-pdf-pages-normal-slot" class="sync-toggle-slot">
                   <label class="sync-toggle" for="sync-pdf-pages">
                     <span id="sync-pdf-pages-label" data-i18n="syncPageTurns">Sync page turns</span>
@@ -152,21 +152,23 @@
                     <span class="sync-toggle-track" aria-hidden="true"></span>
                   </label>
                 </div>
-                <button id="focus-viewers" class="button button-quiet focus-button" type="button" aria-pressed="false" data-i18n="expandViewers">Expand viewers</button>
+                <button id="version-audit-toggle" class="button button-secondary" type="button" disabled aria-expanded="false" data-i18n="auditOpen">Open version audit (optional)</button>
+                <button id="focus-viewers" class="button button-quiet focus-button" type="button" aria-pressed="false" data-i18n="expandViewers">Expand target viewer</button>
               </div>
             </div>
             <aside id="publication-notice" class="publication-notice" role="note" aria-labelledby="publication-notice-title">
               <span class="publication-notice-mark" aria-hidden="true">i</span>
-              <p><strong id="publication-notice-title">Official PDF: optional reference</strong><span id="publication-notice-text">Rate the compiled version on its own merits. A newer conference version may change wording, structure, experiments or technical objects without making this version low quality.</span></p>
+              <p><strong id="publication-notice-title">PDF as a reading aid</strong><span id="publication-notice-text">Rate the writing represented by this arXiv source version. Display defects and publication-format differences are separate from writing quality.</span></p>
             </aside>
-            <div class="viewer-grid" id="viewer-grid">
+            <p id="audit-exposure-note" class="audit-exposure-note" role="note" hidden></p>
+            <div class="viewer-grid is-target-only" id="viewer-grid">
               <div id="viewer-focus-toolbar" class="viewer-focus-toolbar is-hidden" hidden>
                 <div id="sync-pdf-pages-focus-slot" class="sync-toggle-slot"></div>
                 <button id="exit-viewer-focus" class="button button-secondary focus-exit" type="button" data-exit-focus data-i18n="returnToAnnotation">Return to annotation</button>
               </div>
-              <section class="pdf-panel pdf-panel-target" id="compiled-viewer" aria-label="Compiled arXiv PDF">
+              <section class="pdf-panel pdf-panel-target" id="compiled-viewer" aria-label="Selected arXiv source PDF">
                 <div class="pdf-panel-header">
-                  <div class="pdf-panel-label"><span class="pdf-side-number">01</span><div><span class="pdf-role" data-i18n="targetPdf">TARGET PDF</span><h4 data-i18n="compiledArxiv">Compiled arXiv LaTeX</h4></div></div>
+                  <div class="pdf-panel-label"><span class="pdf-side-number">01</span><div><span class="pdf-role" data-i18n="targetPdf">TARGET PDF</span><h4 data-i18n="compiledArxiv">Selected arXiv source version</h4></div></div>
                   <a class="open-pdf-link" data-pdf-open="compiled" href="#" target="_blank" rel="noopener noreferrer" aria-disabled="true"><span data-i18n="openNewTab">Open in new tab</span><span aria-hidden="true">↗</span></a>
                 </div>
                 <div class="pdf-controls">
@@ -174,17 +176,17 @@
                   <div class="zoom-controls"><button type="button" data-viewer-action="zoom-out" data-viewer="compiled" class="control-button" aria-label="Zoom out">−</button><span data-zoom-label="compiled">Fit</span><button type="button" data-viewer-action="zoom-in" data-viewer="compiled" class="control-button" aria-label="Zoom in">+</button><button type="button" data-viewer-action="fit" data-viewer="compiled" class="fit-button" data-i18n="fit">Fit</button></div>
                 </div>
                 <p class="pdf-page-status is-hidden" data-page-status="compiled" role="status" aria-live="polite" aria-atomic="true"></p>
-                <div class="pdf-stage" data-stage="compiled" tabindex="0" aria-label="Compiled target PDF pages">
+                <div class="pdf-stage" data-stage="compiled" tabindex="0" aria-label="Selected-source target PDF pages">
                   <div class="pdf-placeholder" data-placeholder="compiled"><span class="placeholder-icon" aria-hidden="true">PDF</span><p data-i18n="pdfWait">PDF will appear when you select a paper.</p></div>
-                  <canvas data-canvas="compiled" class="pdf-canvas is-hidden" role="img" aria-label="Rendered compiled PDF page"></canvas>
+                  <canvas data-canvas="compiled" class="pdf-canvas is-hidden" role="img" aria-label="Rendered selected-source PDF page"></canvas>
                   <div class="pdf-error is-hidden" data-error="compiled" role="alert"></div>
                 </div>
                 <div class="pdf-panel-footer"><span data-pdf-meta="compiled">Page count pending</span><span data-pdf-hash="compiled">SHA-256 —</span></div>
               </section>
 
-              <section class="pdf-panel pdf-panel-reference" id="official-viewer" aria-label="Official conference PDF (optional reference)">
+              <section class="pdf-panel pdf-panel-reference is-hidden" id="official-viewer" aria-label="Official conference PDF (optional audit)" hidden aria-hidden="true">
                 <div class="pdf-panel-header">
-                  <div class="pdf-panel-label"><span class="pdf-side-number">02</span><div><span class="pdf-role pdf-role-reference" data-i18n="referencePdf">OPTIONAL REFERENCE</span><h4 data-i18n="officialConference">Official conference PDF (optional)</h4></div></div>
+                  <div class="pdf-panel-label"><span class="pdf-side-number">02</span><div><span class="pdf-role pdf-role-reference" data-i18n="referencePdf">OPTIONAL AUDIT</span><h4 data-i18n="officialConference">Official conference PDF</h4></div></div>
                   <a class="open-pdf-link" data-pdf-open="official" href="#" target="_blank" rel="noopener noreferrer" aria-disabled="true"><span data-i18n="openNewTab">Open in new tab</span><span aria-hidden="true">↗</span></a>
                 </div>
                 <div class="pdf-controls">
@@ -205,7 +207,7 @@
 
           <section class="annotation-section" aria-labelledby="annotation-title">
             <div class="section-heading annotation-heading">
-              <div><span class="section-kicker" data-i18n="rubricLabel">DOCUMENT-QUALITY RUBRIC</span><h3 id="annotation-title" data-i18n="annotationTitle">Document-quality ratings</h3></div>
+              <div><span class="section-kicker" data-i18n="rubricLabel">WRITING-QUALITY RUBRIC</span><h3 id="annotation-title" data-i18n="annotationTitle">Source-level writing ratings</h3></div>
               <div class="rubric-version" id="rubric-version">—</div>
             </div>
             <div class="rubric-scope-card" aria-labelledby="guidance-title">
@@ -222,9 +224,17 @@
               </div>
             </div>
             <div id="rubric-scoring" class="rubric-scoring"></div>
-            <section class="version-observations" aria-labelledby="version-observations-title">
-              <h4 id="version-observations-title" data-i18n="versionDifferencesTitle">Version differences (optional)</h4>
-              <p class="field-description" data-i18n="versionDifferencesHelp">Record observed differences between versions if assessed. They do not affect quality scores or completion; leave blank if not assessed.</p>
+            <section id="auxiliary-check-card" class="auxiliary-check-card" aria-labelledby="auxiliary-title">
+              <div class="auxiliary-heading"><div><h4 id="auxiliary-title">PDF Visual Integrity &amp; Legibility</h4><p id="auxiliary-definition" class="field-description">Optional: rate only the rendered target PDF.</p></div><span id="visual-check-status" class="visual-check-status" data-assessed="false">Not assessed</span></div>
+              <p class="field-description" data-i18n="auxiliaryHelp">Assess only the rendered target PDF. This check is separate from writing quality and never affects completion or caps any score.</p>
+              <div id="visual-score-options" class="score-options" role="group" aria-label="Optional target PDF visual integrity"></div>
+              <details id="visual-scale-details" class="score-scale-details" open><summary data-i18n="scoreScale">Score definitions</summary></details>
+              <div class="visual-issues-heading"><strong data-i18n="visualIssuesTitle">Observed PDF issues (optional)</strong><button id="clear-visual-check" class="button button-quiet" type="button" disabled data-i18n="clearVisualCheck">Clear visual check</button></div>
+              <div id="visual-issue-list" class="version-difference-list visual-issue-list"></div>
+            </section>
+            <section id="version-observations" class="version-observations" aria-labelledby="version-observations-title" hidden aria-hidden="true">
+              <h4 id="version-observations-title" data-i18n="versionDifferencesTitle">Version differences (optional audit)</h4>
+              <p class="field-description" data-i18n="versionDifferencesHelp">After completing the five writing ratings, you may inspect the official PDF and record observed differences. These observations never change writing scores or completion.</p>
               <div id="version-difference-list" class="version-difference-list"></div>
               <div class="version-notes-card">
                 <label for="version-notes"><span data-i18n="versionNotesTitle">Version notes</span><span class="optional-hint" data-i18n="optional">Optional</span></label>
@@ -234,7 +244,7 @@
             </section>
             <div class="completion-flow">
               <div class="completion-card">
-                <div class="completion-check-wrap"><label class="check-label"><input id="reviewed-full-scope" type="checkbox"><span class="check-custom" aria-hidden="true"></span><span><strong data-i18n="fullScopeTitle">I reviewed the full compiled main paper</strong><small data-i18n="fullScopeHelp">Review the available main-paper content in the compiled PDF, including relevant technical objects. The official PDF is optional and is not required for quality ratings.</small></span></label></div>
+                <div class="completion-check-wrap"><label class="check-label"><input id="reviewed-full-scope" type="checkbox"><span class="check-custom" aria-hidden="true"></span><span><strong data-i18n="fullScopeTitle">I reviewed the full target manuscript</strong><small data-i18n="fullScopeHelp">Review the full target manuscript represented by the selected LaTeX source. Its PDF is a reading aid. The optional official-version audit is not required.</small></span></label></div>
                 <div class="completion-actions"><div id="validation-message" class="validation-message" role="status" aria-live="polite"></div><button id="complete-review" class="button button-complete" type="button" data-i18n="markComplete">Mark paper complete</button></div>
               </div>
               <nav class="paper-stepper paper-stepper-bottom" data-i18n-title="paperNavigation" aria-label="Paper navigation">
@@ -245,7 +255,7 @@
             </div>
           </section>
 
-          <footer class="workspace-footer"><span data-i18n="footerNotice">Quality ratings apply to the compiled PDF. The official conference PDF is an optional reference.</span><span id="last-saved">—</span></footer>
+          <footer class="workspace-footer"><span data-i18n="footerNotice">Writing ratings apply to the selected LaTeX source. PDF visual integrity and the optional official-version audit are separate.</span><span id="last-saved">—</span></footer>
         </section>
       </main>
     </div>

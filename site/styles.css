@@ -190,6 +190,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .publication-notice p { display: grid; gap: 3px; margin: 0; font-size: 9px; line-height: 1.5; }
 .publication-notice strong { color: #354b6b; font-size: 9px; }
 .viewer-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; }
+.viewer-grid.is-target-only { grid-template-columns: minmax(0, 1fr); }
+.viewer-grid.is-target-only:not(.is-focus) #compiled-viewer { width: min(100%, 1120px); justify-self: center; }
+.viewer-grid.is-focus.is-target-only { grid-template-columns: minmax(0, 1fr); }
 .pdf-panel { display: flex; min-width: 0; flex-direction: column; overflow: hidden; border: 1px solid #dfe4ed; border-radius: 11px; background: white; box-shadow: var(--shadow-sm); }
 .pdf-panel-target { border-top: 2px solid #6366e8; }
 .pdf-panel-reference { border-top: 2px solid #15a48a; }
@@ -231,6 +234,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .viewer-grid.is-focus .pdf-stage { flex: 1 1 auto; min-height: 0; height: auto; max-height: none; }
 .viewer-grid.is-focus .pdf-panel { min-height: 0; }
 .viewer-grid.is-focus .pdf-panel-header { min-height: 58px; }
+.viewer-grid.is-focus.is-target-only .pdf-panel-target { grid-column: 1; }
 .focus-exit { flex: 0 0 auto; min-height: 31px; border-color: #cfd4e2; box-shadow: var(--shadow-sm); }
 
 .annotation-section { margin-top: 31px; padding-top: 21px; border-top: 1px solid var(--line); }
@@ -252,8 +256,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .guidance-revision code { color: #667085; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
 .rubric-scoring { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 13px; }
 .score-card { min-width: 0; border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: white; box-shadow: var(--shadow-sm); }
-.score-card[data-key="overall_quality"] { grid-column: 1 / -1; border-color: #d4d5fb; background: linear-gradient(120deg, #fff, #fafaff); }
-.score-card[data-key="visual_integrity"] { border-color: #d5eae6; background: #fbfefd; }
+.score-card[data-key="overall_writing_quality"] { grid-column: 1 / -1; border-color: #d4d5fb; background: linear-gradient(120deg, #fff, #fafaff); }
 .score-card-header { display: flex; align-items: start; justify-content: space-between; gap: 9px; margin-bottom: 8px; }
 .score-card-header h4 { margin: 0; color: #364152; font-size: 10px; font-weight: 750; }
 .score-card-header p { margin: 3px 0 0; color: #8992a1; font-size: 8.5px; line-height: 1.45; }
@@ -263,16 +266,27 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .score-option:hover:not(:disabled) { border-color: #c6c9f8; background: #f7f7ff; color: var(--indigo-dark); }
 .score-option[aria-pressed="true"] { border-color: #7069e8; background: #efefff; color: #3d37ad; box-shadow: 0 0 0 1px rgb(112 105 232 / 10%); }
 .score-option[data-option="uncertain"][aria-pressed="true"] { border-color: #dfaa43; background: #fff8e8; color: #93600b; }
-.score-option[data-option="na"][aria-pressed="true"] { border-color: #8c98a9; background: #f2f4f7; color: #475467; }
 .score-option:disabled { opacity: .35; cursor: not-allowed; }
 .score-option-help { margin: 6px 0 0; color: #778294; font-size: 8px; line-height: 1.45; }
 .score-scale-details { margin-top: 8px; border-top: 1px solid #f0f2f5; padding-top: 6px; }
 .score-scale-details summary { width: fit-content; color: #8992a1; cursor: pointer; font-size: 8px; }
 .score-scale-list { display: grid; gap: 4px; margin: 7px 0 0; padding: 0; list-style: none; }
 .score-scale-list li { display: grid; grid-template-columns: 15px minmax(0, 1fr); gap: 5px; color: #707b8e; font-size: 8px; line-height: 1.45; }
+.score-scale-list li.score-scale-uncertain { grid-template-columns: minmax(58px, auto) minmax(0, 1fr); }
 .score-scale-list b { color: #414a5b; }
 .overall-rule { margin: 7px 0 0; color: #7a7ea0; font-size: 8px; line-height: 1.4; }
 .visual-rule { color: #6c8983; }
+.auxiliary-check-card { margin-top: 13px; border: 1px solid #cde4df; border-radius: 10px; padding: 12px; background: #f8fcfb; }
+.auxiliary-heading { display: flex; align-items: start; justify-content: space-between; gap: 10px; }
+.auxiliary-heading h4 { margin: 0; color: #385d55; font-size: 10px; font-weight: 750; }
+.auxiliary-heading .field-description { margin-top: 4px; }
+.visual-check-status { flex: 0 0 auto; border: 1px solid #d9e6e3; border-radius: 999px; padding: 4px 8px; color: #647e78; font-size: 8px; white-space: nowrap; }
+.visual-check-status[data-assessed="true"] { border-color: #b8dcd3; background: #eaf7f3; color: #14715f; }
+.visual-issues-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 10px 0 7px; color: #526760; font-size: 9px; }
+.visual-issues-heading .button { min-height: 27px; font-size: 8px; }
+.visual-issue-list { margin-top: 0; }
+.audit-exposure-note { margin: 10px 0; border-left: 3px solid #15a48a; padding: 7px 10px; background: #f0faf7; color: #3c6a60; font-size: 9px; line-height: 1.45; }
+.audit-exposure-note[hidden], .version-observations[hidden], #official-viewer[hidden] { display: none !important; }
 .version-notes-card { min-width: 0; margin: 11px 0 0; border: 1px solid var(--line); border-radius: 9px; padding: 11px; background: white; }
 .field-description { margin: 2px 0 9px; color: #8992a1; font-size: 8px; line-height: 1.4; }
 .version-observations { margin-top: 13px; border: 1px solid #dfe5ed; border-radius: 10px; padding: 12px; background: #fbfcfe; }
@@ -387,7 +401,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .viewer-grid.is-focus .pdf-panel { min-height: 440px; }
   .viewer-focus-toolbar { padding-right: 1px; padding-left: 1px; }
   .rubric-scoring { grid-template-columns: 1fr; }
-  .score-card[data-key="overall_quality"] { grid-column: auto; }
+  .score-card[data-key="overall_writing_quality"] { grid-column: auto; }
   .version-difference-list { grid-template-columns: 1fr; }
   .completion-card { grid-template-columns: 1fr; gap: 12px; }
   .completion-actions { align-items: end; flex-direction: column; }

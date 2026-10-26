@@ -1,0 +1,63 @@
+{
+  "schema": "xacl.software-verification.v1",
+  "protocol_id": "latex-writing-quality-v1",
+  "verified_local_date": "2026-10-27",
+  "timezone": "Europe/Budapest",
+  "status": "local_checks_passed_production_release_pending",
+  "software_fixtures_only": true,
+  "scientific_rubric_validation": "not_established_by_software_tests",
+  "cohort": {
+    "papers": 30,
+    "pdfs": 60,
+    "manifest_sha256": "d60e722740919ee30896e2c4a84df256970c0b67c36e831af18a3a68ed3df071",
+    "frozen_assets_unchanged": true,
+    "both_previous_protocol_asset_archives_preserved": true
+  },
+  "protocol": {
+    "record_schema": "xacl.latex-writing-annotations.v1",
+    "rubric_version": "latex-writing-quality-rubric-v1",
+    "rubric_sha256": "a5a6696e57bc70720c8305b2a1e530de892e203d3c951e09c4cd20ec8b430dfa",
+    "guidance_version": "latex-writing-quality-guidance-20261026-v1",
+    "guidance_sha256": "7d7a76a2ba140306843b3d955c73f095b083a0938ecd4f5b20cc3494c46b6ce6",
+    "core_dimensions": 5,
+    "core_values": [1, 2, 3, 4, 5, "uncertain"],
+    "pdf_visual_check": "optional_auxiliary_outside_core_scores",
+    "old_ratings_copied": false
+  },
+  "local_checks": {
+    "frozen_assets_and_canonical_rubric": "passed",
+    "setup_bundle_byte_identity": "passed",
+    "legacy_database_baseline_upgrade_and_concurrency": "passed",
+    "document_quality_upgrade_baseline": "passed",
+    "writing_database_upgrade": "passed",
+    "frontend_unit_tests": { "passed": 37, "failed": 0 },
+    "browser_checks": { "passed_groups": 14, "page_errors": 0, "unexpected_requests": 0 },
+    "focused_fresh_context_restores": { "passed": 3 },
+    "independent_browser_smoke_and_database_readback": "passed",
+    "desktop_and_mobile_screenshot_review": "passed_after_auxiliary_scale_layout_fix",
+    "syntax_and_whitespace": "passed"
+  },
+  "verified_behaviors": [
+    "Alignment and document-quality records, history and metadata remain unchanged by migration 003.",
+    "Existing identities and recovery codes yield blank new-protocol ratings rather than converted scores.",
+    "All five core responses and full-scope confirmation suffice for completion without visual or version checks.",
+    "Visual scores, issues and version observations do not cap writing scores or change completed core status.",
+    "Strict nested validation rejects old protocol records, core N/A, unsupported fields and invalid values.",
+    "Official reference requests remain gated until completed ratings and exposure metadata have been durably saved.",
+    "Reference exposure cannot be reset or deleted through a later whole-record save.",
+    "Cross-device restoration, private recovery namespaces, stale-save conflicts and immutable history work.",
+    "Normal and expanded page synchronization preserves offsets, clamps boundaries and retains responsive controls.",
+    "All five core definitions and auxiliary visual definitions open by default; visual definition text remains readable at desktop and mobile widths."
+  ],
+  "environment_limits": [
+    "Browser regression uses the official vendored Supabase SDK with synthetic Auth/Data transport and real authorization/validation in disposable PostgreSQL.",
+    "Local software tests do not exercise the production Supabase gateway, collect human ratings or validate paper-content quality.",
+    "The source-only judge input pipeline is documented but not implemented by this interface release."
+  ],
+  "production_release_requirements": [
+    "GitHub Actions verification passes for the release source.",
+    "Database owner executes the reviewed supabase/setup-writing.sql bundle.",
+    "Production xacl_writing_annotation_health matches all frozen protocol and cohort hashes.",
+    "Main-branch verification and GitHub Pages deployment succeed, followed by a live new-protocol smoke check."
+  ]
+}
