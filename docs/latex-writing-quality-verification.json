@@ -3,7 +3,8 @@
   "protocol_id": "latex-writing-quality-v1",
   "verified_local_date": "2026-10-27",
   "timezone": "Europe/Budapest",
-  "status": "local_checks_passed_production_release_pending",
+  "status": "verified_release_candidate",
+  "verification_phase": "pre_deployment_snapshot",
   "software_fixtures_only": true,
   "scientific_rubric_validation": "not_established_by_software_tests",
   "cohort": {
@@ -29,7 +30,7 @@
     "setup_bundle_byte_identity": "passed",
     "legacy_database_baseline_upgrade_and_concurrency": "passed",
     "document_quality_upgrade_baseline": "passed",
-    "writing_database_upgrade": "passed",
+    "writing_database_upgrade": "passed_including_missing_prerequisite_diagnostic_and_rollback",
     "frontend_unit_tests": { "passed": 37, "failed": 0 },
     "browser_checks": { "passed_groups": 14, "page_errors": 0, "unexpected_requests": 0 },
     "focused_fresh_context_restores": { "passed": 3 },
@@ -42,6 +43,15 @@
     "source_commit": "4701d6d222426da48500cbdac51200a2f747bb75",
     "run_url": "https://github.com/MeloS7/human_annotation_for_xACL-Era/actions/runs/40419488136",
     "feature_branch_deployment": "skipped_as_required"
+  },
+  "production_database": {
+    "checked_date": "2026-10-27",
+    "owner_confirmed_migration": true,
+    "installed_sql_source_commit": "4701d6d222426da48500cbdac51200a2f747bb75",
+    "writing_health_ready": true,
+    "all_protocol_and_cohort_hashes_match": true,
+    "previous_document_quality_health_ready": true,
+    "later_migration_change": "Prerequisite error diagnostics only; installed RPC definitions and metadata are unchanged."
   },
   "verified_behaviors": [
     "Alignment and document-quality records, history and metadata remain unchanged by migration 003.",

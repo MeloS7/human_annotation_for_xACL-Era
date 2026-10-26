@@ -10,13 +10,33 @@
 BEGIN;
 
 DO $writing_protocol_prerequisites$
+DECLARE
+    v_missing text[] := ARRAY[]::text[];
 BEGIN
-    IF pg_catalog.to_regclass('xacl_private.study_config') IS NULL
-       OR pg_catalog.to_regclass('xacl_private.quality_protocol_config') IS NULL
-       OR pg_catalog.to_regclass('xacl_private.quality_annotation_records') IS NULL
-       OR pg_catalog.to_regclass('xacl_private.quality_annotation_history') IS NULL
-       OR pg_catalog.to_regprocedure('public.xacl_quality_save_annotations(text,jsonb,text,text,text)') IS NULL THEN
-        RAISE EXCEPTION 'latex-writing-quality-v1 requires migrations 001 and 002';
+    IF pg_catalog.to_regclass('xacl_private.study_config') IS NULL THEN
+        v_missing := pg_catalog.array_append(v_missing, 'xacl_private.study_config');
+    END IF;
+    IF pg_catalog.to_regclass('xacl_private.quality_protocol_config') IS NULL THEN
+        v_missing := pg_catalog.array_append(v_missing, 'xacl_private.quality_protocol_config');
+    END IF;
+    IF pg_catalog.to_regclass('xacl_private.quality_annotation_records') IS NULL THEN
+        v_missing := pg_catalog.array_append(v_missing, 'xacl_private.quality_annotation_records');
+    END IF;
+    IF pg_catalog.to_regclass('xacl_private.quality_annotation_history') IS NULL THEN
+        v_missing := pg_catalog.array_append(v_missing, 'xacl_private.quality_annotation_history');
+    END IF;
+    IF pg_catalog.to_regprocedure('public.xacl_quality_save_annotations(text,jsonb,text,text,text)') IS NULL THEN
+        v_missing := pg_catalog.array_append(
+            v_missing,
+            'public.xacl_quality_save_annotations(text,jsonb,text,text,text)'
+        );
+    END IF;
+    IF pg_catalog.cardinality(v_missing) > 0 THEN
+        RAISE EXCEPTION USING
+            ERRCODE = '55000',
+            MESSAGE = 'latex-writing-quality-v1 cannot be installed because required prerequisite objects are missing from this database: '
+                || pg_catalog.array_to_string(v_missing, ', '),
+            HINT = 'First verify the active Supabase project and inspect the listed catalog objects. Only for a confirmed new database, install supabase/001_annotation.sql followed by supabase/002_document_quality.sql in this same database as its owner. This migration does not rerun or repair earlier migrations.';
     END IF;
 END
 $writing_protocol_prerequisites$;

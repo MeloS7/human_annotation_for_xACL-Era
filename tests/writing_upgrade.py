@@ -229,6 +229,46 @@ def migrate(conn):
     conn.execute(MIGRATION, prepare=False)
 
 
+def check_prerequisite_diagnostic_rolls_back(conn):
+    """Prove missing prerequisite names are reported and the migration stays atomic."""
+    conn.execute("BEGIN")
+    try:
+        conn.execute("DROP TABLE xacl_private.quality_annotation_history")
+        conn.execute(
+            "DROP FUNCTION public.xacl_quality_save_annotations(text,jsonb,text,text,text)"
+        )
+        try:
+            migrate(conn)
+        except psycopg.Error as exc:
+            message = exc.diag.message_primary or ""
+            hint = exc.diag.message_hint or ""
+            assert exc.sqlstate == "55000", (exc.sqlstate, message)
+            assert "xacl_private.quality_annotation_history" in message, message
+            assert "public.xacl_quality_save_annotations(text,jsonb,text,text,text)" in message, message
+            assert "001_annotation.sql" in hint and "002_document_quality.sql" in hint, hint
+            assert "same database" in hint and "does not rerun or repair" in hint, hint
+            assert "verify the active Supabase project" in hint, hint
+            assert hint.index("verify the active Supabase project") < hint.index("confirmed new database"), hint
+        else:
+            raise AssertionError("003 accepted a database missing required 002 objects")
+    finally:
+        conn.rollback()
+
+    assert conn.execute(
+        "SELECT pg_catalog.to_regclass('xacl_private.quality_annotation_history')"
+    ).fetchone()[0] is not None, "failed migration did not roll back the removed history table"
+    assert conn.execute(
+        "SELECT pg_catalog.to_regprocedure('public.xacl_quality_save_annotations(text,jsonb,text,text,text)')"
+    ).fetchone()[0] is not None, "failed migration did not roll back the removed quality save RPC"
+    assert conn.execute(
+        "SELECT 1 FROM xacl_private.quality_protocol_config WHERE protocol_id=%s",
+        (PROTOCOL_ID,),
+    ).fetchone() is None, "failed migration inserted the writing protocol configuration"
+    assert conn.execute(
+        "SELECT pg_catalog.to_regprocedure('public.xacl_writing_annotation_health()')"
+    ).fetchone()[0] is None, "failed migration left a writing RPC installed"
+
+
 def auth_connection(user_id):
     conn = psycopg.connect(dsn, autocommit=True)
     conn.execute("SET ROLE authenticated")
@@ -638,6 +678,8 @@ with psycopg.connect(dsn, autocommit=True) as conn:
         (PROTOCOL_ID,),
     ).fetchone() is not None:
         raise SystemExit("Test database already has the writing config row; use a fresh 001+002 database")
+
+    check_prerequisite_diagnostic_rolls_back(conn)
 
     annotator_id = "QA_WRITING_" + uuid.uuid4().hex[:12]
     recovery_code = "c" * 64
