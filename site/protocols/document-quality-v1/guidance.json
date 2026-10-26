@@ -1,0 +1,77 @@
+{
+  "schema": "xacl.document-quality-guidance.v1",
+  "version": "document-quality-guidance-20261026-v1",
+  "protocol_id": "document-quality-v1",
+  "title": {
+    "en": "Quick guidance",
+    "zh": "快速说明"
+  },
+  "scope": {
+    "en": "Rate the compiled arXiv version itself. The official conference PDF is an optional reference; differences between versions do not lower quality scores.",
+    "zh": "评价 arXiv 编译版本本身。官方会议 PDF 仅作可选参考；版本差异不降低质量评分。"
+  },
+  "quick_rules": [
+    {
+      "en": "Read the compiled main paper and rate its six quality dimensions. Consult the official PDF only when helpful.",
+      "zh": "阅读编译版正文并评价六项质量；仅在有帮助时参考官方 PDF。"
+    },
+    {
+      "en": "Use 1–5; use Uncertain if a dimension cannot be assessed. Technical Presentation alone allows N/A when no technical objects apply.",
+      "zh": "使用 1–5 分；无法评价时选“无法判断”。仅技术内容呈现可在无适用技术对象时选 N/A。"
+    },
+    {
+      "en": "Judge Overall directly. Version differences are optional observations and never cap or reduce quality scores.",
+      "zh": "总体质量直接判断。版本差异为选填观察，不限制或降低质量评分。"
+    },
+    {
+      "en": "Evidence, page references, version notes and private notes are optional.",
+      "zh": "证据、页码、版本说明和个人备注均为选填。"
+    }
+  ],
+  "publication_notice": {
+    "title": {
+      "en": "Official PDF: optional reference",
+      "zh": "官方 PDF：可选参考"
+    },
+    "text": {
+      "en": "Rate the compiled version on its own merits. A newer conference version may change wording, structure, experiments or technical objects without making this version low quality. Publication headers, footers, copyright and pagination differences are not quality defects.",
+      "zh": "依据编译版本本身评分。较新的会议版可能修改措辞、结构、实验或技术对象，这不意味着本版本质量低。出版页眉页脚、版权与分页差异不属于质量缺陷。"
+    }
+  },
+  "details_title": {
+    "en": "Detailed guidance",
+    "zh": "详细说明"
+  },
+  "details": [
+    {
+      "title": {
+        "en": "Quality and version observations",
+        "zh": "质量与版本观察"
+      },
+      "text": {
+        "en": "A clearly written earlier version can receive high quality scores despite substantive changes in the official version. A missing object explicitly referenced by this compiled text is a document issue; an object added only in another version is not automatically a defect. Leave version observations blank if not assessed.",
+        "zh": "即使官方版有实质修订，表达清楚的早期版本仍可获得高质量分。编译正文明确引用但缺失的对象属于文档问题；仅在另一版本新增的对象不自动构成缺陷。未核查时可留空版本观察。"
+      }
+    },
+    {
+      "title": {
+        "en": "Scope and uncertainty",
+        "zh": "范围与无法判断"
+      },
+      "text": {
+        "en": "Review the full available compiled main-paper scope, including relevant technical objects. Judge communication and document usability, not research novelty or proof of scientific correctness. Uncertain is a valid completed response when assessment is blocked; it does not mean low quality.",
+        "zh": "检查编译版可用正文及相关技术对象。评价表达与文档可用性，不评价创新性或证明科学结论正确。因障碍无法评价时，“无法判断”是有效的已回答选项，不代表质量低。"
+      }
+    },
+    {
+      "title": {
+        "en": "New protocol, fresh ratings",
+        "zh": "新协议，重新评分"
+      },
+      "text": {
+        "en": "Earlier alignment answers remain archived separately. No old score, including Visual Integrity, is copied into this protocol. Complete all six dimensions anew and confirm review of the compiled main paper.",
+        "zh": "此前对齐标注单独归档保留。包括视觉完整性在内的旧分数均不复制到本协议。请重新评价六项并确认已检查编译版正文。"
+      }
+    }
+  ]
+}

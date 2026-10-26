@@ -1,66 +1,81 @@
-# xACL-Era · Human PDF alignment annotation
+# xACL-Era · Document quality annotation
 
-An English-first, bilingual annotation website for independent annotators reviewing the same frozen sample of 30 paper pairs. Each pair contains a compiled arXiv LaTeX PDF (the scored target) and its official conference PDF (the reference).
+An English-first, bilingual website for independent annotators reviewing a frozen sample of 30 compiled arXiv papers. The official conference PDF is an optional reference. The current protocol is **document-quality-v1**.
 
-The static application and the 60 public paper PDFs are hosted by GitHub Pages. Annotation records are stored privately in the supplied Supabase project. The website does not call any language or vision model.
+## What is scored
 
-## Annotators
+Rate the compiled version itself using 1–5, or **Uncertain** if assessment is blocked. All six score definitions open by default.
 
-1. Choose **Create profile**, enter a nickname, and save the system-generated personal recovery file. No email, password or preassigned ID is required.
-2. A new profile starts at the first paper. On the same browser, **Continue** resumes the first unfinished paper and restores saved drafts.
-3. On another device or after clearing browser data, choose **Restore profile** and enter your nickname and personal recovery code.
-4. Ratings save automatically. Wait for **Saved** before closing or changing device. If saving fails, keep the page open and download recovery JSON.
-5. Export your own saved annotation JSON when finished. The recovery file and annotation JSON are different files: the first restores account access, while the second contains your ratings.
+| Dimension | Scope |
+|---|---|
+| Language Clarity & Fluency | Sentence-level clarity, grammar and terminology |
+| Coherence & Logical Flow | Connections between sentences, paragraphs and explanations |
+| Structural Completeness | A complete, navigable account appropriate to the paper type |
+| Technical Presentation | Applicable figures, tables, equations, captions and their links to the text |
+| Visual Integrity & Legibility | Legibility, glyphs, overlap, clipping, corruption and abnormal blank areas |
+| Overall Document Quality | Direct judgment of clarity, coherence and usability; no calculated average |
 
-Previous/Next navigation sits below the completion controls. These controls return to the selected paper's heading and PDFs; drafts remain drafts until explicitly marked complete.
+Only Technical Presentation permits **N/A**, when the compiled main paper has no applicable technical objects. An object added to a different version does not automatically make this version defective. A missing object explicitly referenced within the compiled version is a document-quality issue. Scientific novelty and proof of scientific correctness are outside this task.
 
-**Sync page turns** is optional and starts off. When enabled, either PDF's page arrows move both viewers by one page while preserving their current page offset until a viewer reaches its first or last page. Each PDF clamps to its own page range and displays a boundary notice. Direct page-number entry, zoom, and Fit remain independent. Enabling sync does not change the current pages; each newly selected paper starts at page 1 in both viewers.
+Version differences are separate, optional observations. Changed experiments, numbers, figures or sections in the official version do not cap or automatically reduce any quality score. Empty version observations mean **not assessed**, not confirmed equality. Evidence/page references, version notes and private notes are optional, including for low or Uncertain scores.
 
-The same switch is available in the expanded viewers' toolbar, including while scrolling on a small screen. Entering or leaving expanded mode preserves the switch setting and both current pages; **Return to annotation** or Escape exits expanded mode.
+Completion requires six responses and confirmation that the compiled main paper was reviewed. A score of 1 does not require a special explanation. The official PDF does not need a complete alignment review.
 
-The page defaults to English. 中文 remains available. Different publisher-added proceedings information, copyright notices and page numbering do not by themselves lower alignment scores; the scoring guide explains scope and exceptions.
+## Annotator workflow
 
-Figure, table, and equation scores include their presence decisions directly. **N/A** confirms that the type is absent from both main papers. **1** requires a reason: missing from the compiled PDF, added only in the compiled PDF, or largely non-corresponding content. Partial omissions use the existing severity anchors. All eight score definitions open by default. All annotators enter the current scoring interface directly. Earlier pre-study test rows automatically restart only the figure, table, and equation ratings; existing current-protocol ratings are retained.
+1. Create a pseudonymous nickname and save the generated personal recovery code. Existing nicknames, device sessions and recovery codes continue to work.
+2. Start the new protocol with all scores unanswered and 0/30 completed. No earlier score, including Visual Integrity, is copied into this protocol.
+3. Scores save automatically. Wait for **Saved** before closing or changing device. Continue on the same browser resumes the first unfinished paper in this protocol.
+4. On another device, restore using the same nickname and recovery code. The code is not stored in annotation records.
+5. Use the bottom Previous/Next controls after reviewing a paper. Moving to another paper preserves its draft; only **Mark paper complete** marks it completed.
 
-Difference flags, evidence and page references, and private notes are **optional**, including for low or Uncertain scores. Completion still requires all eight scores, a reason for any object score of 1, and full-scope review confirmation. If a Critical Difference flag is selected, Overall must be 1, 2, or Uncertain. Guidance v4 supersedes the original rubric's evidence-required instruction without changing its frozen score definitions.
+**Sync page turns** starts off. When enabled, either PDF's arrows move both viewers by one page relative to their own current pages, clamped independently to each PDF's first/last page. Direct page-number entry, zoom and Fit remain independent. The same switch stays available in the expanded viewers' toolbar, including while scrolling on mobile. Return to annotation or Escape exits expanded mode without changing either page or the switch setting.
 
-## Coordinator setup and deployment
+Normal annotation-data export is a maintainer operation. The browser retains emergency private downloads for unsaved recovery only. Recovery storage is namespaced by protocol; an older alignment backup is neither applied nor deleted by the quality interface.
 
-Supabase Anonymous Sign-Ins must be enabled. The URL and publishable client key in `site/config.json` are public settings, not administrator credentials. Run `supabase/setup.sql` as the project database owner once to create this study's private tables and authenticated RPC functions. It creates **no predefined annotators or recovery codes**. Reapplying the migration preserves data and checks the frozen study identity.
+## Preserve the alignment archive
 
-The current scoring update also requires this reviewed setup script on an existing deployment. It upgrades only the recognized v2 or v3 guidance configuration, preserves saved records and immutable history, and rejects unknown configuration drift. Apply the database upgrade before publishing its matching frontend. See [the scoring protocol and upgrade notes](docs/integrated-scoring.md).
+The original alignment rubric, guidance, sample manifest, provenance, selection and all 60 PDFs remain byte-identical under `frozen-assets.json`. The legacy configuration is also preserved at `site/protocols/alignment-v1/config.json`. The unchanged sample manifest's `rubric_version: alignment-rubric-v1` describes its original sampling package; the active scoring rubric is independently identified in `site/config.json`.
 
-Profiles are created by participants through Supabase anonymous authentication. The site generates a cryptographically random personal recovery code; the database retains only its digest. No fixed user-count limit or assigned ID list is imposed by this application. Normal Supabase plan and rate limits still apply.
+The original `xacl_private.annotation_records` and `annotation_history` remain in place. Their answers, revisions, timestamps and instruction hashes are not migrated or relabeled. Installing the quality migration revokes the old browser save RPC so a cached alignment frontend cannot overwrite archived answers.
 
-GitHub Pages deploys only the `site/` artifact via `.github/workflows/pages.yml`; set Pages source to **GitHub Actions**. The database and published frontend must share the frozen manifest, rubric, guidance and auth-mode configuration before annotation is enabled.
+New quality records and immutable history are stored separately in `xacl_private.quality_annotation_records` and `quality_annotation_history`, bound to `protocol_id`, the frozen cohort, and the new rubric/guidance versions and hashes. Nicknames and authenticated device bindings are shared; annotation payloads are not.
 
-## Persistence and study identity
+Old alignment JSON cannot be imported as quality ratings. Existing alignment scores remain version-audit observations, not retrospective writing-quality judgments.
 
-- Private participant, current-record and immutable revision-history tables have row-level security enabled and direct access revoked from public browser roles.
-- Narrow RPC functions authorize each request using the signed anonymous Supabase user identity and its private profile binding. A second device can join the same profile only by proving the personal recovery code. Merely knowing a nickname or the publishable key is insufficient to read or change ratings. Recovery codes are never included in annotation JSON.
-- Writes use optimistic revision checks and serialize per participant. A stale browser receives a conflict instead of overwriting a newer revision. Every successful save/import retains the full previous history and records the exact scoring-guide version and hash.
-- The original local v1 annotation JSON schema remains compatible. Its rubric and manifest binding are unchanged. Legacy imports are identifiable as imports; importing them does not retrospectively certify which guidance the original annotator saw.
-- New annotation rows identify `scoring_protocol: "integrated-presence-v1"` and store a separate `object_score_reasons` value for each object type. Their retained presence fields are derived from the explicit score/reason choice and validated by the database. Earlier pre-study test rows are reset to unanswered object ratings under the current protocol on session entry, import, or recovery; no old object judgment is relabeled as a new one. Other scores and notes are retained, and normal revision history preserves earlier saves. Guidance changes are versioned; previous guidance bytes remain archived.
-- Browser recovery copies are separate from server-confirmed saves. A recovery code is kept only in memory while displayed or entered, and in the participant's separately downloaded recovery file. The official SDK persists its anonymous authentication session in browser storage and refreshes tokens; the recovery code is not stored there.
+## Database upgrade and deployment
 
-Registration uses anonymous Supabase Auth with self-chosen nicknames and no personal information. A leaked recovery code lets another device access that profile, so participants should keep it private. A coordinator can revoke a profile without deleting its revision history. No privileged Supabase key belongs in the frontend or repository.
+The Supabase project already used by this website must retain Anonymous Sign-Ins. `site/config.json` contains a public publishable client key, never an administrator credential.
 
-## Frozen sample and interpretation
+**Before publishing the new frontend**, execute `supabase/setup-quality.sql` as database owner in the project's SQL Editor. It is the reviewed bundle of `supabase/002_document_quality.sql`. It requires the existing alignment schema, creates no identities or recovery codes, preserves old data, and starts quality records unanswered. Reapplying it is idempotent; unknown protocol metadata is rejected.
 
-`frozen-assets.json` locks the manifest, original rubric, current UI guidance, selection/provenance and all 60 PDFs. The cohort is unchanged from the local annotation package: early15 / late15, three papers per research area across ten areas. Sampling did not select by observed alignment quality. Original retrieval information and byte hashes remain in the manifest and provenance.
+For a new database, apply the original `supabase/setup.sql` first, followed by `supabase/setup-quality.sql`. The quality migration must be the final step because the original setup reinstates the legacy API permissions.
 
-Scores apply to the compiled target. Six alignment dimensions, directly judged Overall Alignment, and target-only Visual Integrity & Legibility retain the original definitions. This interface performs no automatic scientific-content acceptance and computes no invented weighted score. Three raters on 30 papers still provide 30 paper units, not 90 independent papers; model selection using these ratings is calibration, not an independent test.
+`xacl_quality_annotation_health` must match the active protocol, rubric, guidance and cohort hashes before scoring is enabled. The frontend fails closed instead of falling back to the alignment API. GitHub Pages deploys only `site/` after verification; branch checks do not publish a preview automatically.
 
-The official PDF is the exact canonical Anthology file at the recorded retrieval time; original-versus-corrected publication edition was not separately established.
+## Maintainer access and verification
 
-## Verification
+Participant records are private, protected by authenticated anonymous-user bindings, revocation checks, row-level security and narrow RPCs. Concurrent saves use optimistic revisions. Immutable history retains every saved quality revision with its protocol and scoring metadata.
+
+Maintainers export through their privileged database connection or Supabase SQL Editor. For example:
+
+```sql
+SELECT protocol_id, annotator_id, revision, current_record, saved_at
+FROM xacl_private.quality_annotation_records
+ORDER BY annotator_id;
+```
+
+History and the separate alignment archive can be exported by the maintainer in the same way. No privileged credential belongs in browser code, the public repository, or annotation files.
 
 ```bash
 python3 scripts/verify_site.py
-XACL_DISPOSABLE_DATABASE=1 bash scripts/test_database.sh  # disposable PostgreSQL only
+python3 tests/backend_setup.py
+python3 tests/quality_backend_setup.py
 node --test tests/frontend*.mjs
+XACL_DISPOSABLE_DATABASE=1 QA_DATABASE_URL=... python3 tests/quality_upgrade.py
+XACL_DISPOSABLE_DATABASE=1 QA_DATABASE_URL=... node tests/browser_quality.cjs
 ```
 
-The browser regression uses a disposable PostgreSQL database and a local test bridge under the same project subpath as Pages. See `docs/verification.md`. It uses synthetic software fixtures and does not modify or collect human alignment judgments.
+Use disposable databases for test fixtures, never the real annotation database. See `docs/verification.md` for environment requirements. The original `tests/browser.cjs` documents the historical alignment interface; the active browser regression is `tests/browser_quality.cjs`.
 
-The original local offline package remains separate and unchanged. No `outputs/` directory or existing annotator answers is published in this repository.
+The frozen cohort remains early15/late15, three papers per research area across ten areas. Protocol changes do not resample papers or validate all 600 source articles. Three raters on 30 papers still provide 30 paper units; choosing an automatic judge using these ratings is calibration, not an independent test.

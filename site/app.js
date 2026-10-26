@@ -1,178 +1,146 @@
-import { assertHostedHealth, createHostedAdapter, loadHostedAssets, randomRecoveryCode } from "./cloud.mjs";
+import { assertHostedHealth, createHostedAdapter, loadHostedAssets, randomRecoveryCode } from "./cloud.mjs?v=20261026-quality-v1";
 import {
-  OBJECT_SCORE_KEYS,
-  OBJECT_SCORE_REASONS,
-  integratedObjectFields,
-  migrateLegacyObjectScores,
-  objectScoringMode,
-  setIntegratedObjectScore,
-  validateIntegratedObjectScores,
-} from "./score-protocol.mjs?v=20261024-auto-current-rules";
+  QUALITY_PROTOCOL_ID, QUALITY_RECORD_SCHEMA, QUALITY_SCORE_KEYS, VERSION_DIFFERENCE_KEYS,
+  blankQualityAnnotation, qualityAnnotationErrors, qualityRecordIssue,
+} from "./quality-protocol.mjs?v=20261026-quality-v1";
 
-const SCORE_KEYS = [
-  "text_alignment", "figure_alignment", "table_alignment", "equation_alignment",
-  "structure_alignment", "content_coverage", "overall_alignment", "visual_integrity",
-];
-const FLAG_KEYS = ["critical_difference", "appendix_difference", "references_difference", "rendering_problem"];
-const RECORD_SCHEMA = "revisionlens.alignment-annotations.v1";
+const SCORE_KEYS = QUALITY_SCORE_KEYS;
+const FLAG_KEYS = VERSION_DIFFERENCE_KEYS;
+const RECORD_SCHEMA = QUALITY_RECORD_SCHEMA;
 const PACKAGE_BASE_URL = new URL("./", import.meta.url);
 const WEB_BASE_URL = PACKAGE_BASE_URL;
 
 const STRINGS = {
   en: {
-    eyebrow: "RESEARCH ANNOTATION", studyLabel: "Study", studyTitle: "xACL-Era · PDF alignment study", loading: "Loading study…", connecting: "Connecting…",
+    eyebrow: "RESEARCH ANNOTATION", studyLabel: "Study", studyTitle: "xACL-Era · document quality review", loading: "Loading study…", connecting: "Connecting…",
     sampleSet: "SAMPLE SET", papers: "Papers", searchPapers: "Search papers", searchPlaceholder: "Search title or ID",
     period: "Period", allPeriods: "All periods", early: "Early", late: "Late", reviewStatus: "Review status",
     allStatuses: "All status", notStarted: "Not started", draft: "Draft", completed: "Completed",
-    annotatorId: "Nickname", annotatorPlaceholder: "Choose a nickname",
-    privateNote: "Annotations are stored privately in the project database. Export a JSON copy when finished.",
-    loginKicker: "xACL-Era · PDF ALIGNMENT REVIEW", loginTitle: "Create or resume your annotation profile",
+    annotatorId: "Nickname", annotatorPlaceholder: "Choose a nickname", privateNote: "Quality ratings are stored privately in the project database.",
+    loginKicker: "xACL-Era · DOCUMENT QUALITY REVIEW", loginTitle: "Create or resume your annotation profile",
     loginDescription: "Choose a pseudonymous nickname. A private recovery code lets you resume on another device.",
     loginIdHint: "Use a nickname, not your real name or email.",
-    loginPrivacy: "Your nickname identifies your private annotation record. The recovery code is not stored in the annotation file.",
+    loginPrivacy: "Your nickname identifies your private quality record. The recovery code is not stored in the rating record.",
     createProfileMode: "Create profile", restoreProfileMode: "Restore on another device", createProfileButton: "Create profile", restoreProfileButton: "Restore profile",
     recoveryCodeLabel: "Personal recovery code", recoveryCodePlaceholder: "Paste your recovery code", recoveryCodeHint: "Enter the 64-character code saved when your profile was created.",
-    recoveryCodeTitle: "Save your recovery code", recoveryCodeIntro: "This code is shown once. Save it somewhere private before continuing; it is needed to restore your profile on another device. If you lose it, you may not be able to restore this profile elsewhere.",
+    recoveryCodeTitle: "Save your recovery code", recoveryCodeIntro: "This code is shown once. Save it somewhere private before continuing; it is needed to restore your profile on another device.",
     recoveryNicknameLabel: "Nickname", downloadRecoveryCode: "Download recovery code", recoveryCodeAck: "I saved this code somewhere private.", continueToStudy: "Continue to the study",
     currentProfileTitle: "A profile is already available on this device", currentProfileLabel: "Continue as", currentProfileHint: "Continue uses this device session. You need your recovery code to restore the profile elsewhere; it cannot be shown again.", currentProfileUnknown: "Current profile", continueProfile: "Continue on this device", useAnotherProfile: "Use another profile",
     preparingStudy: "Checking the study package and private annotation service…",
     readyToCreate: "Choose a nickname to create a profile.", readyToRestore: "Enter your nickname and recovery code to restore your profile.", currentProfileReady: "Your profile is ready on this device. Continue or switch profiles.",
     setupFailed: "The study could not be prepared. Retry setup or contact the study coordinator.", retrySetup: "Retry loading study",
-    staticHashMismatch: "A frozen study file failed its integrity check. Annotation is locked until the package is restored.",
+    staticHashMismatch: "A frozen study file failed its integrity check. Scoring is locked until the package is restored.",
     backendNotReady: "The private annotation service is not ready yet. Retry in a moment.",
     serviceUnavailable: "The private annotation service could not be reached. Check your connection and retry.",
-    guidanceLoadFailed: "The required scoring guidance is missing or could not be loaded. Keep scoring locked until the package is repaired.",
-    guidanceInvalid: "The required scoring guidance is incomplete or has an unsupported format. Keep scoring locked until the package is repaired.",
-    guidanceRevisionLabel: "Guidance revision",
+    guidanceLoadFailed: "The required document-quality guidance is missing or could not be loaded. Scoring remains locked until the package is repaired.",
+    guidanceInvalid: "The document-quality guidance is incomplete or has an unsupported format. Scoring remains locked until the package is repaired.",
+    guidanceRevisionLabel: "Guidance revision", recordInvalid: "The saved quality record does not match this protocol. Scoring is locked; contact the study coordinator.",
     annotatorRequired: "Enter a nickname.", invalidAnnotator: "Use 1–64 letters, numbers, underscores or hyphens. Do not use personal information.", recoveryCodeRequired: "Enter your recovery code.", invalidCredentials: "The nickname or recovery code was not accepted. Check both and try again.", nameTaken: "That nickname is already in use. Choose another one.", profileExists: "This device is already linked to a different profile. Continue with it, or use another profile before restoring.", registrationFailed: "Could not create the profile. Retry; the same recovery code will be reused for this attempt.", restoreFailed: "Could not restore this profile. Check the nickname and recovery code, then retry.", currentProfileFailed: "Could not load the profile on this device. Retry or restore with its recovery code.", switchAnnotator: "Switch profile",
     anonymousAuthUnavailable: "Private sign-in is not enabled for this study yet. Contact the study coordinator.",
-    switchingSave: "Saving your work before switching…", switchSaveFailed: "Could not safely switch because your changes are not saved. Your work remains open here; download a recovery JSON if needed.",
-    allComplete: "All {count} papers are complete. The last paper is open for review. Export JSON when you are ready to save your annotation file.",
-    loadingSession: "Loading annotation record…",
-    currentPaper: "CURRENT PAPER", importJson: "Import JSON", exportJson: "Export JSON", saveNow: "Save now", importing: "Importing and saving…",
-    previousPaper: "← Previous", nextPaper: "Next →", paperNavigation: "Paper navigation", compareLabel: "COMPARE THE TWO VERSIONS", pdfComparison: "PDF comparison",
-    targetOnlyScore: "Score the compiled PDF; use the official PDF as reference", expandViewers: "Expand viewers", returnToAnnotation: "Return to annotation", syncPageTurns: "Sync page turns",
-    targetPdf: "TARGET PDF", compiledArxiv: "Compiled arXiv LaTeX", referencePdf: "REFERENCE PDF", officialConference: "Official conference PDF",
+    switchingSave: "Saving your ratings before switching…", switchSaveFailed: "Could not safely switch because your changes are not saved. Your work remains open here; download a private recovery JSON if needed.",
+    allComplete: "All {count} papers are complete. The last paper is open for review.", loadingSession: "Loading quality record…",
+    currentPaper: "CURRENT PAPER", saveNow: "Save now",
+    previousPaper: "← Previous", nextPaper: "Next →", paperNavigation: "Paper navigation", compareLabel: "REVIEW THE COMPILED PAPER", pdfComparison: "PDF viewers",
+    targetOnlyScore: "Rate the compiled PDF. The official PDF is an optional reference.", expandViewers: "Expand viewers", returnToAnnotation: "Return to ratings", syncPageTurns: "Sync page turns",
+    targetPdf: "QUALITY TARGET", compiledArxiv: "Compiled arXiv PDF", referencePdf: "OPTIONAL REFERENCE", officialConference: "Official conference PDF (optional)",
     openNewTab: "Open in new tab", page: "Page", fit: "Fit", pdfWait: "PDF will appear when you select a paper.", firstPageReached: "First page reached", lastPageReached: "Last page reached",
-    pageCountPending: "Page count pending", rubricLabel: "FIXED RUBRIC", annotationTitle: "Alignment annotation",
-    figure: "Figure", table: "Table", equation: "Equation", compiledPdf: "Compiled PDF", officialPdf: "Official PDF", present: "Present", absent: "Absent", presenceUncertain: "Uncertain",
-    naHelp: "N/A means this item type is absent in both PDFs.", scoreOneObjectHelp: "Use 1 when this entire item type is present officially but missing from the compiled PDF, absent officially but added in the compiled PDF, or largely non-corresponding. Score partial omissions by impact (2–4).",
-    objectReasonPrompt: "Why is this item rated 1? Select one reason to complete the rating.", reasonMissing: "Present officially; entirely missing in compiled PDF", reasonAdded: "Absent officially; added in compiled PDF", reasonNonCorresponding: "Present in both, largely non-corresponding",
-    unsupportedObjectTitle: "Object-score format is not supported",
-    unsupportedObjectProtocol: "These object ratings use an unsupported format and are locked. Contact the study coordinator before editing them.",
-    scoreOneReasonRequired: "Choose a reason for each object score of 1 before completing this paper.", objectMappingInvalid: "An object score and its stored presence do not match. Re-select that score or contact the study coordinator.",
-    saveProtocolError: "Unsaved changes were not sent because paper {sample} has invalid object-score data. Review that paper’s object scores first.",
-    scoreHelp: "Select one score", scoreScale: "Score definitions", na: "N/A", uncertain: "Uncertain",
-    overallDirect: "Direct judgment; do not average the other dimensions.", visualTargetOnly: "Rate the compiled target PDF itself only.",
-    flagsTitle: "Difference flags (optional)", flagsHelp: "Use flags for major issues or differences outside the main-paper scores.",
-    evidenceTitle: "Evidence and page references", evidencePlaceholder: "Add evidence or page references if helpful.",
-    evidenceNoNeed: "Page references can help explain a rating.", notesTitle: "Private annotator notes", optional: "Optional",
-    notesPlaceholder: "Add notes for your own review.", notesHelp: "These notes are included in your annotation output.",
-    fullScopeTitle: "I reviewed the full available main-body scope",
-    fullScopeHelp: "Review both PDFs across the main paper, including relevant figures, tables, and equations. Optional flags can note appendix or reference-list differences.",
-    markComplete: "Mark paper complete", reopenPaper: "Reopen paper", footerNotice: "The official PDF is a comparison reference. Scores apply to the compiled arXiv PDF.",
+    pageCountPending: "Page count pending", rubricLabel: "DOCUMENT-QUALITY RUBRIC", annotationTitle: "Document-quality ratings",
+    scoreFor: "Rate", scoreScale: "Score definitions", na: "N/A", uncertain: "Uncertain",
+    naHelp: "Use N/A only when the compiled main paper has no applicable figures, tables, or equations.",
+    overallDirect: "Judge overall quality directly; do not average the other dimensions.", visualTargetOnly: "Rate this compiled PDF itself.",
+    versionDifferencesTitle: "Version differences (optional)", versionDifferencesHelp: "Record observed differences between versions if assessed. They do not affect quality scores or completion; leave blank if not assessed.",
+    versionNotesTitle: "Version notes", versionNotesPlaceholder: "Add context for the optional version observations.", versionNotesHelp: "Leave blank if version differences were not assessed.",
+    evidenceTitle: "Evidence and page references", evidencePlaceholder: "Add evidence or page references if helpful.", evidenceNoNeed: "Evidence and page references are optional.",
+    notesTitle: "Private annotator notes", optional: "Optional", notesPlaceholder: "Add notes for your own review.", notesHelp: "Private notes are optional.",
+    fullScopeTitle: "I reviewed the full compiled main paper",
+    fullScopeHelp: "Review the available main-paper content in the compiled PDF, including relevant technical objects. The official PDF is optional and is not required for quality ratings.",
+    markComplete: "Mark paper complete", reopenPaper: "Reopen paper", footerNotice: "Quality ratings apply to the compiled PDF. The official conference PDF is an optional reference.",
+    protocolBanner: "New document-quality protocol. Previous alignment ratings are preserved separately. Please rate each paper anew.",
     noPapersMatch: "No papers match these filters.", noTitle: "Untitled paper", noSession: "Load your annotator session to begin.",
-    sessionLoaded: "Annotation session loaded.",
-    sessionLoadFailed: "Could not load the annotation record. Retry or restore with your recovery code.", manifestFailed: "Could not load the frozen paper manifest or rubric.",
-    rubricMissing: "The fixed rubric is missing or incomplete. Scoring is unavailable until the study is repaired.",
+    sessionLoaded: "Quality session loaded.", sessionLoadFailed: "Could not load the quality record. Retry or restore with your recovery code.", manifestFailed: "Could not load the frozen paper manifest or quality rubric.",
+    rubricMissing: "The document-quality rubric is missing or incomplete. Scoring is locked until the study package is repaired.",
     noActivePaper: "Select a paper from the list to begin.", saved: "Saved", saving: "Saving…", unsaved: "Unsaved changes", saveFailed: "Save failed — recovery copy available",
-    sessionNotLoaded: "Create or restore a profile to begin.",
-    conflict: "Save conflict — this record changed elsewhere. Download recovery JSON before resolving.", savedAt: "Saved", saveOffline: "The private service could not be reached. Your latest edits are held in this browser; download a recovery JSON.",
-    downloadRecovery: "Download recovery JSON", localRecovery: "A local unsaved recovery copy exists.", restoreRecovery: "Restore local copy", noSavedWork: "No saved work yet", noChanges: "No changes to save.",
-    localConflict: "The server record has a newer revision than this local copy. Download the local copy to compare; it was not applied.",
-    noLocalRecovery: "No local recovery copy was found.", exportBlocked: "Save must succeed before exporting. Download a recovery copy if the server is unavailable.",
-    exported: "Annotation JSON exported.", imported: "Annotation JSON imported and saved.", importConfirm: "Import this file into the current annotator’s record? It will replace that annotator’s current state for this study.",
-    wrongImport: "This file does not match the current dataset, manifest, rubric, or annotator ID.", badImport: "The selected JSON is not a valid annotation record.",
-    importFailed: "Could not import the annotation file.", importedUnsaved: "Changes imported locally. Save to commit them.",
-    completed: "Completed",
-    noFullScope: "Confirm that you reviewed the full main-body scope.", missingScores: "Complete all eight scores.",
-    criticalCap: "A critical content flag requires Overall Alignment of 1 or 2, or Uncertain.",
+    sessionNotLoaded: "Create or restore a profile to begin.", conflict: "Save conflict — this record changed elsewhere. Download the private recovery JSON before resolving.",
+    savedAt: "Saved", saveOffline: "The private service could not be reached. Your latest edits are held in this browser; download a private recovery JSON.",
+    downloadRecovery: "Download private recovery JSON", localRecovery: "A local unsaved recovery copy exists.", restoreRecovery: "Restore local copy", noSavedWork: "No saved work yet", noChanges: "No changes to save.",
+    localConflict: "The server record is newer than this local copy. The local copy was not applied; download it to compare.",
+    recordRecoveryRejected: "The local recovery copy does not match the document-quality protocol and was not applied.", recoveryRestored: "Local document-quality recovery copy restored.",
+    completed: "Completed", noFullScope: "Confirm that you reviewed the full compiled main paper.", missingScores: "Rate all six dimensions before completing this paper.",
+    invalidAnnotation: "This paper contains a rating that is not valid for the current protocol. Review the ratings before saving.",
     completedSaved: "Paper marked complete and saved.", draftSaved: "Paper returned to draft.",
-    pageLabelTarget: "Target PDF page", pageLabelOfficial: "Reference PDF page", canvasTarget: "Rendered compiled PDF page", canvasOfficial: "Rendered official PDF page", previousTarget: "Previous target page", nextTarget: "Next target page",
-    previousReference: "Previous reference page", nextReference: "Next reference page", scoreFor: "Score for", paper: "paper", of: "of",
+    pageLabelTarget: "Compiled PDF page", pageLabelOfficial: "Optional reference PDF page", canvasTarget: "Rendered compiled PDF page", canvasOfficial: "Rendered official PDF page",
+    previousTarget: "Previous compiled page", nextTarget: "Next compiled page", previousReference: "Previous reference page", nextReference: "Next reference page", of: "of",
     fileNotFound: "This PDF path is missing or invalid in the manifest.", pdfLibFailed: "The local PDF viewer could not be loaded. Check that the packaged PDF.js files are present.",
-    renderFailed: "The browser viewer could not render this PDF. Open it separately or in your usual PDF reader before judging visual quality. If it displays clearly elsewhere, record a viewer issue; do not lower Visual Integrity automatically. Use Uncertain only if comparison is blocked.",
-    pageUnavailable: "The browser viewer could not render this page. Check the PDF separately before judging visual quality.", renderingPage: "Rendering page…", viewFit: "Fit", viewZoom: "Zoom", noStatus: "Not started", statusDraft: "Draft", statusCompleted: "Complete",
-    changingPaper: "Paper changed while a save was pending; the save will continue.", selected: "Selected", genericError: "Something went wrong.",
+    renderFailed: "The browser viewer could not render this PDF. Open it separately or in your usual PDF reader before judging the compiled document. Use Uncertain only if evaluation remains blocked.",
+    pageUnavailable: "The browser viewer could not render this page. Check the PDF separately before judging visual quality.",
+    renderingPage: "Rendering page…", noStatus: "Not started", statusDraft: "Draft", statusCompleted: "Complete", genericError: "Something went wrong.",
   },
   zh: {
-    eyebrow: "研究标注", studyLabel: "研究项目", studyTitle: "xACL-Era · PDF 版本对齐标注", loading: "正在加载项目…", connecting: "正在连接…",
+    eyebrow: "研究标注", studyLabel: "研究项目", studyTitle: "xACL-Era · 文档质量复核", loading: "正在加载项目…", connecting: "正在连接…",
     sampleSet: "论文样本", papers: "论文", searchPapers: "搜索论文", searchPlaceholder: "按标题或 ID 搜索",
     period: "时期", allPeriods: "全部时期", early: "早期", late: "晚期", reviewStatus: "标注状态",
     allStatuses: "所有状态", notStarted: "未开始", draft: "草稿", completed: "已完成",
-    annotatorId: "昵称", annotatorPlaceholder: "选择昵称",
-    privateNote: "标注会私密地保存在项目数据库中。完成后可导出 JSON 副本。",
-    loginKicker: "xACL-Era · PDF 版本对齐复核", loginTitle: "创建或继续你的标注档案",
+    annotatorId: "昵称", annotatorPlaceholder: "选择昵称", privateNote: "质量评分会私密地保存在项目数据库中。",
+    loginKicker: "xACL-Era · 文档质量复核", loginTitle: "创建或继续你的标注档案",
     loginDescription: "选择一个匿名昵称。跨设备恢复档案需要专属恢复码。",
     loginIdHint: "请使用昵称，不要填写真实姓名或电子邮箱。",
-    loginPrivacy: "昵称用于标识你的私密标注记录。恢复码不会写入标注 JSON 文件。",
+    loginPrivacy: "昵称用于标识你的私密质量记录。恢复码不会写入评分记录。",
     createProfileMode: "创建档案", restoreProfileMode: "在另一设备恢复", createProfileButton: "创建档案", restoreProfileButton: "恢复档案",
     recoveryCodeLabel: "个人恢复码", recoveryCodePlaceholder: "粘贴恢复码", recoveryCodeHint: "输入创建档案时保存的64位恢复码。",
-    recoveryCodeTitle: "保存你的恢复码", recoveryCodeIntro: "恢复码只显示一次。继续前请将它保存在安全的私密位置；在另一台设备恢复档案需要此码。如果丢失，可能无法在其他设备恢复此档案。",
+    recoveryCodeTitle: "保存你的恢复码", recoveryCodeIntro: "恢复码只显示一次。继续前请将它保存在安全的私密位置；在另一台设备恢复档案需要此码。",
     recoveryNicknameLabel: "昵称", downloadRecoveryCode: "下载恢复码", recoveryCodeAck: "我已将恢复码保存在安全的私密位置。", continueToStudy: "进入研究标注",
     currentProfileTitle: "此设备上已有一个档案", currentProfileLabel: "继续使用", currentProfileHint: "继续使用此设备上的登录状态即可恢复。若要在其他设备恢复，必须使用恢复码；此码不会再次显示。", currentProfileUnknown: "当前档案", continueProfile: "在此设备继续", useAnotherProfile: "使用其他档案",
     preparingStudy: "正在检查研究文件和私密标注服务…",
     readyToCreate: "选择昵称以创建档案。", readyToRestore: "输入昵称和恢复码以恢复档案。", currentProfileReady: "此设备上的档案已就绪。你可以继续或切换档案。",
     setupFailed: "研究环境未能准备完成。请重试，或联系研究协调人。", retrySetup: "重试加载研究",
-    staticHashMismatch: "固定研究文件未通过完整性检查。恢复文件前，标注功能已锁定。",
-    backendNotReady: "私密标注服务尚未就绪，请稍后重试。",
-    serviceUnavailable: "无法连接私密标注服务。请检查网络连接后重试。",
-    guidanceLoadFailed: "缺少必需的标注说明，或无法加载。请先修复随包文件，再开放标注。",
-    guidanceInvalid: "必需的标注说明不完整或格式不受支持。请先修复随包文件，再开放标注。",
-    guidanceRevisionLabel: "说明版本",
-    annotatorRequired: "请输入昵称。", invalidAnnotator: "昵称需为1–64位字母、数字、下划线或连字符。请勿使用个人信息。", recoveryCodeRequired: "请输入恢复码。", invalidCredentials: "昵称或恢复码不正确，请检查后重试。", nameTaken: "该昵称已被使用，请选择其他昵称。", profileExists: "此设备已关联到其他档案。请继续使用此档案，或先切换档案后再恢复。", registrationFailed: "无法创建档案。请重试；本次尝试会继续使用同一个恢复码。", restoreFailed: "无法恢复该档案。请检查昵称和恢复码后重试。", currentProfileFailed: "无法加载此设备上的档案。请重试，或使用恢复码恢复。", switchAnnotator: "切换档案",
+    staticHashMismatch: "固定研究文件未通过完整性检查。恢复文件前，评分功能已锁定。",
+    backendNotReady: "私密标注服务尚未就绪，请稍后重试。", serviceUnavailable: "无法连接私密标注服务。请检查网络连接后重试。",
+    guidanceLoadFailed: "缺少必需的文档质量说明，或无法加载。请先修复随包文件，再开放评分。",
+    guidanceInvalid: "必需的文档质量说明不完整或格式不受支持。请先修复随包文件，再开放评分。",
+    guidanceRevisionLabel: "说明版本", recordInvalid: "已保存的质量记录与当前协议不符。评分已锁定，请联系研究协调人。",
+    annotatorRequired: "请输入昵称。", invalidAnnotator: "昵称需为1–64位字母、数字、下划线或连字符。请勿使用个人信息。",
+    recoveryCodeRequired: "请输入恢复码。", invalidCredentials: "昵称或恢复码不正确，请检查后重试。", nameTaken: "该昵称已被使用，请选择其他昵称。",
+    profileExists: "此设备已关联到其他档案。请继续使用此档案，或先切换档案后再恢复。",
+    registrationFailed: "无法创建档案。请重试；本次尝试会继续使用同一个恢复码。", restoreFailed: "无法恢复该档案。请检查昵称和恢复码后重试。",
+    currentProfileFailed: "无法加载此设备上的档案。请重试，或使用恢复码恢复。", switchAnnotator: "切换档案",
     anonymousAuthUnavailable: "此研究尚未启用私密登录，请联系研究协调人。",
-    switchingSave: "正在保存标注，然后切换…", switchSaveFailed: "修改尚未保存，无法安全切换。当前标注仍保持打开；如有需要，请下载恢复 JSON。",
-    allComplete: "已完成全部 {count} 篇论文。最后一篇已打开供复核；准备结束时请导出 JSON 保存标注文件。",
-    loadingSession: "正在加载标注记录…",
-    currentPaper: "当前论文", importJson: "导入 JSON", exportJson: "导出 JSON", saveNow: "立即保存", importing: "正在导入并保存…",
-    previousPaper: "← 上一篇", nextPaper: "下一篇 →", paperNavigation: "论文导航", compareLabel: "对照两个版本", pdfComparison: "PDF 对照",
-    targetOnlyScore: "只评分编译版 PDF；官方 PDF 用作参照", expandViewers: "展开 PDF 查看器", returnToAnnotation: "返回标注", syncPageTurns: "同步翻页",
-    targetPdf: "评分对象", compiledArxiv: "arXiv LaTeX 编译 PDF", referencePdf: "对照参照", officialConference: "会议官方 PDF",
+    switchingSave: "正在保存评分，然后切换…", switchSaveFailed: "修改尚未保存，无法安全切换。当前评分仍保持打开；如有需要，请下载私密恢复 JSON。",
+    allComplete: "已完成全部 {count} 篇论文。最后一篇已打开供复核。", loadingSession: "正在加载质量记录…",
+    currentPaper: "当前论文", saveNow: "立即保存",
+    previousPaper: "← 上一篇", nextPaper: "下一篇 →", paperNavigation: "论文导航", compareLabel: "检查编译版论文", pdfComparison: "PDF 查看器",
+    targetOnlyScore: "评价编译版 PDF。官方 PDF 仅作可选参考。", expandViewers: "展开 PDF 查看器", returnToAnnotation: "返回评分", syncPageTurns: "同步翻页",
+    targetPdf: "质量评分对象", compiledArxiv: "arXiv 编译 PDF", referencePdf: "可选参照", officialConference: "会议官方 PDF（可选）",
     openNewTab: "在新标签页打开", page: "页", fit: "适应窗口", pdfWait: "选择论文后将在此显示 PDF。", firstPageReached: "已到第一页", lastPageReached: "已到最后一页",
-    pageCountPending: "等待读取页数", rubricLabel: "固定评分标准", annotationTitle: "版本对齐标注",
-    figure: "图片", table: "表格", equation: "公式", compiledPdf: "编译版 PDF", officialPdf: "官方 PDF", present: "存在", absent: "不存在", presenceUncertain: "无法判断",
-    naHelp: "N/A 表示两份 PDF 中都没有该类内容。", scoreOneObjectHelp: "官方版有而编译版完全缺失、官方版没有而编译版整体新增，或两版内容大幅不对应时选 1。部分缺失按影响程度选 2–4。",
-    objectReasonPrompt: "此项为何评为 1？请选择一个原因以完成评分。", reasonMissing: "官方版存在；编译版完全缺失", reasonAdded: "官方版没有；编译版新增", reasonNonCorresponding: "两版都有，但内容大幅不对应",
-    unsupportedObjectTitle: "图表公式评分格式不受支持",
-    unsupportedObjectProtocol: "这些图表公式评分使用了不支持的格式，当前已锁定。请联系研究协调者后再修改。",
-    scoreOneReasonRequired: "完成论文前，请为每个图表公式的 1 分选择原因。", objectMappingInvalid: "图表公式评分与保存的存在状态不一致。请重新选择该分数，或联系研究协调者。",
-    saveProtocolError: "由于论文 {sample} 的图表公式评分记录无效，修改尚未提交。请先检查该论文的相关评分。",
-    scoreHelp: "选择一项评分", scoreScale: "分数定义", na: "N/A", uncertain: "无法判断",
-    overallDirect: "直接给出总体判断，不要计算其他分项的平均值。", visualTargetOnly: "只评价编译版目标 PDF 本身。",
-    flagsTitle: "差异标记（选填）", flagsHelp: "用于标记主要问题或正文评分之外的差异。",
-    evidenceTitle: "证据与页码", evidencePlaceholder: "如有帮助，可补充证据或页码。",
-    evidenceNoNeed: "页码可用于辅助说明评分。", notesTitle: "标注者个人备注", optional: "选填",
-    notesPlaceholder: "填写供自己复核的备注。", notesHelp: "备注会包含在你的标注输出中。",
-    fullScopeTitle: "我已检查完整的正文范围",
-    fullScopeHelp: "检查两份 PDF 的正文页面及相关图表、表格和公式。附录或参考文献差异可选用标记记录。",
-    markComplete: "将论文标记为完成", reopenPaper: "重新打开论文", footerNotice: "官方 PDF 仅作对照参照。评分对象是 arXiv LaTeX 编译 PDF。",
+    pageCountPending: "等待读取页数", rubricLabel: "文档质量评分标准", annotationTitle: "文档质量评分",
+    scoreFor: "评分", scoreScale: "分数定义", na: "N/A", uncertain: "无法判断", naHelp: "仅当编译版正文中没有适用的图、表或公式时选择 N/A。",
+    overallDirect: "直接判断总体质量，不要计算其他分项的平均值。", visualTargetOnly: "评价此编译版 PDF 本身。",
+    versionDifferencesTitle: "版本差异（选填）", versionDifferencesHelp: "如已检查，可记录观察到的版本差异。它们不影响质量评分或完成状态；未检查时留空。",
+    versionNotesTitle: "版本说明", versionNotesPlaceholder: "可补充版本观察的背景信息。", versionNotesHelp: "未检查版本差异时请留空。",
+    evidenceTitle: "证据与页码", evidencePlaceholder: "如有帮助，可补充证据或页码。", evidenceNoNeed: "证据和页码均为选填。",
+    notesTitle: "标注者个人备注", optional: "选填", notesPlaceholder: "填写供自己复核的备注。", notesHelp: "个人备注为选填。",
+    fullScopeTitle: "我已检查编译版正文全文", fullScopeHelp: "检查编译版中可用的正文内容及相关技术对象。官方 PDF 为可选参照，不是质量评分的必需内容。",
+    markComplete: "将论文标记为完成", reopenPaper: "重新打开论文", footerNotice: "质量评分针对编译版 PDF。会议官方 PDF 仅作可选参考。",
+    protocolBanner: "新的文档质量协议。此前的版本对齐评分已单独保留。请为每篇论文重新评分。",
     noPapersMatch: "没有符合筛选条件的论文。", noTitle: "无标题论文", noSession: "加载标注者会话后即可开始。",
-    sessionLoaded: "标注会话已加载。",
-    sessionLoadFailed: "无法加载标注记录。请检查昵称和恢复码，或稍后重试。", manifestFailed: "无法加载冻结的论文清单或评分标准。",
-    rubricMissing: "固定评分标准缺失或不完整。修复项目后才能评分。",
+    sessionLoaded: "质量标注会话已加载。", sessionLoadFailed: "无法加载质量记录。请检查昵称和恢复码，或稍后重试。", manifestFailed: "无法加载冻结的论文清单或质量评分标准。",
+    rubricMissing: "文档质量评分标准缺失或不完整。修复研究包后才能评分。",
     noActivePaper: "从列表中选择一篇论文开始。", saved: "已保存", saving: "保存中…", unsaved: "有未保存修改", saveFailed: "保存失败，可下载恢复副本",
-    sessionNotLoaded: "创建或恢复档案后即可开始。",
-    conflict: "保存冲突：此记录已在其他位置更新。请下载恢复 JSON 后处理。", savedAt: "已保存", saveOffline: "无法连接私密标注服务。最新修改暂存在此浏览器中，请下载恢复 JSON。",
-    downloadRecovery: "下载恢复 JSON", localRecovery: "检测到本地未保存的恢复副本。", restoreRecovery: "恢复本地副本", noSavedWork: "尚无已保存标注", noChanges: "没有需要保存的修改。",
-    localConflict: "服务器记录版本高于本地副本。未自动覆盖；请下载本地副本进行比较。",
-    noLocalRecovery: "没有找到本地恢复副本。", exportBlocked: "导出前必须先成功保存。若服务器不可用，请下载恢复副本。",
-    exported: "标注 JSON 已导出。", imported: "标注 JSON 已导入并保存。", importConfirm: "将该文件导入当前标注者的记录吗？这会替换该编号在本研究中的当前记录。",
-    wrongImport: "文件与当前数据集、清单、评分标准或标注编号不匹配。", badImport: "所选 JSON 不是有效的标注记录。",
-    importFailed: "无法导入标注文件。", importedUnsaved: "内容已在本地载入，请保存后提交。",
-    completed: "已完成",
-    noFullScope: "请确认已检查完整正文范围。", missingScores: "请完成8项评分。",
-    criticalCap: "设置关键科学差异标记后，总体对齐必须为1、2或无法判断。",
+    sessionNotLoaded: "创建或恢复档案后即可开始。", conflict: "保存冲突：此记录已在其他位置更新。请先下载私密恢复 JSON。",
+    savedAt: "已保存", saveOffline: "无法连接私密标注服务。最新修改暂存在此浏览器中，请下载私密恢复 JSON。",
+    downloadRecovery: "下载私密恢复 JSON", localRecovery: "检测到本地未保存的恢复副本。", restoreRecovery: "恢复本地副本", noSavedWork: "尚无已保存评分", noChanges: "没有需要保存的修改。",
+    localConflict: "服务器记录版本高于本地副本。未应用本地副本；可下载后进行比较。",
+    recordRecoveryRejected: "本地恢复副本与文档质量协议不符，未应用。", recoveryRestored: "本地文档质量恢复副本已恢复。",
+    completed: "已完成", noFullScope: "请确认已检查编译版正文全文。", missingScores: "完成前请评价全部六个维度。",
+    invalidAnnotation: "此论文包含不符合当前协议的评分。请检查评分后再保存。",
     completedSaved: "论文已标记为完成并保存。", draftSaved: "论文已恢复为草稿。",
-    pageLabelTarget: "目标 PDF 页码", pageLabelOfficial: "参照 PDF 页码", canvasTarget: "编译版 PDF 页面", canvasOfficial: "官方 PDF 页面", previousTarget: "目标 PDF 上一页", nextTarget: "目标 PDF 下一页",
-    previousReference: "参照 PDF 上一页", nextReference: "参照 PDF 下一页", scoreFor: "评分论文", paper: "篇", of: "/",
+    pageLabelTarget: "编译版 PDF 页码", pageLabelOfficial: "可选参照 PDF 页码", canvasTarget: "编译版 PDF 页面", canvasOfficial: "官方 PDF 页面",
+    previousTarget: "编译版 PDF 上一页", nextTarget: "编译版 PDF 下一页", previousReference: "参照 PDF 上一页", nextReference: "参照 PDF 下一页", of: "/",
     fileNotFound: "清单中缺少此 PDF 路径或路径无效。", pdfLibFailed: "无法加载本地 PDF 查看器。请检查随包提供的 PDF.js 文件。",
-    renderFailed: "浏览器内查看器无法渲染此 PDF。请单独打开 PDF 或用常用阅读器检查后再判断视觉质量；若在其他阅读器中显示清晰，请记录为查看器问题，不要自动降低视觉完整性评分。仅在因此无法比较时选择“无法判断”。", pageUnavailable: "浏览器内查看器无法显示此页。请单独检查 PDF 后再判断视觉质量。", renderingPage: "正在渲染页面…",
-    viewFit: "适应窗口", viewZoom: "缩放", noStatus: "未开始", statusDraft: "草稿", statusCompleted: "完成",
-    changingPaper: "切换论文时已有保存请求，保存会继续。", selected: "已选择", genericError: "发生错误。",
+    renderFailed: "浏览器内查看器无法渲染此 PDF。请单独打开 PDF 或用常用阅读器检查后再评价编译文档；若仍无法评价，可选择“无法判断”。",
+    pageUnavailable: "浏览器内查看器无法显示此页。请单独检查 PDF 后再评价文档质量。",
+    renderingPage: "正在渲染页面…", noStatus: "未开始", statusDraft: "草稿", statusCompleted: "完成", genericError: "发生错误。",
   },
 };
-
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 const element = (tag, className, text) => {
@@ -192,9 +160,9 @@ const state = {
   initialized: false, initializing: false, eventsBound: false, startupErrorKey: "", startupErrorDetail: "",
   loginErrorKey: "", sessionErrorKey: "", sessionErrorDetail: "",
   sessionLoading: false, switching: false, sessionReady: false, rubricReady: false, guidanceReady: false, dirty: false, dirtyVersion: 0,
-  savingPromise: null, saveTimer: null, saveBlocked: false, saveError: "", importing: false, toastTimer: null,
+  savingPromise: null, saveTimer: null, saveBlocked: false, saveError: "", toastTimer: null,
   pdfjsPromise: null, viewers: { compiled: null, official: null }, focusViewers: false, syncPdfNavigation: false,
-  localRecovery: null, localRecoveryConflict: false,
+  localRecovery: null, localRecoveryConflict: false, localRecoveryRejected: false,
 };
 
 function t(key) { return STRINGS[state.language]?.[key] ?? STRINGS.en[key] ?? key; }
@@ -213,7 +181,8 @@ function bilingualText(value) {
     typeof value.zh === "string" && value.zh.trim());
 }
 function guidanceIsComplete(guidance) {
-  return guidance?.schema === "revisionlens.alignment-guidance.v1" &&
+  return guidance?.schema === "xacl.document-quality-guidance.v1" &&
+    guidance.protocol_id === QUALITY_PROTOCOL_ID &&
     typeof guidance.version === "string" && guidance.version.trim() &&
     bilingualText(guidance.title) && bilingualText(guidance.scope) &&
     Array.isArray(guidance.quick_rules) && guidance.quick_rules.length >= 1 && guidance.quick_rules.length <= 4 &&
@@ -273,7 +242,7 @@ function updateStaticAria() {
 function nowIso() { return new Date().toISOString(); }
 function validAnnotatorId(value) { return /^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/.test(value); }
 function stableLocalKey() {
-  return `xacl.annotation.recovery:${encodeURIComponent(state.config?.supabase_url || "")}:${encodeURIComponent(state.config?.study_id || "")}:${state.manifestHash}:${encodeURIComponent(state.annotatorId)}`;
+  return `xacl.${QUALITY_PROTOCOL_ID}.recovery:${encodeURIComponent(state.config?.supabase_url || "")}:${encodeURIComponent(state.config?.study_id || "")}:${state.manifestHash}:${encodeURIComponent(state.annotatorId)}`;
 }
 function safeFilenamePart(value) { return String(value || "annotation").replace(/[^A-Za-z0-9._-]+/g, "_").slice(0, 80) || "annotation"; }
 function setToast(message, kind = "info", duration = 3600) {
@@ -298,23 +267,16 @@ function formatDate(value) {
 function recordTemplate(annotatorId, revision = 0) {
   const stamp = nowIso();
   return {
-    schema: RECORD_SCHEMA, dataset_id: state.manifest.dataset_id,
+    schema: RECORD_SCHEMA, protocol_id: QUALITY_PROTOCOL_ID, dataset_id: state.manifest.dataset_id,
     manifest_sha256: state.manifestHash, rubric_version: state.rubric.version,
     annotator_id: annotatorId, revision, created_at: stamp, updated_at: stamp, annotations: {},
   };
 }
 function blankAnnotation() {
-  return {
-    scores: Object.fromEntries(SCORE_KEYS.map((key) => [key, null])),
-    ...integratedObjectFields(),
-    objects: Object.fromEntries(OBJECT_SCORE_KEYS.map((key) => [key, { compiled: null, official: null }])),
-    evidence: "", notes: "", flags: [], reviewed_full_scope: false, status: "draft", updated_at: nowIso(),
-  };
+  return blankQualityAnnotation(nowIso());
 }
 function ensureAnnotation(sampleId) {
   if (!state.record.annotations[sampleId]) state.record.annotations[sampleId] = blankAnnotation();
-  // Existing rows are not rewritten here. Protocol migration happens only at
-  // the session, import, and explicit local-recovery boundaries.
   return state.record.annotations[sampleId];
 }
 function activePaper() { return state.papers.find((paper) => paper.sample_id === state.activeSampleId) || null; }
@@ -338,6 +300,7 @@ function hostedStartupErrorKey(error) {
     static_package_unavailable: "manifestFailed",
     crypto_unavailable: "manifestFailed",
     anonymous_auth_unavailable: "anonymousAuthUnavailable",
+    quality_record_invalid: "recordInvalid",
   })[error?.code] || "setupFailed";
 }
 
@@ -369,7 +332,7 @@ async function initialize() {
     state.rubric = assets.rubric;
     state.guidance = assets.guidance;
     state.guidanceHash = assets.guidanceHash;
-    state.guidanceReady = true;
+    state.guidanceReady = guidanceIsComplete(state.guidance);
     state.papers = assets.manifest.papers;
     state.rubricReady = rubricIsComplete(state.rubric);
     state.startupErrorKey = "";
@@ -383,6 +346,9 @@ async function initialize() {
     if (existingSession) {
       const currentRecord = await hosted.currentAnnotations();
       if (currentRecord) {
+        if (!isMatchingRecord(currentRecord, currentRecord.annotator_id)) {
+          throw Object.assign(new Error(), { code: "quality_record_invalid" });
+        }
         state.currentProfileId = currentRecord.annotator_id;
         state.currentProfileRecord = normalizeRecord(currentRecord, currentRecord.annotator_id);
         state.profileSessionUnknown = false;
@@ -409,18 +375,25 @@ async function initialize() {
   }
 }
 function rubricIsComplete(rubric) {
-  if (!rubric || !Array.isArray(rubric.dimensions)) return false;
+  if (!rubric || rubric.schema !== "xacl.document-quality-rubric.v1" || rubric.protocol_id !== QUALITY_PROTOCOL_ID ||
+      rubric.version !== "document-quality-rubric-v1" || !bilingualText(rubric.title) || !bilingualText(rubric.scope) ||
+      !Array.isArray(rubric.dimensions) || rubric.dimensions.length !== SCORE_KEYS.length ||
+      !Array.isArray(rubric.version_difference_flags) || rubric.version_difference_flags.length !== FLAG_KEYS.length) return false;
   const dimensions = new Map(rubric.dimensions.map((item) => [item.key, item]));
-  return SCORE_KEYS.every((key) => {
+  const dimensionsReady = SCORE_KEYS.every((key) => {
     const item = dimensions.get(key);
-    return item && item.scale && [1, 2, 3, 4, 5].every((score) => typeof item.scale[String(score)] === "string");
+    return item && typeof item.label === "string" && item.label.trim() && bilingualText(item.description) &&
+      typeof item.allows_na === "boolean" && item.allows_na === (key === "technical_presentation") &&
+      item.scale && [1, 2, 3, 4, 5].every((score) => bilingualText(item.scale[String(score)]));
   });
+  const differenceKeys = rubric.version_difference_flags.map((item) => item?.key);
+  return dimensionsReady && new Set(differenceKeys).size === FLAG_KEYS.length &&
+    FLAG_KEYS.every((key) => differenceKeys.includes(key)) && rubric.dimensions.every((item) => SCORE_KEYS.includes(item.key));
 }
 function showRubricMissing() {
   $("#guidance-scope").textContent = t("rubricMissing");
   $("#rubric-scoring").replaceChildren();
-  $("#object-protocol-notice").classList.add("is-hidden");
-  $("#flag-list").replaceChildren();
+  $("#version-difference-list").replaceChildren();
   renderLoginState();
   renderSessionControls();
   renderSaveStatus();
@@ -465,10 +438,8 @@ function bindEvents() {
   $("#previous-paper").addEventListener("click", () => movePaper(-1));
   $("#next-paper").addEventListener("click", () => movePaper(1));
   $("#save-button").addEventListener("click", () => flushSave(true));
-  $("#export-button").addEventListener("click", exportAnnotations);
-  $("#import-button").addEventListener("click", () => $("#import-file").click());
-  $("#import-file").addEventListener("change", importAnnotations);
   $("#complete-review").addEventListener("click", toggleComplete);
+  $("#version-notes").addEventListener("input", () => updateTextField("version_notes"));
   $("#evidence").addEventListener("input", () => updateTextField("evidence"));
   $("#notes").addEventListener("input", () => updateTextField("notes"));
   $("#reviewed-full-scope").addEventListener("change", () => mutateActive((row) => { row.reviewed_full_scope = $("#reviewed-full-scope").checked; }));
@@ -479,17 +450,14 @@ function bindEvents() {
   window.addEventListener("resize", onWindowResize, { passive: true });
   document.addEventListener("keydown", (event) => { if (event.key === "Escape" && state.focusViewers) toggleViewerFocus(); });
   window.addEventListener("beforeunload", (event) => {
-    if (!state.dirty && !state.savingPromise && !state.importing && !state.pendingRegistration && !state.recoveryReveal) return;
+    if (!state.dirty && !state.savingPromise && !state.pendingRegistration && !state.recoveryReveal) return;
     event.preventDefault();
     event.returnValue = "";
   });
 }
 function onDocumentClick(event) {
-  if (state.importing) return;
   const paperButton = event.target.closest("[data-sample-id]");
   if (paperButton) { selectPaper(paperButton.dataset.sampleId); return; }
-  const reasonButton = event.target.closest("[data-object-score-reason]");
-  if (reasonButton) { setObjectScoreReason(reasonButton.dataset.objectScoreReason, reasonButton.dataset.reason); return; }
   const scoreButton = event.target.closest("[data-score-key]");
   if (scoreButton) { setScore(scoreButton.dataset.scoreKey, scoreButton.dataset.option); return; }
   const viewerAction = event.target.closest("[data-viewer-action]");
@@ -502,9 +470,8 @@ function onDocumentClick(event) {
   if (exitFocus) toggleViewerFocus();
 }
 function onDocumentChange(event) {
-  if (state.importing) return;
-  const flagInput = event.target.closest("[data-flag-key]");
-  if (flagInput) updateFlag(flagInput.dataset.flagKey, flagInput.checked);
+  const flagInput = event.target.closest("[data-version-difference-key]");
+  if (flagInput) updateVersionDifference(flagInput.dataset.versionDifferenceKey, flagInput.checked);
   const pageInput = event.target.closest("[data-page-input]");
   if (pageInput) {
     clearBoundaryStatuses();
@@ -543,7 +510,7 @@ function validateNicknameAndStudy() {
     return null;
   }
   if (!state.initialized || !state.rubricReady || !state.guidanceReady || state.startupErrorKey) {
-    state.loginErrorKey = state.rubricReady ? "setupFailed" : "rubricMissing";
+    state.loginErrorKey = !state.rubricReady ? "rubricMissing" : !state.guidanceReady ? "guidanceInvalid" : "setupFailed";
     renderLoginState();
     return null;
   }
@@ -619,7 +586,7 @@ async function submitProfileForm() {
       state.profileSessionUnknown = true;
       try {
         const current = await state.hosted.currentAnnotations();
-        if (current) {
+        if (current && isMatchingRecord(current, current.annotator_id)) {
           state.currentProfileId = current.annotator_id;
           state.currentProfileRecord = normalizeRecord(current, current.annotator_id);
           state.profileSessionUnknown = false;
@@ -665,14 +632,13 @@ async function continueCurrentProfile() {
 
 function enterAnnotationSession(record, annotatorId) {
   state.annotatorId = annotatorId;
-  const migration = migrateLegacyObjectScores(normalizeRecord(record, annotatorId));
-  state.record = migration.record;
+  state.record = normalizeRecord(record, annotatorId);
   state.currentProfileId = annotatorId;
   state.currentProfileRecord = normalizeRecord(record, annotatorId);
   state.profileSessionUnknown = false;
   state.sessionReady = true;
-  state.dirty = migration.changed;
-  state.dirtyVersion = migration.changed ? state.dirtyVersion + 1 : 0;
+  state.dirty = false;
+  state.dirtyVersion = 0;
   state.saveBlocked = false;
   state.saveError = "";
   state.activeSampleId = null;
@@ -692,12 +658,7 @@ function enterAnnotationSession(record, annotatorId) {
   selectResumePaper();
   renderSessionControls();
   renderSaveStatus();
-  if (migration.changed && !state.localRecovery) scheduleSave();
-  if (migration.unsupportedSampleIds.length) {
-    setToast(`${t("unsupportedObjectProtocol")} (${migration.unsupportedSampleIds[0]})`, "error", 7000);
-  } else {
-    setToast(t("sessionLoaded"), "success");
-  }
+  setToast(t("sessionLoaded"), "success");
 }
 
 function continueAfterRecoveryCode() {
@@ -753,7 +714,7 @@ async function switchLoginProfile() {
 }
 
 async function switchAnnotator() {
-  if (!state.sessionReady || state.switching || state.sessionLoading || state.importing) return;
+  if (!state.sessionReady || state.switching || state.sessionLoading) return;
   state.switching = true;
   let switched = false;
   renderSessionControls();
@@ -827,22 +788,17 @@ async function switchAnnotator() {
   }
 }
 function isMatchingRecord(record, annotatorId) {
-  return record && record.schema === RECORD_SCHEMA && record.dataset_id === state.manifest.dataset_id &&
-    record.manifest_sha256 === state.manifestHash && record.rubric_version === state.rubric.version &&
-    record.annotator_id === annotatorId && record.annotations && typeof record.annotations === "object";
+  if (!record || !state.manifest || !state.manifestHash || !state.rubric) return false;
+  return qualityRecordIssue(record, {
+    annotatorId,
+    datasetId: state.manifest.dataset_id,
+    manifestSha256: state.manifestHash,
+    rubricVersion: state.rubric.version,
+  }) === null;
 }
 function normalizeRecord(record, annotatorId) {
-  const normalized = {
-    schema: RECORD_SCHEMA, dataset_id: state.manifest.dataset_id, manifest_sha256: state.manifestHash,
-    rubric_version: state.rubric.version, annotator_id: annotatorId,
-    revision: Number.isInteger(record.revision) ? record.revision : 0,
-    created_at: record.created_at || nowIso(), updated_at: record.updated_at || nowIso(),
-    annotations: record.annotations && typeof record.annotations === "object" ? structuredClone(record.annotations) : {},
-  };
-  for (const sampleId of Object.keys(normalized.annotations)) {
-    if (!state.papers.some((paper) => paper.sample_id === sampleId)) delete normalized.annotations[sampleId];
-  }
-  return normalized;
+  if (!isMatchingRecord(record, annotatorId)) throw Object.assign(new Error(), { code: "quality_record_invalid" });
+  return structuredClone(record);
 }
 
 function renderPaperList() {
@@ -922,7 +878,7 @@ function selectPaper(sampleId) {
   loadPaperPdfs(activePaper());
 }
 function movePaper(delta) {
-  if (!state.sessionReady || state.importing || !state.papers.length) return;
+  if (!state.sessionReady || !state.papers.length) return;
   const nextIndex = Math.max(0, Math.min(state.papers.length - 1, state.activeIndex + delta));
   if (nextIndex === state.activeIndex) return;
   const nextPaper = state.papers[nextIndex];
@@ -954,42 +910,42 @@ function renderActivePaper() {
 }
 function renderBlankAnnotation() {
   $$('[data-score-key]').forEach((button) => { button.setAttribute("aria-pressed", "false"); button.disabled = true; });
-  $$('.object-reason-panel').forEach((panel) => { panel.hidden = true; });
-  $("#object-protocol-notice").classList.add("is-hidden");
-  $$('[data-flag-key]').forEach((input) => { input.checked = false; input.disabled = true; });
-  $("#evidence").value = ""; $("#evidence").disabled = true;
-  $("#notes").value = ""; $("#notes").disabled = true;
-  $("#reviewed-full-scope").checked = false; $("#reviewed-full-scope").disabled = true;
-  $("#complete-review").disabled = true; $("#validation-message").textContent = "";
+  $$('[data-version-difference-key]').forEach((input) => { input.checked = false; input.disabled = true; });
+  for (const id of ["version-notes", "evidence", "notes"]) {
+    $("#" + id).value = "";
+    $("#" + id).disabled = true;
+  }
+  $("#reviewed-full-scope").checked = false;
+  $("#reviewed-full-scope").disabled = true;
+  for (const id of ["version-notes", "evidence", "notes"]) $("#" + id.replace("_", "-") + "-count").textContent = "0 / 12000";
+  $("#complete-review").disabled = true;
+  $("#complete-review").removeAttribute("data-completed");
+  $("#validation-message").textContent = "";
+  $("#validation-message").removeAttribute("data-kind");
   for (const side of ["compiled", "official"]) clearViewer(side, t("pdfWait"));
 }
 function renderAnnotation() {
   const row = activeAnnotation();
   if (!row) { renderBlankAnnotation(); return; }
-  const objectMode = objectScoringMode(row);
-  renderObjectProtocolNotice(row);
   for (const key of SCORE_KEYS) {
     const score = row.scores?.[key] ?? null;
-    const objectKey = key.replace("_alignment", "");
-    const objectScore = OBJECT_SCORE_KEYS.includes(objectKey);
-    $$(`[data-score-key="${key}"]`).forEach((button) => {
-      const selected = button.dataset.option === String(score);
-      button.setAttribute("aria-pressed", String(selected));
-      button.disabled = objectScore ? objectMode !== "integrated" : false;
+    $$('[data-score-key="' + key + '"]').forEach((button) => {
+      button.setAttribute("aria-pressed", String(button.dataset.option === String(score)));
+      button.disabled = false;
     });
-    if (objectScore) {
-      const currentPanel = $(`[data-object-reason-panel="${objectKey}"]`);
-      currentPanel?.replaceWith(renderObjectReasonPanel(objectKey, row, objectMode));
-    }
   }
-  for (const input of $$('[data-flag-key]')) input.checked = (row.flags || []).includes(input.dataset.flagKey);
-  $("#evidence").value = typeof row.evidence === "string" ? row.evidence : "";
-  $("#notes").value = typeof row.notes === "string" ? row.notes : "";
+  for (const input of $$('[data-version-difference-key]')) {
+    input.checked = row.version_differences.includes(input.dataset.versionDifferenceKey);
+    input.disabled = false;
+  }
+  for (const name of ["version_notes", "evidence", "notes"]) {
+    const id = name.replace("_", "-");
+    $("#" + id).value = row[name];
+    $("#" + id).disabled = false;
+    $("#" + id + "-count").textContent = Array.from(row[name]).length + " / 12000";
+  }
   $("#reviewed-full-scope").checked = row.reviewed_full_scope === true;
-  $("#evidence").disabled = false; $("#notes").disabled = false; $("#reviewed-full-scope").disabled = false;
-  $$('[data-flag-key]').forEach((input) => { input.disabled = false; });
-  $("#evidence-count").textContent = `${$("#evidence").value.length} / 12000`;
-  $("#notes-count").textContent = `${$("#notes").value.length} / 12000`;
+  $("#reviewed-full-scope").disabled = false;
   $("#complete-review").disabled = false;
   $("#complete-review").dataset.completed = String(row.status === "completed");
   $("#complete-review").textContent = row.status === "completed" ? t("reopenPaper") : t("markComplete");
@@ -1002,7 +958,7 @@ function renderRubric() {
   $("#rubric-version").textContent = state.rubric.version || "—";
   renderGuidance();
   renderScoreCards();
-  renderFlags();
+  renderVersionDifferences();
 }
 function renderGuidance() {
   const guidance = state.guidance;
@@ -1015,8 +971,7 @@ function renderGuidance() {
   $("#publication-notice-title").textContent = localized(guidance.publication_notice.title);
   $("#publication-notice-text").textContent = localized(guidance.publication_notice.text);
   $("#guidance-details-title").textContent = localized(guidance.details_title);
-  const visibleDetails = guidance.details.filter((item) => item?.title?.en !== "Previously saved ratings");
-  $("#guidance-expanded-items").replaceChildren(...visibleDetails.map((item) => {
+  $("#guidance-expanded-items").replaceChildren(...guidance.details.map((item) => {
     const section = element("section", "guidance-detail");
     section.append(element("h4", "", localized(item.title)), element("p", "", localized(item.text)));
     return section;
@@ -1024,86 +979,61 @@ function renderGuidance() {
   $("#guidance-revision").textContent = guidance.version;
 }
 function renderScoreCards() {
-  const container = $("#rubric-scoring");
   const cards = SCORE_KEYS.map((key) => {
     const dimension = getDimension(key);
     if (!dimension) return element("div", "score-card", t("rubricMissing"));
+    const titleText = state.language === "zh" ? dimension.label_zh || dimension.label : dimension.label;
     const card = element("section", "score-card");
     card.dataset.key = key;
     const header = element("div", "score-card-header");
     const titleGroup = element("div");
-    const title = element("h4", "", state.language === "zh" && dimension.label_zh ? dimension.label_zh : dimension.label || dimension.label_zh || key);
-    const description = element("p", "", localized(dimension.description));
-    titleGroup.append(title, description);
+    titleGroup.append(element("h4", "", titleText), element("p", "", localized(dimension.description)));
     header.append(titleGroup, element("code", "score-key", key));
     card.append(header);
+
     const options = element("div", "score-options");
     options.setAttribute("role", "group");
-    options.setAttribute("aria-label", `${t("scoreFor")} ${title.textContent}`);
-    for (let score = 1; score <= 5; score += 1) options.append(makeScoreButton(key, String(score), String(score), localized(dimension.scale[String(score)])));
-    const objectKey = key.replace("_alignment", "");
-    const objectScore = OBJECT_SCORE_KEYS.includes(objectKey);
-    if (objectScore) options.append(makeScoreButton(key, "na", t("na"), t("naHelp")));
-    options.append(makeScoreButton(key, "uncertain", t("uncertain"), t("presenceUncertain")));
-    card.append(options);
-    if (objectScore) {
-      card.append(element("p", "score-option-help", t("naHelp")));
-      card.append(renderObjectReasonPanel(objectKey, null, "integrated"));
+    options.setAttribute("aria-label", t("scoreFor") + " " + titleText);
+    for (let score = 1; score <= 5; score += 1) {
+      options.append(makeScoreButton(key, String(score), String(score), localized(dimension.scale[String(score)])));
     }
+    if (dimension.allows_na) options.append(makeScoreButton(key, "na", t("na"), t("naHelp")));
+    options.append(makeScoreButton(key, "uncertain", t("uncertain"), t("uncertain")));
+    card.append(options);
+
     const details = element("details", "score-scale-details");
     details.open = true;
-    const summary = element("summary", "", t("scoreScale"));
+    details.append(element("summary", "", t("scoreScale")));
     const list = element("ol", "score-scale-list");
     for (let score = 1; score <= 5; score += 1) {
       const item = element("li");
-      let definition = localized(dimension.scale[String(score)]);
-      if (objectScore && score === 1) {
-        const separator = /[.!?。！？]$/.test(definition.trimEnd()) ? " " : ". ";
-        definition = `${definition.trimEnd()}${separator}${t("scoreOneObjectHelp")}`;
-      }
-      item.append(element("b", "", String(score)), element("span", "", definition));
+      item.append(element("b", "", String(score)), element("span", "", localized(dimension.scale[String(score)])));
       list.append(item);
     }
-    details.append(summary, list);
+    details.append(list);
     card.append(details);
-    if (key === "overall_alignment") card.append(element("p", "overall-rule", t("overallDirect")));
+    if (key === "overall_quality") card.append(element("p", "overall-rule", t("overallDirect")));
     if (key === "visual_integrity") card.append(element("p", "overall-rule visual-rule", t("visualTargetOnly")));
+    if (dimension.allows_na) card.append(element("p", "score-option-help", t("naHelp")));
     return card;
   });
-  container.replaceChildren(...cards);
+  $("#rubric-scoring").replaceChildren(...cards);
 }
-function renderObjectReasonPanel(key, row, mode) {
-  const panel = element("div", "object-reason-panel");
-  panel.dataset.objectReasonPanel = key;
-  panel.hidden = mode !== "integrated" || row?.scores?.[`${key}_alignment`] !== 1;
-  panel.append(element("p", "object-reason-prompt", t("objectReasonPrompt")));
-  const group = element("div", "object-reason-options");
-  group.setAttribute("role", "group");
-  group.setAttribute("aria-label", `${t(key)}: ${t("objectReasonPrompt")}`);
-  for (const [reason, labelKey] of [
-    ["missing_in_compiled", "reasonMissing"],
-    ["added_in_compiled", "reasonAdded"],
-    ["non_corresponding", "reasonNonCorresponding"],
-  ]) {
-    const button = element("button", "object-reason-option", t(labelKey));
-    button.type = "button";
-    button.dataset.objectScoreReason = key;
-    button.dataset.reason = reason;
-    button.setAttribute("aria-pressed", String(row?.object_score_reasons?.[key] === reason));
-    button.disabled = mode !== "integrated";
-    group.append(button);
-  }
-  panel.append(group);
-  return panel;
-}
-function renderObjectProtocolNotice(row) {
-  const notice = $("#object-protocol-notice");
-  const mode = objectScoringMode(row);
-  const unsupported = mode !== "integrated";
-  notice.classList.toggle("is-hidden", !unsupported);
-  if (!unsupported) return;
-  $("#object-protocol-title").textContent = t("unsupportedObjectTitle");
-  $("#object-protocol-message").textContent = t("unsupportedObjectProtocol");
+function renderVersionDifferences() {
+  const list = $("#version-difference-list");
+  const specs = state.rubric?.version_difference_flags || [];
+  list.replaceChildren(...FLAG_KEYS.map((key) => {
+    const spec = specs.find((item) => item.key === key);
+    const label = element("label", "flag-option");
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.dataset.versionDifferenceKey = key;
+    const check = element("span", "flag-check");
+    check.setAttribute("aria-hidden", "true");
+    const text = spec ? (state.language === "zh" ? spec.label_zh : spec.label) : key;
+    label.append(input, check, element("span", "", text));
+    return label;
+  }));
 }
 function makeScoreButton(key, option, label, definition) {
   const button = element("button", "score-option", label);
@@ -1111,36 +1041,35 @@ function makeScoreButton(key, option, label, definition) {
   button.dataset.scoreKey = key;
   button.dataset.option = option;
   button.setAttribute("aria-pressed", "false");
-  button.title = definition || `${t("scoreFor")} ${key}: ${label}`;
-  button.setAttribute("aria-label", `${t("scoreFor")} ${key}: ${label}${definition ? `. ${definition}` : ""}`);
+  button.title = definition || t("scoreFor") + " " + key + ": " + label;
+  button.setAttribute("aria-label", t("scoreFor") + " " + key + ": " + label + (definition ? ". " + definition : ""));
   return button;
 }
-function renderFlags() {
-  const list = $("#flag-list");
-  const flags = Array.isArray(state.rubric.flags) ? state.rubric.flags : [];
-  list.replaceChildren(...FLAG_KEYS.map((key) => {
-    const spec = flags.find((item) => item.key === key);
-    const label = element("label", "flag-option");
-    const input = document.createElement("input");
-    input.type = "checkbox"; input.dataset.flagKey = key;
-    const check = element("span", "flag-check"); check.setAttribute("aria-hidden", "true");
-    label.append(input, check, element("span", "", spec ? (state.language === "zh" ? spec.label_zh : spec.label) : key));
-    return label;
-  }));
+function validationErrors(row, { completed = false } = {}) {
+  const details = qualityAnnotationErrors(row, { completed });
+  const messages = [];
+  if (details.some((item) => item.key.startsWith("scores.") && item.error === "required")) {
+    messages.push(t("missingScores"));
+  }
+  if (details.some((item) => item.key === "reviewed_full_scope" && item.error === "required")) {
+    messages.push(t("noFullScope"));
+  }
+  if (details.some((item) => !(item.key.startsWith("scores.") && item.error === "required") &&
+    !(item.key === "reviewed_full_scope" && item.error === "required"))) {
+    messages.push(t("invalidAnnotation"));
+  }
+  return messages;
 }
 function renderValidation(showAll) {
   const row = activeAnnotation();
   if (!row) return;
-  const errors = validationErrors(row);
-  const protocolMessage = objectProtocolMessage(row);
+  const completed = showAll || row.status === "completed";
+  const errors = validationErrors(row, { completed });
   const message = $("#validation-message");
-  if (protocolMessage) {
-    message.dataset.kind = "error";
-    message.textContent = protocolMessage;
-  } else if (row.status === "completed" && errors.length === 0) {
+  if (row.status === "completed" && errors.length === 0) {
     message.dataset.kind = "success";
     message.textContent = t("completed");
-  } else if ((showAll || row.status === "completed") && errors.length) {
+  } else if (showAll && errors.length) {
     message.dataset.kind = "error";
     message.textContent = errors.join(" ");
   } else {
@@ -1150,40 +1079,7 @@ function renderValidation(showAll) {
   $("#complete-review").dataset.completed = String(row.status === "completed");
   $("#complete-review").textContent = row.status === "completed" ? t("reopenPaper") : t("markComplete");
 }
-function objectProtocolMessage(row) {
-  const mode = objectScoringMode(row);
-  if (mode !== "integrated") return t("unsupportedObjectProtocol");
-  const issue = validateIntegratedObjectScores(row).find((item) =>
-    item.error !== "missing_reason" || row.status === "completed");
-  if (!issue) return "";
-  return issue.error === "missing_reason" ? t("scoreOneReasonRequired") : t("objectMappingInvalid");
-}
-function recordObjectProtocolIssue(record) {
-  for (const [sampleId, row] of Object.entries(record?.annotations || {})) {
-    const message = objectProtocolMessage(row);
-    if (message) return { sampleId, message };
-  }
-  return null;
-}
-function validationErrors(row) {
-  const errors = [];
-  const scores = row.scores || {};
-  const flags = Array.isArray(row.flags) ? row.flags : [];
-  if (SCORE_KEYS.some((key) => scores[key] === null || scores[key] === undefined)) errors.push(t("missingScores"));
-  const mode = objectScoringMode(row);
-  if (mode === "integrated") {
-    const objectErrors = validateIntegratedObjectScores(row);
-    if (objectErrors.some((item) => item.error === "missing_reason")) errors.push(t("scoreOneReasonRequired"));
-    if (objectErrors.some((item) => item.error !== "missing_reason")) errors.push(t("objectMappingInvalid"));
-  } else {
-    errors.push(t("unsupportedObjectProtocol"));
-  }
-  if (!row.reviewed_full_scope) errors.push(t("noFullScope"));
-  if (flags.includes("critical_difference") && ![1, 2, "uncertain"].includes(scores.overall_alignment)) errors.push(t("criticalCap"));
-  return [...new Set(errors)];
-}
 function toggleComplete() {
-  if (state.importing) return;
   const row = activeAnnotation();
   if (!row) return;
   if (row.status === "completed") {
@@ -1192,14 +1088,16 @@ function toggleComplete() {
     setToast(t("draftSaved"));
     return;
   }
-  const errors = validationErrors(row);
+  const errors = validationErrors(row, { completed: true });
   if (errors.length) { renderValidation(true); setToast(errors[0], "error", 5000); return; }
   mutateActive((annotation) => { annotation.status = "completed"; }, { keepCompleted: true });
-  renderPaperList(); renderProgress(); renderValidation(false);
+  renderPaperList();
+  renderProgress();
+  renderValidation(false);
   flushSave(true).then((saved) => { if (saved) setToast(t("completedSaved"), "success"); });
 }
 function mutateActive(mutator, options = {}) {
-  if (!state.sessionReady || !state.activeSampleId || state.importing) return;
+  if (!state.sessionReady || !state.activeSampleId) return;
   const row = activeAnnotation();
   mutator(row);
   row.updated_at = nowIso();
@@ -1217,65 +1115,48 @@ function mutateActive(mutator, options = {}) {
   scheduleSave();
 }
 function setScore(key, value) {
-  if (!SCORE_KEYS.includes(key)) return;
+  if (!SCORE_KEYS.includes(key) || (value === "na" && key !== "technical_presentation")) return;
   const row = activeAnnotation();
   if (!row) return;
-  const objectKey = key.replace("_alignment", "");
-  const isObjectScore = OBJECT_SCORE_KEYS.includes(objectKey);
-  const mode = objectScoringMode(row);
-  if (isObjectScore && mode !== "integrated") return;
-  const currentScore = row.scores?.[key] ?? null;
-  const next = value === "null" || String(currentScore) === value ? null : (value === "uncertain" || value === "na" ? value : Number(value));
+  const current = row.scores?.[key] ?? null;
+  const next = String(current) === value ? null : (value === "uncertain" || value === "na" ? value : Number(value));
   if (next !== null && ![1, 2, 3, 4, 5, "uncertain", "na"].includes(next)) return;
-  mutateActive((annotation) => {
-    if (isObjectScore) setIntegratedObjectScore(annotation, objectKey, next, null);
-    else annotation.scores[key] = next;
-  });
+  mutateActive((annotation) => { annotation.scores[key] = next; });
   renderAnnotation();
 }
-function setObjectScoreReason(key, reason) {
-  if (!OBJECT_SCORE_KEYS.includes(key) || !OBJECT_SCORE_REASONS.includes(reason)) return;
-  const row = activeAnnotation();
-  if (!row || objectScoringMode(row) !== "integrated" || row.scores?.[`${key}_alignment`] !== 1) return;
-  mutateActive((annotation) => setIntegratedObjectScore(annotation, key, 1, reason));
-  renderAnnotation();
-}
-function updateFlag(key, checked) {
+function updateVersionDifference(key, checked) {
   if (!FLAG_KEYS.includes(key)) return;
   mutateActive((row) => {
-    const flags = Array.isArray(row.flags) ? row.flags : [];
-    row.flags = checked ? [...new Set([...flags, key])] : flags.filter((value) => value !== key);
-    if (key === "critical_difference" && checked && ![1, 2, "uncertain"].includes(row.scores?.overall_alignment)) row.scores.overall_alignment = null;
-  });
-  if (key === "critical_difference" && checked && ![1, 2, "uncertain"].includes(activeAnnotation()?.scores.overall_alignment)) {
-    setToast(t("criticalCap"), "error", 5000);
-    renderAnnotation();
-  }
+    const values = Array.isArray(row.version_differences) ? row.version_differences : [];
+    row.version_differences = checked ? [...new Set([...values, key])] : values.filter((value) => value !== key);
+  }, { keepCompleted: true });
 }
 function updateTextField(name) {
-  const node = $(`#${name}`);
+  if (!["version_notes", "evidence", "notes"].includes(name)) return;
+  const id = name.replace("_", "-");
+  const node = $("#" + id);
   const value = node.value;
-  $(`#${name}-count`).textContent = `${value.length} / 12000`;
-  mutateActive((row) => { row[name] = value; });
+  $("#" + id + "-count").textContent = Array.from(value).length + " / 12000";
+  mutateActive((row) => { row[name] = value; }, { keepCompleted: true });
 }
 
 function renderSaveStatus() {
-  if (state.importing) { setSaveState("saving", t("importing")); return; }
   if (state.saveBlocked) { setSaveState("conflict", t("conflict")); return; }
   if (state.savingPromise) { setSaveState("saving", t("saving")); return; }
   if (state.switching) { setSaveState("saving", t("switchingSave")); return; }
   if (state.dirty) {
-    const issue = recordObjectProtocolIssue(state.record);
-    const protocolMessage = issue ? t("saveProtocolError").replace("{sample}", issue.sampleId) : "";
-    setSaveState(state.saveError || issue ? "error" : "idle", protocolMessage || (state.saveError ? t("saveFailed") : t("unsaved")));
+    const valid = isMatchingRecord(state.record, state.annotatorId);
+    setSaveState(state.saveError || !valid ? "error" : "idle", state.saveError ? t("saveFailed") : !valid ? t("recordInvalid") : t("unsaved"));
     return;
   }
   if (state.sessionLoading) { setSaveState("saving", t("loadingSession")); return; }
   if (state.startupErrorKey) { setSaveState("error", `${t(state.startupErrorKey)}${state.startupErrorDetail ? ` ${state.startupErrorDetail}` : ""}`); return; }
   if (!state.initialized) { setSaveState("saving", t("connecting")); return; }
   if (!state.rubricReady) { setSaveState("error", t("rubricMissing")); return; }
+  if (!state.guidanceReady) { setSaveState("error", t("guidanceInvalid")); return; }
   if (state.sessionErrorKey) { setSaveState("error", `${t(state.sessionErrorKey)}${state.sessionErrorDetail ? ` ${state.sessionErrorDetail}` : ""}`); return; }
   if (!state.sessionReady) { setSaveState("idle", t("sessionNotLoaded")); return; }
+  if (state.record && !isMatchingRecord(state.record, state.annotatorId)) { setSaveState("error", t("recordInvalid")); return; }
   setSaveState(state.record?.revision > 0 ? "saved" : "idle", state.record?.revision > 0 ? t("saved") : t("noSavedWork"));
 }
 function renderLoginState() {
@@ -1340,6 +1221,7 @@ function renderLoginState() {
   else if (!state.initialized) status.textContent = t("preparingStudy");
   else if (state.sessionLoading) status.textContent = t("loadingSession");
   else if (!state.rubricReady) status.textContent = t("rubricMissing");
+  else if (!state.guidanceReady) status.textContent = t("guidanceInvalid");
   else if (state.sessionErrorKey) status.textContent = t("sessionLoadFailed");
   else if (revealingRecovery) status.textContent = t("recoveryCodeTitle");
   else if (hasProfileSession) status.textContent = t("currentProfileReady");
@@ -1350,14 +1232,12 @@ function renderLoginState() {
 function renderSessionControls() {
   const app = $("#annotation-app");
   if (app) {
-    app.inert = state.importing;
-    app.setAttribute("aria-busy", String(state.importing));
+    app.inert = false;
+    app.setAttribute("aria-busy", "false");
   }
-  const ready = state.sessionReady && !state.sessionLoading && !state.switching && !state.importing;
+  const ready = state.sessionReady && !state.sessionLoading && !state.switching;
   $("#save-button").disabled = !ready;
-  $("#import-button").disabled = !ready;
-  $("#export-button").disabled = !ready;
-  $("#switch-annotator").disabled = !state.sessionReady || state.sessionLoading || state.switching || state.importing;
+  $("#switch-annotator").disabled = !state.sessionReady || state.sessionLoading || state.switching;
 }
 function renderDynamicLabels() {
   const title = $("#dataset-title");
@@ -1400,13 +1280,12 @@ async function flushSave(manual) {
   return result;
 }
 async function saveLoop() {
-  const protocolIssue = recordObjectProtocolIssue(state.record);
-  if (protocolIssue) {
-    state.saveError = "invalid_object_protocol";
-    const message = t("saveProtocolError").replace("{sample}", protocolIssue.sampleId);
+  if (!isMatchingRecord(state.record, state.annotatorId)) {
+    state.saveError = "quality_record_invalid";
+    const message = t("recordInvalid");
     setSaveState("error", message);
     setToast(message, "error", 7000);
-    if (state.activeSampleId === protocolIssue.sampleId) renderValidation(true);
+    storeLocalRecovery();
     return false;
   }
   while (state.dirty && !state.saveBlocked) {
@@ -1458,54 +1337,78 @@ function snapshotRecord() { return structuredClone(state.record); }
 function storeLocalRecovery() {
   if (!state.record || !state.annotatorId || !state.manifestHash) return;
   try {
-    localStorage.setItem(stableLocalKey(), JSON.stringify({ record: snapshotRecord(), saved_revision: state.record.revision, unsaved: true }));
-  } catch { /* Server output remains primary; browser storage may be disabled or full. */ }
+    const recovery = {
+      schema: "xacl.document-quality-recovery.v1",
+      protocol_id: QUALITY_PROTOCOL_ID,
+      saved_revision: state.record.revision,
+      unsaved: true,
+      record: snapshotRecord(),
+    };
+    localStorage.setItem(stableLocalKey(), JSON.stringify(recovery));
+  } catch { /* Browser storage may be unavailable or full; the in-app recovery download remains available. */ }
 }
 function clearLocalRecovery() {
   try { localStorage.removeItem(stableLocalKey()); } catch { /* Ignore unavailable browser storage. */ }
   state.localRecovery = null;
   state.localRecoveryConflict = false;
+  state.localRecoveryRejected = false;
   const banner = $("#recovery-banner");
   if (banner) banner.remove();
 }
 function readLocalRecovery() {
+  state.localRecoveryRejected = false;
   try {
     const value = localStorage.getItem(stableLocalKey());
     if (!value) return null;
     const parsed = JSON.parse(value);
-    if (!isMatchingRecord(parsed?.record, state.annotatorId)) return null;
-    return parsed;
-  } catch { return null; }
+    const valid = parsed?.schema === "xacl.document-quality-recovery.v1" &&
+      parsed.protocol_id === QUALITY_PROTOCOL_ID && parsed.unsaved === true &&
+      Number.isSafeInteger(parsed.saved_revision) && isMatchingRecord(parsed.record, state.annotatorId) &&
+      parsed.saved_revision === parsed.record.revision;
+    if (valid) return parsed;
+    state.localRecoveryRejected = true;
+    localStorage.removeItem(stableLocalKey());
+  } catch {
+    state.localRecoveryRejected = true;
+    try { localStorage.removeItem(stableLocalKey()); } catch { /* Ignore unavailable browser storage. */ }
+  }
+  return null;
 }
 function offerLocalRecovery() {
   const recovery = readLocalRecovery();
-  if (!recovery) return;
   if ($("#recovery-banner")) $("#recovery-banner").remove();
-  state.localRecovery = recovery;
-  state.localRecoveryConflict = Number(recovery.record.revision) !== Number(state.record.revision);
+  if (!recovery && !state.localRecoveryRejected) return;
   const banner = element("div", "recovery-banner");
   banner.id = "recovery-banner";
-  const text = element("span", "", state.localRecoveryConflict ? t("localConflict") : t("localRecovery"));
-  banner.append(text);
+  if (!recovery) {
+    banner.append(element("span", "", t("recordRecoveryRejected")));
+    $(".workspace-toolbar").insertAdjacentElement("afterend", banner);
+    return;
+  }
+  state.localRecovery = recovery;
+  state.localRecoveryConflict = recovery.record.revision !== state.record.revision;
+  banner.append(element("span", "", state.localRecoveryConflict ? t("localConflict") : t("localRecovery")));
+  const button = element("button", "button button-secondary", t("downloadRecovery"));
+  button.type = "button";
+  button.dataset.downloadRecovery = "true";
+  banner.append(button);
   if (!state.localRecoveryConflict) {
-    const button = element("button", "button button-secondary", t("restoreRecovery"));
-    button.type = "button"; button.dataset.recoverLocal = "true";
-    banner.append(button);
-  } else {
-    const button = element("button", "button button-secondary", t("downloadRecovery"));
-    button.type = "button"; button.dataset.downloadRecovery = "true";
-    banner.append(button);
+    const restore = element("button", "button button-secondary", t("restoreRecovery"));
+    restore.type = "button";
+    restore.dataset.recoverLocal = "true";
+    banner.append(restore);
   }
   $(".workspace-toolbar").insertAdjacentElement("afterend", banner);
 }
 function restoreLocalRecovery() {
-  if (state.importing || !state.localRecovery || state.localRecoveryConflict) return;
-  const migration = migrateLegacyObjectScores(normalizeRecord(state.localRecovery.record, state.annotatorId));
-  if (migration.unsupportedSampleIds.length) {
-    setToast(`${t("unsupportedObjectProtocol")} (${migration.unsupportedSampleIds[0]})`, "error", 7000);
+  if (!state.localRecovery || state.localRecoveryConflict ||
+      !isMatchingRecord(state.localRecovery.record, state.annotatorId)) {
+    state.localRecoveryRejected = true;
+    setToast(t("recordRecoveryRejected"), "error", 6000);
+    offerLocalRecovery();
     return;
   }
-  const backup = migration.record;
+  const backup = structuredClone(state.localRecovery.record);
   backup.revision = state.record.revision;
   state.record = backup;
   state.dirty = true;
@@ -1513,25 +1416,43 @@ function restoreLocalRecovery() {
   state.saveBlocked = false;
   state.saveError = "";
   state.localRecovery = null;
+  state.localRecoveryConflict = false;
   if (state.papers.length) selectResumePaper();
-  const banner = $("#recovery-banner"); if (banner) banner.remove();
-  storeLocalRecovery(); renderPaperList(); renderProgress(); renderSaveStatus(); scheduleSave();
-  setToast(t("importedUnsaved"), "success");
+  const banner = $("#recovery-banner");
+  if (banner) banner.remove();
+  storeLocalRecovery();
+  renderPaperList();
+  renderProgress();
+  renderSaveStatus();
+  scheduleSave();
+  setToast(t("recoveryRestored"), "success");
 }
 function addRecoveryActions() {
   if (!state.sessionReady || !$(".workspace-toolbar")) return;
   let banner = $("#recovery-banner");
-  if (!banner) { banner = element("div", "recovery-banner"); banner.id = "recovery-banner"; $(".workspace-toolbar").insertAdjacentElement("afterend", banner); }
+  if (!banner) {
+    banner = element("div", "recovery-banner");
+    banner.id = "recovery-banner";
+    $(".workspace-toolbar").insertAdjacentElement("afterend", banner);
+  }
   banner.replaceChildren(element("span", "", state.saveBlocked ? t("conflict") : t("saveOffline")));
   const button = element("button", "button button-secondary", t("downloadRecovery"));
-  button.type = "button"; button.dataset.downloadRecovery = "true";
+  button.type = "button";
+  button.dataset.downloadRecovery = "true";
   banner.append(button);
 }
 function downloadRecovery() {
   if (!state.record) return;
-  const body = state.localRecovery?.record && state.localRecoveryConflict ? state.localRecovery.record : state.record;
-  const blob = new Blob([JSON.stringify(body, null, 2), "\n"], { type: "application/json" });
-  downloadBlob(blob, `revisionlens-${safeFilenamePart(body.annotator_id)}-recovery.json`);
+  const record = state.localRecovery?.record && state.localRecoveryConflict ? state.localRecovery.record : state.record;
+  const recovery = {
+    schema: "xacl.document-quality-recovery.v1",
+    protocol_id: QUALITY_PROTOCOL_ID,
+    saved_revision: record.revision,
+    unsaved: true,
+    record,
+  };
+  const blob = new Blob([JSON.stringify(recovery, null, 2), "\n"], { type: "application/json" });
+  downloadBlob(blob, QUALITY_PROTOCOL_ID + "-" + safeFilenamePart(record.annotator_id) + "-recovery.json");
 }
 function downloadBlob(blob, filename) {
   const url = URL.createObjectURL(blob);
@@ -1539,88 +1460,6 @@ function downloadBlob(blob, filename) {
   link.href = url; link.download = filename; link.rel = "noopener";
   document.body.append(link); link.click(); link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
-async function exportAnnotations() {
-  const saved = await flushSave(true);
-  if (!saved) { setToast(t("exportBlocked"), "error", 6500); return; }
-  try {
-    if (!state.hosted) throw Object.assign(new Error(), { code: "service_unavailable" });
-    const canonical = await state.hosted.load(state.annotatorId);
-    if (!isMatchingRecord(canonical, state.annotatorId)) throw Object.assign(new Error(), { code: "service_unavailable" });
-    const blob = new Blob([JSON.stringify(canonical, null, 2), "\n"], { type: "application/json" });
-    downloadBlob(blob, `revisionlens-${safeFilenamePart(state.annotatorId)}-annotations.json`);
-    setToast(t("exported"), "success");
-  } catch { setToast(t("exportBlocked"), "error", 6000); }
-}
-async function importAnnotations(event) {
-  const file = event.target.files?.[0];
-  event.target.value = "";
-  if (!file) return;
-  if (!state.sessionReady) { setToast(t("noSession"), "error"); return; }
-  if (state.importing) return;
-  state.importing = true;
-  let importCandidate = null;
-  let expectedRevision = null;
-  try {
-    renderSessionControls();
-    renderSaveStatus();
-    const imported = JSON.parse(await file.text());
-    if (!isMatchingRecord(imported, state.annotatorId)) { setToast(t("wrongImport"), "error", 6000); return; }
-    if (!window.confirm(t("importConfirm"))) return;
-    if (state.dirty || state.savingPromise) {
-      const saved = await flushSave(true);
-      if (!saved) { setToast(t("exportBlocked"), "error", 6500); return; }
-    }
-    if (!state.hosted) throw Object.assign(new Error(), { code: "service_unavailable" });
-    expectedRevision = state.record.revision;
-    importCandidate = migrateLegacyObjectScores(normalizeRecord(imported, state.annotatorId)).record;
-    const protocolIssue = recordObjectProtocolIssue(importCandidate);
-    if (protocolIssue) {
-      setToast(`${protocolIssue.message} (${protocolIssue.sampleId})`, "error", 7000);
-      return;
-    }
-    importCandidate.revision = expectedRevision;
-    const response = await state.hosted.save(state.annotatorId, importCandidate, "import");
-    const record = response.record;
-    if (!isMatchingRecord(record, state.annotatorId)) throw new Error(t("badImport"));
-    if (record.revision <= expectedRevision) throw Object.assign(new Error(), { code: "service_unavailable" });
-    state.record = normalizeRecord(record, state.annotatorId);
-    state.dirty = false; state.dirtyVersion += 1; state.saveBlocked = false; state.saveError = "";
-    clearLocalRecovery();
-    if (state.papers.length) selectResumePaper();
-    renderPaperList(); renderProgress(); renderActivePaper();
-    setSaveState("saved", t("saved"));
-    $("#last-saved").textContent = `${t("savedAt")}: ${formatDate(response.saved_at || record.updated_at)}`;
-    setToast(t("imported"), "success");
-  } catch (error) {
-    if ((error?.status === 409 || error?.code === "revision_conflict") && importCandidate) {
-      importCandidate.revision = expectedRevision;
-      state.record = normalizeRecord(importCandidate, state.annotatorId);
-      state.saveBlocked = true;
-      state.saveError = "revision_conflict";
-      state.dirty = true;
-      state.dirtyVersion += 1;
-      state.localRecovery = { record: snapshotRecord(), saved_revision: expectedRevision, unsaved: true };
-      state.localRecoveryConflict = true;
-      storeLocalRecovery();
-      if (state.papers.length) selectResumePaper();
-      renderPaperList(); renderProgress(); renderActivePaper();
-      setSaveState("conflict", t("conflict"));
-      addRecoveryActions();
-      setToast(t("conflict"), "error", 7000);
-    } else {
-      setToast(t(error?.code === "invalid_credentials" ? "invalidCredentials" : "importFailed"), "error", 6000);
-    }
-  } finally {
-    state.importing = false;
-    const app = $("#annotation-app");
-    if (app) {
-      app.inert = false;
-      app.setAttribute("aria-busy", "false");
-    }
-    renderSessionControls();
-    renderSaveStatus();
-  }
 }
 
 function safePdfUrl(path) {
@@ -1946,7 +1785,6 @@ function renderViewerFocusLayout() {
   exitButton.textContent = t("returnToAnnotation");
 }
 function toggleViewerFocus() {
-  if (state.importing) return;
   state.focusViewers = !state.focusViewers;
   renderViewerFocusLayout();
   (state.focusViewers ? $("#sync-pdf-pages") : $("#focus-viewers")).focus({ preventScroll: true });

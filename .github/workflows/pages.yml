@@ -46,10 +46,14 @@ jobs:
       - run: python tests/database_concurrency.py
         env:
           QA_DATABASE_URL: postgresql://postgres:disposable_ci_password@localhost:5432/postgres
+      - run: python tests/quality_backend_setup.py
+      - run: python tests/quality_upgrade.py
+        env:
+          QA_DATABASE_URL: postgresql://postgres:disposable_ci_password@localhost:5432/postgres
       - run: node --test tests/frontend*.mjs
       - run: npm install --prefix .runtime/browser-deps --no-save playwright@1.62.1
       - run: .runtime/browser-deps/node_modules/.bin/playwright install --with-deps chromium
-      - run: node tests/browser.cjs
+      - run: node tests/browser_quality.cjs
         env:
           QA_DATABASE_URL: postgresql://postgres:disposable_ci_password@localhost:5432/postgres
           PLAYWRIGHT_MODULE: ${{ github.workspace }}/.runtime/browser-deps/node_modules/playwright

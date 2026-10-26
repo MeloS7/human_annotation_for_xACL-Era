@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <title>xACL-Era · PDF alignment annotation</title>
-  <link rel="stylesheet" href="./styles.css?v=20261026-expanded-pdf-sync">
+  <title>xACL-Era · document quality review</title>
+  <link rel="stylesheet" href="./styles.css?v=20261026-quality-v1">
   <script src="./vendor/supabase/supabase.js"></script>
-  <script type="module" src="./app.js?v=20261026-expanded-pdf-sync"></script>
+  <script type="module" src="./app.js?v=20261026-quality-v1"></script>
 </head>
 <body>
   <div class="app-shell" id="top">
@@ -111,7 +111,7 @@
         </div>
         <nav id="paper-list" class="paper-list" aria-label="Papers"></nav>
         <div class="sidebar-footer">
-          <p class="privacy-note"><span aria-hidden="true">●</span> <span data-i18n="privateNote">Annotations are stored privately in the project database. Export a JSON copy when finished.</span></p>
+          <p class="privacy-note"><span aria-hidden="true">●</span> <span data-i18n="privateNote">Quality ratings are stored privately in the project database.</span></p>
         </div>
       </aside>
 
@@ -123,13 +123,12 @@
               <span id="session-annotator" class="annotator-chip">—</span>
             </div>
             <div class="toolbar-actions">
-              <button id="import-button" class="button button-quiet" type="button" data-i18n="importJson" disabled>Import JSON</button>
-              <button id="export-button" class="button button-quiet" type="button" data-i18n="exportJson" disabled>Export JSON</button>
               <button id="save-button" class="button button-primary" type="button" data-i18n="saveNow" disabled>Save now</button>
               <button id="switch-annotator" class="button button-quiet" type="button" data-i18n="switchAnnotator">Switch annotator</button>
-              <input id="import-file" class="sr-only" type="file" accept="application/json,.json">
             </div>
           </div>
+
+          <aside id="protocol-banner" class="protocol-banner" role="note" data-i18n="protocolBanner">New document-quality protocol. Previous alignment ratings are preserved separately. Please rate each paper anew.</aside>
 
           <section id="all-complete-banner" class="all-complete-banner is-hidden" role="status" aria-live="polite"></section>
 
@@ -143,9 +142,9 @@
 
           <section class="comparison-section" aria-labelledby="comparison-title">
             <div class="section-heading">
-              <div><span class="section-kicker" data-i18n="compareLabel">COMPARE THE TWO VERSIONS</span><h3 id="comparison-title" data-i18n="pdfComparison">PDF comparison</h3></div>
+              <div><span class="section-kicker" data-i18n="compareLabel">REVIEW THE COMPILED PAPER</span><h3 id="comparison-title" data-i18n="pdfComparison">PDF viewers</h3></div>
               <div class="comparison-actions">
-                <span class="scope-note"><span class="scope-dot" aria-hidden="true"></span><span data-i18n="targetOnlyScore">Score the compiled PDF; use the official PDF as reference</span></span>
+                <span class="scope-note"><span class="scope-dot" aria-hidden="true"></span><span data-i18n="targetOnlyScore">Rate the compiled PDF. The official PDF is an optional reference.</span></span>
                 <div id="sync-pdf-pages-normal-slot" class="sync-toggle-slot">
                   <label class="sync-toggle" for="sync-pdf-pages">
                     <span id="sync-pdf-pages-label" data-i18n="syncPageTurns">Sync page turns</span>
@@ -158,7 +157,7 @@
             </div>
             <aside id="publication-notice" class="publication-notice" role="note" aria-labelledby="publication-notice-title">
               <span class="publication-notice-mark" aria-hidden="true">i</span>
-              <p><strong id="publication-notice-title">Allowed publication differences</strong><span id="publication-notice-text">Publisher-added headers and footers, conference information, copyright notices, page numbers, and publisher identifiers may differ without an alignment penalty.</span></p>
+              <p><strong id="publication-notice-title">Official PDF: optional reference</strong><span id="publication-notice-text">Rate the compiled version on its own merits. A newer conference version may change wording, structure, experiments or technical objects without making this version low quality.</span></p>
             </aside>
             <div class="viewer-grid" id="viewer-grid">
               <div id="viewer-focus-toolbar" class="viewer-focus-toolbar is-hidden" hidden>
@@ -183,9 +182,9 @@
                 <div class="pdf-panel-footer"><span data-pdf-meta="compiled">Page count pending</span><span data-pdf-hash="compiled">SHA-256 —</span></div>
               </section>
 
-              <section class="pdf-panel pdf-panel-reference" id="official-viewer" aria-label="Official conference PDF">
+              <section class="pdf-panel pdf-panel-reference" id="official-viewer" aria-label="Official conference PDF (optional reference)">
                 <div class="pdf-panel-header">
-                  <div class="pdf-panel-label"><span class="pdf-side-number">02</span><div><span class="pdf-role pdf-role-reference" data-i18n="referencePdf">REFERENCE PDF</span><h4 data-i18n="officialConference">Official conference PDF</h4></div></div>
+                  <div class="pdf-panel-label"><span class="pdf-side-number">02</span><div><span class="pdf-role pdf-role-reference" data-i18n="referencePdf">OPTIONAL REFERENCE</span><h4 data-i18n="officialConference">Official conference PDF (optional)</h4></div></div>
                   <a class="open-pdf-link" data-pdf-open="official" href="#" target="_blank" rel="noopener noreferrer" aria-disabled="true"><span data-i18n="openNewTab">Open in new tab</span><span aria-hidden="true">↗</span></a>
                 </div>
                 <div class="pdf-controls">
@@ -206,7 +205,7 @@
 
           <section class="annotation-section" aria-labelledby="annotation-title">
             <div class="section-heading annotation-heading">
-              <div><span class="section-kicker" data-i18n="rubricLabel">FIXED RUBRIC</span><h3 id="annotation-title" data-i18n="annotationTitle">Alignment annotation</h3></div>
+              <div><span class="section-kicker" data-i18n="rubricLabel">DOCUMENT-QUALITY RUBRIC</span><h3 id="annotation-title" data-i18n="annotationTitle">Document-quality ratings</h3></div>
               <div class="rubric-version" id="rubric-version">—</div>
             </div>
             <div class="rubric-scope-card" aria-labelledby="guidance-title">
@@ -222,13 +221,8 @@
                 </details>
               </div>
             </div>
-            <div id="object-protocol-notice" class="object-protocol-notice is-hidden" role="note">
-              <strong id="object-protocol-title" data-i18n="unsupportedObjectTitle">Object-score format is not supported</strong>
-              <p id="object-protocol-message"></p>
-            </div>
             <div id="rubric-scoring" class="rubric-scoring"></div>
             <div class="annotation-details-grid">
-              <fieldset class="flags-card"><legend data-i18n="flagsTitle">Difference flags (optional)</legend><p class="field-description" data-i18n="flagsHelp">Use flags for major issues or differences outside the main-paper scores.</p><div id="flag-list" class="flag-list"></div></fieldset>
               <div class="evidence-card">
                 <label for="evidence"><span data-i18n="evidenceTitle">Evidence and page references</span><span class="optional-hint" data-i18n="optional">Optional</span></label>
                 <textarea id="evidence" rows="5" maxlength="12000" data-i18n-placeholder="evidencePlaceholder" placeholder="Add evidence or page references if helpful."></textarea>
@@ -240,9 +234,19 @@
                 <div class="textarea-foot"><span data-i18n="notesHelp">These notes are included in your annotation output.</span><span id="notes-count">0 / 12000</span></div>
               </div>
             </div>
+            <section class="version-observations" aria-labelledby="version-observations-title">
+              <h4 id="version-observations-title" data-i18n="versionDifferencesTitle">Version differences (optional)</h4>
+              <p class="field-description" data-i18n="versionDifferencesHelp">Record observed differences between versions if assessed. They do not affect quality scores or completion; leave blank if not assessed.</p>
+              <div id="version-difference-list" class="version-difference-list"></div>
+              <div class="version-notes-card">
+                <label for="version-notes"><span data-i18n="versionNotesTitle">Version notes</span><span class="optional-hint" data-i18n="optional">Optional</span></label>
+                <textarea id="version-notes" rows="3" maxlength="12000" data-i18n-placeholder="versionNotesPlaceholder" placeholder="Add context for the optional version observations."></textarea>
+                <div class="textarea-foot"><span data-i18n="versionNotesHelp">Leave blank if version differences were not assessed.</span><span id="version-notes-count">0 / 12000</span></div>
+              </div>
+            </section>
             <div class="completion-flow">
               <div class="completion-card">
-                <div class="completion-check-wrap"><label class="check-label"><input id="reviewed-full-scope" type="checkbox"><span class="check-custom" aria-hidden="true"></span><span><strong data-i18n="fullScopeTitle">I reviewed the full available main-body scope</strong><small data-i18n="fullScopeHelp">Review both PDFs across the main paper, including relevant figures, tables, and equations. Optional flags can note appendix or reference-list differences.</small></span></label></div>
+                <div class="completion-check-wrap"><label class="check-label"><input id="reviewed-full-scope" type="checkbox"><span class="check-custom" aria-hidden="true"></span><span><strong data-i18n="fullScopeTitle">I reviewed the full compiled main paper</strong><small data-i18n="fullScopeHelp">Review the available main-paper content in the compiled PDF, including relevant technical objects. The official PDF is optional and is not required for quality ratings.</small></span></label></div>
                 <div class="completion-actions"><div id="validation-message" class="validation-message" role="status" aria-live="polite"></div><button id="complete-review" class="button button-complete" type="button" data-i18n="markComplete">Mark paper complete</button></div>
               </div>
               <nav class="paper-stepper paper-stepper-bottom" data-i18n-title="paperNavigation" aria-label="Paper navigation">
@@ -253,7 +257,7 @@
             </div>
           </section>
 
-          <footer class="workspace-footer"><span data-i18n="footerNotice">The official PDF is a comparison reference. Scores apply to the compiled arXiv PDF.</span><span id="last-saved">—</span></footer>
+          <footer class="workspace-footer"><span data-i18n="footerNotice">Quality ratings apply to the compiled PDF. The official conference PDF is an optional reference.</span><span id="last-saved">—</span></footer>
         </section>
       </main>
     </div>

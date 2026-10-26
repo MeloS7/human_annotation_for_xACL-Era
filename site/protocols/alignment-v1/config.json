@@ -1,0 +1,10 @@
+{
+  "schema": "xacl.hosted-config.v1",
+  "supabase_url": "https://zmklfbdulaoiqwekgcnw.supabase.co",
+  "supabase_publishable_key": "sb_publishable_8RG-50ZS_5VL1QbeLAhV5w_RdzwhEOb",
+  "study_id": "revisionlens-alignment30-v1",
+  "manifest_sha256": "d60e722740919ee30896e2c4a84df256970c0b67c36e831af18a3a68ed3df071",
+  "guidance_version": "alignment-guidance-20261024-v4",
+  "guidance_sha256": "a2bb9e881d2bb8c1947196bb025cf8145d788acb2a8a3635396a81300dc4a59c",
+  "auth_mode": "anonymous_recovery_v1"
+}

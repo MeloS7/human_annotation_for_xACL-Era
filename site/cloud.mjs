@@ -1,17 +1,34 @@
+import { QUALITY_PROTOCOL_ID, QUALITY_RECORD_SCHEMA, qualityRecordIssue } from "./quality-protocol.mjs";
+
 const SITE_BASE_URL = new URL("./", import.meta.url);
-const CONFIG_SCHEMA = "xacl.hosted-config.v1";
+const LEGACY_CONFIG_SCHEMA = "xacl.hosted-config.v1";
+const QUALITY_CONFIG_SCHEMA = "xacl.hosted-config.v2";
 const MANIFEST_SCHEMA = "revisionlens.alignment30.manifest.v1";
-const RUBRIC_SCHEMA = "revisionlens.alignment-rubric.v1";
-const GUIDANCE_SCHEMA = "revisionlens.alignment-guidance.v1";
-const RECORD_SCHEMA = "revisionlens.alignment-annotations.v1";
+const LEGACY_RUBRIC_SCHEMA = "revisionlens.alignment-rubric.v1";
+const QUALITY_RUBRIC_SCHEMA = "xacl.document-quality-rubric.v1";
+const LEGACY_GUIDANCE_SCHEMA = "revisionlens.alignment-guidance.v1";
+const QUALITY_GUIDANCE_SCHEMA = "xacl.document-quality-guidance.v1";
+const LEGACY_RECORD_SCHEMA = "revisionlens.alignment-annotations.v1";
 const AUTH_MODE = "anonymous_recovery_v1";
+const LEGACY_RPC_NAMES = Object.freeze({
+  health: "xacl_annotation_health",
+  register: "xacl_register_annotator",
+  resume: "xacl_resume_annotator",
+  current: "xacl_current_annotations",
+  load: "xacl_load_annotations",
+  save: "xacl_save_annotations",
+});
+const QUALITY_RPC_NAMES = Object.freeze({
+  health: "xacl_quality_annotation_health",
+  register: "xacl_quality_register_annotator",
+  resume: "xacl_quality_resume_annotator",
+  current: "xacl_quality_current_annotations",
+  load: "xacl_quality_load_annotations",
+  save: "xacl_quality_save_annotations",
+});
 const RPC_NAMES = new Set([
-  "xacl_annotation_health",
-  "xacl_register_annotator",
-  "xacl_resume_annotator",
-  "xacl_current_annotations",
-  "xacl_load_annotations",
-  "xacl_save_annotations",
+  ...Object.values(LEGACY_RPC_NAMES),
+  ...Object.values(QUALITY_RPC_NAMES),
 ]);
 
 export class HostedAdapterError extends Error {
@@ -36,14 +53,28 @@ function validSha256(value) {
   return typeof value === "string" && /^[a-f0-9]{64}$/i.test(value);
 }
 
+function hasExactlyKeys(value, expected) {
+  return isPlainObject(value) && Object.keys(value).length === expected.length && expected.every((key) => Object.hasOwn(value, key));
+}
+
+function isQualityConfig(config) {
+  return config.schema === QUALITY_CONFIG_SCHEMA;
+}
+
 function parseJsonBytes(bytes) {
   return JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
 }
 
 async function readStaticJson(name, baseUrl, fetchImpl) {
-  const label = name.replace(/\.json$/i, "").replace(/[^a-z0-9_]/gi, "_").toLowerCase();
-  const url = new URL(name, baseUrl);
-  if (url.origin !== baseUrl.origin || !url.pathname.startsWith(baseUrl.pathname)) fail(`${label}_invalid`);
+  const safeName = typeof name === "string" ? name : "";
+  const label = safeName.split("/").at(-1).replace(/\.json$/i, "").replace(/[^a-z0-9_]/gi, "_").toLowerCase();
+  const segments = safeName ? safeName.split("/") : [];
+  if (!segments.length || segments.some((segment) => !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(segment) || segment === ".." || segment === ".")) {
+    fail(`${label || "asset"}_invalid`);
+  }
+  const url = new URL(safeName, baseUrl);
+  const basePath = baseUrl.pathname.endsWith("/") ? baseUrl.pathname : `${baseUrl.pathname}/`;
+  if (url.origin !== baseUrl.origin || !url.pathname.startsWith(basePath)) fail(`${label}_invalid`);
   let response;
   try {
     response = await fetchImpl(url.href, { cache: "no-store", credentials: "same-origin" });
@@ -67,8 +98,26 @@ export async function sha256Hex(bytes, cryptoProvider = globalThis.crypto) {
 }
 
 function validateConfig(config) {
-  if (!isPlainObject(config) || config.schema !== CONFIG_SCHEMA ||
-      typeof config.study_id !== "string" || !config.study_id ||
+  const legacyConfigKeys = [
+    "schema", "supabase_url", "supabase_publishable_key", "study_id", "manifest_sha256",
+    "guidance_version", "guidance_sha256", "auth_mode",
+  ];
+  const qualityConfigKeys = [
+    ...legacyConfigKeys,
+    "protocol_id", "record_schema", "rubric_version", "rubric_path", "rubric_sha256",
+    "guidance_path", "sample_rubric_version",
+  ];
+  const schemaValid = isPlainObject(config) && (
+    (config.schema === LEGACY_CONFIG_SCHEMA && hasExactlyKeys(config, legacyConfigKeys)) ||
+    (config.schema === QUALITY_CONFIG_SCHEMA && hasExactlyKeys(config, qualityConfigKeys) &&
+      config.protocol_id === QUALITY_PROTOCOL_ID && config.record_schema === QUALITY_RECORD_SCHEMA &&
+      config.rubric_version === "document-quality-rubric-v1" &&
+      config.rubric_path === "protocols/document-quality-v1/rubric.json" &&
+      validSha256(config.rubric_sha256) &&
+      config.guidance_path === "protocols/document-quality-v1/guidance.json" &&
+      config.sample_rubric_version === "alignment-rubric-v1")
+  );
+  if (!schemaValid || typeof config.study_id !== "string" || !config.study_id ||
       !validSha256(config.manifest_sha256) || !validSha256(config.guidance_sha256) ||
       typeof config.guidance_version !== "string" || !config.guidance_version ||
       config.auth_mode !== AUTH_MODE ||
@@ -82,12 +131,19 @@ function validateConfig(config) {
       serviceUrl.username || serviceUrl.password || serviceUrl.search || serviceUrl.hash ||
       (serviceUrl.pathname !== "/" && serviceUrl.pathname !== "")) fail("static_package_invalid");
 
-  return { ...config, supabase_url: serviceUrl.origin, manifest_sha256: config.manifest_sha256.toLowerCase(), guidance_sha256: config.guidance_sha256.toLowerCase() };
+  return {
+    ...config,
+    supabase_url: serviceUrl.origin,
+    manifest_sha256: config.manifest_sha256.toLowerCase(),
+    guidance_sha256: config.guidance_sha256.toLowerCase(),
+    ...(isQualityConfig(config) ? { rubric_sha256: config.rubric_sha256.toLowerCase() } : {}),
+  };
 }
 
 function validateManifest(manifest, config, rubric) {
+  const sampleRubricVersion = isQualityConfig(config) ? config.sample_rubric_version : rubric.version;
   if (!isPlainObject(manifest) || manifest.schema !== MANIFEST_SCHEMA ||
-      manifest.dataset_id !== config.study_id || manifest.rubric_version !== rubric.version ||
+      manifest.dataset_id !== config.study_id || manifest.rubric_version !== sampleRubricVersion ||
       !Array.isArray(manifest.papers) || manifest.papers.length !== 30) fail("manifest_invalid");
   const seen = new Set();
   for (const paper of manifest.papers) {
@@ -98,15 +154,24 @@ function validateManifest(manifest, config, rubric) {
   }
 }
 
-function validateRubric(rubric, manifest) {
-  if (!isPlainObject(rubric) || rubric.schema !== RUBRIC_SCHEMA || rubric.version !== manifest.rubric_version ||
+function validateRubric(rubric, manifest, config) {
+  if (isQualityConfig(config)) {
+    if (!isPlainObject(rubric) || rubric.schema !== QUALITY_RUBRIC_SCHEMA ||
+        rubric.protocol_id !== QUALITY_PROTOCOL_ID || rubric.version !== config.rubric_version ||
+        !Array.isArray(rubric.dimensions) || !Array.isArray(rubric.version_difference_flags)) fail("rubric_invalid");
+    return;
+  }
+  if (!isPlainObject(rubric) || rubric.schema !== LEGACY_RUBRIC_SCHEMA || rubric.version !== manifest.rubric_version ||
       !Array.isArray(rubric.dimensions) || !Array.isArray(rubric.flags)) fail("rubric_invalid");
 }
 
 function validateGuidance(guidance, config) {
+  const quality = isQualityConfig(config);
+  const schema = quality ? QUALITY_GUIDANCE_SCHEMA : LEGACY_GUIDANCE_SCHEMA;
   const bilingual = (value) => isPlainObject(value) && typeof value.en === "string" && value.en.trim() &&
     typeof value.zh === "string" && value.zh.trim();
-  if (!isPlainObject(guidance) || guidance.schema !== GUIDANCE_SCHEMA || guidance.version !== config.guidance_version ||
+  if (!isPlainObject(guidance) || guidance.schema !== schema ||
+      (quality && guidance.protocol_id !== QUALITY_PROTOCOL_ID) || guidance.version !== config.guidance_version ||
       !bilingual(guidance.title) || !bilingual(guidance.scope) || !Array.isArray(guidance.quick_rules) ||
       guidance.quick_rules.length < 1 || guidance.quick_rules.length > 4 || !guidance.quick_rules.every(bilingual) ||
       !bilingual(guidance.publication_notice?.title) || !bilingual(guidance.publication_notice?.text) ||
@@ -125,22 +190,26 @@ export async function loadHostedAssets({
   const siteBase = new URL(baseUrl);
   const [configFile] = await Promise.all([readStaticJson("config.json", siteBase, fetchImpl)]);
   const config = validateConfig(configFile.value);
+  const quality = isQualityConfig(config);
   const [manifestFile, rubricFile, guidanceFile] = await Promise.all([
     readStaticJson("manifest.json", siteBase, fetchImpl),
-    readStaticJson("rubric.json", siteBase, fetchImpl),
-    readStaticJson("guidance.json", siteBase, fetchImpl),
+    readStaticJson(quality ? config.rubric_path : "rubric.json", siteBase, fetchImpl),
+    readStaticJson(quality ? config.guidance_path : "guidance.json", siteBase, fetchImpl),
   ]);
-  const [manifestHash, guidanceHash] = await Promise.all([
-    sha256Hex(manifestFile.bytes, cryptoProvider), sha256Hex(guidanceFile.bytes, cryptoProvider),
+  const [manifestHash, rubricHash, guidanceHash] = await Promise.all([
+    sha256Hex(manifestFile.bytes, cryptoProvider),
+    sha256Hex(rubricFile.bytes, cryptoProvider),
+    sha256Hex(guidanceFile.bytes, cryptoProvider),
   ]);
-  if (manifestHash !== config.manifest_sha256 || guidanceHash !== config.guidance_sha256) fail("static_hash_mismatch");
+  if (manifestHash !== config.manifest_sha256 || guidanceHash !== config.guidance_sha256 ||
+      (quality && rubricHash !== config.rubric_sha256)) fail("static_hash_mismatch");
   const rubric = rubricFile.value;
   const manifest = manifestFile.value;
   const guidance = guidanceFile.value;
-  validateRubric(rubric, manifest);
+  validateRubric(rubric, manifest, config);
   validateManifest(manifest, config, rubric);
   validateGuidance(guidance, config);
-  return Object.freeze({ config, manifest, rubric, guidance, manifestHash, guidanceHash });
+  return Object.freeze({ config, manifest, rubric, guidance, manifestHash, rubricHash, guidanceHash });
 }
 
 function errorCode(payload) {
@@ -158,7 +227,8 @@ function safeRpcFailure(name, status, payload) {
   if (["invalid_access", "invalid_access_code", "invalid_credentials", "unauthorized", "forbidden"].includes(code) || status === 401 || status === 403) {
     return new HostedAdapterError("invalid_credentials", status);
   }
-  if (name === "xacl_annotation_health" && (status === 404 || ["study_not_ready", "study_mismatch"].includes(code))) {
+  if ([LEGACY_RPC_NAMES.health, QUALITY_RPC_NAMES.health].includes(name) &&
+      (status === 404 || ["study_not_ready", "study_mismatch"].includes(code))) {
     return new HostedAdapterError("backend_not_ready", status);
   }
   if (["study_not_ready", "study_mismatch"].includes(code)) return new HostedAdapterError("backend_not_ready", status);
@@ -216,6 +286,8 @@ export function createHostedAdapter(config, {
   guidanceSha256,
 } = {}) {
   const checkedConfig = validateConfig(config);
+  const quality = isQualityConfig(checkedConfig);
+  const rpcNames = quality ? QUALITY_RPC_NAMES : LEGACY_RPC_NAMES;
   const createClient = supabaseLibrary?.createClient;
   if (typeof fetchImpl !== "function" || typeof createClient !== "function") fail("service_unavailable");
 
@@ -238,16 +310,24 @@ export function createHostedAdapter(config, {
     if (!RPC_NAMES.has(name)) fail("service_unavailable");
     let result;
     try { result = await client.rpc(name, args); } catch (error) { throw safeRpcFailure(name, error?.status || 0, error); }
-    if (result?.error) throw safeRpcFailure(name, result.error.status || 0, result.error);
+    if (result?.error) throw safeRpcFailure(name, result.error.status || result.status || 0, result.error);
     const payload = Array.isArray(result?.data) && result.data.length === 1 ? result.data[0] : result?.data;
-    if (!isPlainObject(payload)) fail(name === "xacl_annotation_health" ? "backend_not_ready" : "service_unavailable");
+    if (!isPlainObject(payload)) fail([LEGACY_RPC_NAMES.health, QUALITY_RPC_NAMES.health].includes(name) ? "backend_not_ready" : "service_unavailable");
     if (typeof payload.error === "string" || typeof payload.code === "string") throw safeRpcFailure(name, 200, payload);
     return payload;
   }
 
   function checkedRecord(payload, annotatorId = null) {
     const record = isPlainObject(payload?.record) ? payload.record : payload;
-    if (!isPlainObject(record) || record.schema !== RECORD_SCHEMA || !validAnnotatorId(record.annotator_id) ||
+    if (quality) {
+      const issue = qualityRecordIssue(record, {
+        annotatorId: annotatorId === null ? undefined : annotatorId,
+        datasetId: checkedConfig.study_id,
+        manifestSha256: checkedConfig.manifest_sha256,
+        rubricVersion: rubricVersion || checkedConfig.rubric_version,
+      });
+      if (issue) fail("service_unavailable");
+    } else if (!isPlainObject(record) || record.schema !== LEGACY_RECORD_SCHEMA || !validAnnotatorId(record.annotator_id) ||
         (annotatorId !== null && record.annotator_id !== annotatorId) ||
         record.dataset_id !== checkedConfig.study_id || record.manifest_sha256 !== checkedConfig.manifest_sha256 ||
         record.rubric_version !== rubricVersion || !Number.isInteger(record.revision) ||
@@ -264,7 +344,7 @@ export function createHostedAdapter(config, {
   return Object.freeze({
     storageKey: makeStorageKey(checkedConfig, location),
 
-    async health() { return rpc("xacl_annotation_health"); },
+    async health() { return rpc(rpcNames.health); },
 
     async getSession() {
       try {
@@ -293,14 +373,14 @@ export function createHostedAdapter(config, {
     },
 
     async currentAnnotations() {
-      const payload = await rpc("xacl_current_annotations");
+      const payload = await rpc(rpcNames.current);
       if (payload.record === null) return null;
       return checkedRecord(payload);
     },
 
     async register(annotatorId, recoveryCode) {
       validateCredentials(annotatorId, recoveryCode);
-      const payload = await rpc("xacl_register_annotator", {
+      const payload = await rpc(rpcNames.register, {
         p_annotator_id: annotatorId,
         p_recovery_code: recoveryCode,
       });
@@ -309,7 +389,7 @@ export function createHostedAdapter(config, {
 
     async resume(annotatorId, recoveryCode) {
       validateCredentials(annotatorId, recoveryCode);
-      const payload = await rpc("xacl_resume_annotator", {
+      const payload = await rpc(rpcNames.resume, {
         p_annotator_id: annotatorId,
         p_recovery_code: recoveryCode,
       });
@@ -318,14 +398,20 @@ export function createHostedAdapter(config, {
 
     async load(annotatorId) {
       if (!validAnnotatorId(annotatorId)) fail("invalid_credentials", 401);
-      const payload = await rpc("xacl_load_annotations", { p_annotator_id: annotatorId });
+      const payload = await rpc(rpcNames.load, { p_annotator_id: annotatorId });
       return checkedRecord(payload, annotatorId);
     },
 
     async save(annotatorId, record, operation = "save") {
       if (!validAnnotatorId(annotatorId) || !isPlainObject(record) || record.annotator_id !== annotatorId ||
           !["save", "import"].includes(operation)) fail("service_unavailable");
-      const payload = await rpc("xacl_save_annotations", {
+      if (quality && qualityRecordIssue(record, {
+        annotatorId,
+        datasetId: checkedConfig.study_id,
+        manifestSha256: checkedConfig.manifest_sha256,
+        rubricVersion: rubricVersion || checkedConfig.rubric_version,
+      })) fail("service_unavailable");
+      const payload = await rpc(rpcNames.save, {
         p_annotator_id: annotatorId,
         p_record: record,
         p_guidance_version: guidanceVersion || checkedConfig.guidance_version,
@@ -350,12 +436,16 @@ export function createHostedAdapter(config, {
 }
 
 export function assertHostedHealth(health, assets) {
+  const quality = isQualityConfig(assets.config);
   if (!isPlainObject(health) || health.ready !== true ||
       health.dataset_id !== assets.manifest.dataset_id ||
       health.manifest_sha256 !== assets.manifestHash ||
       health.rubric_version !== assets.rubric.version ||
       health.guidance_version !== assets.guidance.version ||
       health.guidance_sha256 !== assets.guidanceHash ||
+      (quality && (health.protocol_id !== assets.config.protocol_id ||
+        health.record_schema !== assets.config.record_schema ||
+        health.rubric_sha256 !== assets.rubricHash)) ||
       health.auth_mode !== AUTH_MODE) fail("backend_not_ready");
   return true;
 }

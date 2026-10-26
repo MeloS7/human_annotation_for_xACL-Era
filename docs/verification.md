@@ -17,3 +17,9 @@ Test artifacts and temporary runtimes belong in `.runtime/`, not in the publishe
 See `deployment-status.json` for the latest recorded checks and remaining manual initialization requirement.
 
 For the integrated object-scoring update, see `integrated-scoring-verification.json` and `integrated-scoring.md`. Its verification record separates completed local software checks from the production database upgrade and matching frontend publication. Existing production annotations are not software fixtures.
+
+## Document quality protocol v1 (2026-10-26)
+
+The active frontend uses the separately versioned six-dimension document-quality protocol. Frozen alignment assets and database payloads remain unchanged. Run the original SQL baseline, upgrade and race checks before applying `002_document_quality.sql`; then run `quality_backend_setup.py`, `quality_upgrade.py` and `browser_quality.cjs`. The quality upgrade regression must establish that legacy records/history are unchanged, existing profiles start with blank quality ratings, cross-protocol payloads and unauthorized reads are rejected, version observations do not cap scores, history is immutable, and stale saves conflict.
+
+The reviewed migration must be installed in production before the new frontend is deployed. Local and CI fixtures are software tests, not collected human judgments. The original alignment verification records above remain historical evidence and are not relabeled as quality-protocol validation.

@@ -14,9 +14,10 @@ import {
 const packageRoot = new URL("../", import.meta.url);
 const siteRoot = new URL("site/", packageRoot);
 const fixtureBytes = new Map();
-for (const name of ["config.json", "manifest.json", "rubric.json", "guidance.json"]) {
+for (const name of ["manifest.json", "rubric.json", "guidance.json"]) {
   fixtureBytes.set(name, new Uint8Array(await readFile(new URL(name, siteRoot))));
 }
+fixtureBytes.set("config.json", new Uint8Array(await readFile(new URL("config.json", new URL("protocols/alignment-v1/", siteRoot)))));
 const config = JSON.parse(new TextDecoder().decode(fixtureBytes.get("config.json")));
 const manifest = JSON.parse(new TextDecoder().decode(fixtureBytes.get("manifest.json")));
 const rubric = JSON.parse(new TextDecoder().decode(fixtureBytes.get("rubric.json")));

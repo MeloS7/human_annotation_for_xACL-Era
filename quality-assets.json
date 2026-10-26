@@ -1,0 +1,10 @@
+{
+  "schema": "xacl.quality-assets.v1",
+  "protocol_id": "document-quality-v1",
+  "files": {
+    "protocols/document-quality-v1/rubric.json": "2ddf68ce14b945fa9f96098873cf8c01807ca68540b88332ad52d256e3c5465e",
+    "protocols/document-quality-v1/guidance.json": "5355aeeabb9f44c3211a6fa6c606075fc4a06bcdd42464638d93c527301ecf2f",
+    "protocols/document-quality-v1/protocol.json": "901cd82dd414ebcffe0933796a6a7a245080d84f8b469e251dcd1bf15ff5d69a",
+    "protocols/alignment-v1/config.json": "110ea8ff70d1a3111a3da3fec469a6b8effa4238777d6290d64c23bff9f51e46"
+  }
+}

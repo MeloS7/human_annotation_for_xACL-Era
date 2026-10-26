@@ -15,6 +15,12 @@ import psycopg
 from psycopg.types.json import Jsonb
 
 RPC_FIELDS = {
+    'xacl_quality_annotation_health': [],
+    'xacl_quality_register_annotator': ['p_annotator_id', 'p_recovery_code'],
+    'xacl_quality_resume_annotator': ['p_annotator_id', 'p_recovery_code'],
+    'xacl_quality_current_annotations': [],
+    'xacl_quality_load_annotations': ['p_annotator_id'],
+    'xacl_quality_save_annotations': ['p_annotator_id', 'p_record', 'p_guidance_version', 'p_guidance_sha256', 'p_operation'],
     'xacl_annotation_health': [],
     'xacl_register_annotator': ['p_annotator_id', 'p_recovery_code'],
     'xacl_resume_annotator': ['p_annotator_id', 'p_recovery_code'],

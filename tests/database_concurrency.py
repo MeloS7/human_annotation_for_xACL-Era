@@ -15,7 +15,9 @@ if os.environ.get('XACL_DISPOSABLE_DATABASE') != '1':
 dsn = os.environ.get('QA_DATABASE_URL', '')
 if not dsn:
     raise SystemExit('QA_DATABASE_URL is required')
-config = json.loads((Path(__file__).resolve().parents[1] / 'site/config.json').read_text())
+# This regression exercises the archived alignment API before the quality
+# migration. Its guidance remains frozen even when the active site changes.
+config = json.loads((Path(__file__).resolve().parents[1] / 'site/protocols/alignment-v1/config.json').read_text())
 annotator = 'QA_RACE_' + uuid.uuid4().hex[:12]
 code = 'c' * 64  # Nonsecret software fixture, never a production recovery code.
 uid_a, uid_b = str(uuid.uuid4()), str(uuid.uuid4())

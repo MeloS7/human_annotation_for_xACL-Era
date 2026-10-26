@@ -1,0 +1,33 @@
+{
+  "protocol_id": "document-quality-v1",
+  "date": "2026-10-26",
+  "base_commit": "e52eefd28f776e351813108c93382126bab02352",
+  "frozen_cohort_unchanged": true,
+  "legacy_sql_baseline": "passed",
+  "legacy_upgrade_and_concurrency": "passed",
+  "quality_migration_preservation_security_concurrency": "passed",
+  "frontend_unit_tests": {
+    "passed": 26,
+    "failed": 0
+  },
+  "browser": {
+    "status": "passed",
+    "checks": [
+      "If the quality backend health endpoint is unavailable, profile creation and scoring stay locked without calling legacy RPCs",
+      "New profile and recovery code, English default, 0/30 unanswered quality progress, exactly six open score definitions, technical-only N/A, compiled target with optional official reference, no participant data import/export, and no legacy answers or local recovery access",
+      "All six scores, all seven unique version flags, optional notes/evidence, and compiled full-scope confirmation complete, save, and reload without alteration; resume selects first unfinished paper RL02",
+      "Low score, Uncertain and technical-only N/A complete with all optional fields blank; unanswered scores and missing compiled full-scope review block completion; draft survives next/previous navigation and first-unfinished resume",
+      "PDF sync preserves independent offsets when off, advances relative pages and clamps at page one when on, and remains operable in expanded mode at 390px, 712px, and 1600px; quality UI screenshots captured",
+      "Recovery code restores the same profile on a second device; optimistic revision conflict protects the first writer, and only a namespaced private unsaved-recovery file is offered"
+    ],
+    "page_errors": [],
+    "unexpected_requests": []
+  },
+  "independent_database_readback": "Six scores of 5 plus all seven version observations persisted as completed in an isolated software fixture.",
+  "production": {
+    "database_migration": "pending maintainer execution of supabase/setup-quality.sql",
+    "frontend_deployment": "pending matching database migration; feature branch verification required"
+  },
+  "human_annotation": false,
+  "scope": "Software and data-preservation tests. No claim that paper contents or writing quality have been scientifically validated."
+}

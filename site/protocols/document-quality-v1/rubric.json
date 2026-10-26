@@ -1,0 +1,244 @@
+{
+  "schema": "xacl.document-quality-rubric.v1",
+  "version": "document-quality-rubric-v1",
+  "protocol_id": "document-quality-v1",
+  "title": {
+    "en": "Compiled document quality",
+    "zh": "编译文档质量"
+  },
+  "scope": {
+    "en": "Rate the compiled arXiv version itself. The official conference PDF is an optional reference; differences between versions do not lower quality scores.",
+    "zh": "评价 arXiv 编译版本本身。官方会议 PDF 仅作可选参考；版本差异不降低质量评分。"
+  },
+  "dimensions": [
+    {
+      "key": "language_clarity",
+      "label": "Language Clarity & Fluency",
+      "label_zh": "语言清晰度与流畅性",
+      "description": {
+        "en": "Assess sentence-level clarity, grammar and terminology in the compiled version.",
+        "zh": "评价编译版本的句子清晰度、语法与术语表达。"
+      },
+      "allows_na": false,
+      "scale": {
+        "1": {
+          "en": "Meaning is difficult to recover throughout.",
+          "zh": "全文表达普遍难以理解。"
+        },
+        "2": {
+          "en": "Frequent major language problems obscure important meaning.",
+          "zh": "频繁的严重语言问题遮蔽重要含义。"
+        },
+        "3": {
+          "en": "Recurring unclear or awkward passages interrupt reading.",
+          "zh": "反复出现含混或不自然的表述，影响阅读。"
+        },
+        "4": {
+          "en": "Minor wording or grammar issues; meaning remains clear.",
+          "zh": "有少量措辞或语法问题，含义仍清楚。"
+        },
+        "5": {
+          "en": "Clear, fluent and precise expression throughout.",
+          "zh": "全文表达清楚、流畅、准确。"
+        }
+      }
+    },
+    {
+      "key": "coherence_flow",
+      "label": "Coherence & Logical Flow",
+      "label_zh": "连贯性与逻辑展开",
+      "description": {
+        "en": "Assess connections between sentences, paragraphs, claims and supporting explanations within this version.",
+        "zh": "评价本版本句子、段落、论点与解释之间的衔接。"
+      },
+      "allows_na": false,
+      "scale": {
+        "1": {
+          "en": "The main line of reasoning cannot be followed.",
+          "zh": "无法跟随主要论述思路。"
+        },
+        "2": {
+          "en": "Major disconnected or contradictory passages obscure the argument.",
+          "zh": "重要段落脱节或前后矛盾，使论述难以理解。"
+        },
+        "3": {
+          "en": "Noticeable jumps, repetition or weak transitions interrupt the argument.",
+          "zh": "明显跳跃、重复或衔接不足，影响论述。"
+        },
+        "4": {
+          "en": "Mostly coherent, with minor transitions or repetitions to improve.",
+          "zh": "总体连贯，少量衔接或重复可改进。"
+        },
+        "5": {
+          "en": "Ideas and supporting explanations progress coherently.",
+          "zh": "思想与支撑解释展开连贯。"
+        }
+      }
+    },
+    {
+      "key": "structural_completeness",
+      "label": "Structural Completeness",
+      "label_zh": "结构完整性",
+      "description": {
+        "en": "Assess whether the main paper forms a complete, navigable account for its paper type. Do not require the official version's headings, experiments or section order.",
+        "zh": "评价正文是否按论文类型形成完整、可定位的论述；不要求采用官方版的标题、实验或章节顺序。"
+      },
+      "allows_na": false,
+      "scale": {
+        "1": {
+          "en": "The main paper is severely fragmented or largely missing.",
+          "zh": "正文严重残缺或大量缺失。"
+        },
+        "2": {
+          "en": "Major missing or truncated parts prevent understanding of the work.",
+          "zh": "重要部分缺失或截断，妨碍理解研究。"
+        },
+        "3": {
+          "en": "Noticeable gaps or dangling dependencies leave parts incomplete.",
+          "zh": "明显缺口或悬空依赖使部分论述不完整。"
+        },
+        "4": {
+          "en": "The main account is complete with minor organizational gaps.",
+          "zh": "主要论述完整，存在轻微组织缺口。"
+        },
+        "5": {
+          "en": "A complete and well-organized main-paper account for its type.",
+          "zh": "就该论文类型而言，正文完整且组织清晰。"
+        }
+      }
+    },
+    {
+      "key": "technical_presentation",
+      "label": "Technical Presentation",
+      "label_zh": "技术内容呈现",
+      "description": {
+        "en": "Where applicable, assess clarity of figures, tables, equations, captions and their links to the compiled text. Do not score agreement with the official version. N/A means no applicable technical objects in the compiled main paper.",
+        "zh": "适用时评价编译正文中图表、公式、说明及其与文字的关联是否清晰；不评价与官方版是否一致。编译正文无适用技术对象时选 N/A。"
+      },
+      "allows_na": true,
+      "scale": {
+        "1": {
+          "en": "Applicable technical objects are largely uninterpretable.",
+          "zh": "适用技术对象大多无法理解。"
+        },
+        "2": {
+          "en": "Major presentation or reference problems obscure key technical content.",
+          "zh": "严重呈现或指向问题遮蔽关键技术内容。"
+        },
+        "3": {
+          "en": "Several unclear labels, explanations or links hinder interpretation.",
+          "zh": "多处标签、解释或关联不清，影响理解。"
+        },
+        "4": {
+          "en": "Technical content is understandable with minor presentation issues.",
+          "zh": "技术内容可以理解，有轻微呈现问题。"
+        },
+        "5": {
+          "en": "Applicable technical objects and explanations are clear and self-contained.",
+          "zh": "适用技术对象及其解释清晰，可独立理解。"
+        }
+      }
+    },
+    {
+      "key": "visual_integrity",
+      "label": "Visual Integrity & Legibility",
+      "label_zh": "视觉完整性与可读性",
+      "description": {
+        "en": "Assess the compiled PDF's legibility, glyphs, overlap, clipping, corruption and abnormal blank areas. Ordinary publication formatting differences are acceptable.",
+        "zh": "评价编译 PDF 的清晰度、字形、重叠、裁切、损坏及异常空白；普通出版排版差异可以接受。"
+      },
+      "allows_na": false,
+      "scale": {
+        "1": {
+          "en": "Most content cannot be read normally.",
+          "zh": "大部分内容无法正常阅读。"
+        },
+        "2": {
+          "en": "Multiple important parts are difficult to read.",
+          "zh": "多处重要内容难以辨认。"
+        },
+        "3": {
+          "en": "Localized defects affect some reading.",
+          "zh": "局部缺陷影响部分阅读。"
+        },
+        "4": {
+          "en": "Minor visual defects do not impede reading.",
+          "zh": "轻微视觉缺陷，不妨碍阅读。"
+        },
+        "5": {
+          "en": "Clear and visually intact throughout.",
+          "zh": "全文清晰且视觉完整。"
+        }
+      }
+    },
+    {
+      "key": "overall_quality",
+      "label": "Overall Document Quality",
+      "label_zh": "总体文档质量",
+      "description": {
+        "en": "Judge the compiled document's overall clarity, coherence and usability directly. Do not average scores or lower this score because the official version differs.",
+        "zh": "直接判断编译文档的总体清晰度、连贯性和可用性；不计算分项平均，也不因官方版本不同而扣分。"
+      },
+      "allows_na": false,
+      "scale": {
+        "1": {
+          "en": "The document is largely unusable for reading and writing research.",
+          "zh": "文档大部分无法用于阅读和写作研究。"
+        },
+        "2": {
+          "en": "Major problems substantially limit understanding and use.",
+          "zh": "严重问题显著限制理解和使用。"
+        },
+        "3": {
+          "en": "Usable, but noticeable issues require reader inference or repair.",
+          "zh": "基本可用，但明显问题需要读者推断或修复。"
+        },
+        "4": {
+          "en": "Clear and usable with minor issues.",
+          "zh": "清楚可用，存在轻微问题。"
+        },
+        "5": {
+          "en": "Clear, coherent, complete and readily usable.",
+          "zh": "清楚、连贯、完整，便于使用。"
+        }
+      }
+    }
+  ],
+  "version_difference_flags": [
+    {
+      "key": "text_revision",
+      "label": "Text or wording revision",
+      "label_zh": "文字或措辞修订"
+    },
+    {
+      "key": "scientific_content_revision",
+      "label": "Methods, experiments, results or conclusions differ",
+      "label_zh": "方法、实验、结果或结论不同"
+    },
+    {
+      "key": "technical_objects_revision",
+      "label": "Figures, tables or equations differ",
+      "label_zh": "图表或公式不同"
+    },
+    {
+      "key": "structure_revision",
+      "label": "Section organization differs",
+      "label_zh": "章节组织不同"
+    },
+    {
+      "key": "references_revision",
+      "label": "Reference list differs",
+      "label_zh": "参考文献不同"
+    },
+    {
+      "key": "appendix_revision",
+      "label": "Appendix differs, added or absent",
+      "label_zh": "附录不同、新增或缺失"
+    },
+    {
+      "key": "identity_uncertain",
+      "label": "Paper identity needs verification",
+      "label_zh": "论文身份待核实"
+    }
+  ]
+}
