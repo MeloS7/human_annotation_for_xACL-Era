@@ -25,9 +25,14 @@
   },
   "independent_database_readback": "Six scores of 5 plus all seven version observations persisted as completed in an isolated software fixture.",
   "production": {
-    "database_migration": "pending maintainer execution of supabase/setup-quality.sql",
-    "frontend_deployment": "pending matching database migration; feature branch verification required"
+    "database_migration": "confirmed by matching public quality health endpoint on 2026-10-26",
+    "frontend_deployment": "Release status is tracked by the main branch GitHub Pages workflow; live smoke verification follows deployment."
   },
   "human_annotation": false,
-  "scope": "Software and data-preservation tests. No claim that paper contents or writing quality have been scientifically validated."
+  "scope": "Software and data-preservation tests. No claim that paper contents or writing quality have been scientifically validated.",
+  "github_verification": {
+    "status": "passed",
+    "commit": "05c78e0d999ed6d91ab06ab5a5d8a644a5b18067",
+    "run_url": "https://github.com/MeloS7/human_annotation_for_xACL-Era/actions/runs/40401321615"
+  }
 }
