@@ -1,6 +1,6 @@
 # xACL-Era · main-paper writing quality annotation
 
-English-first, bilingual annotation for the frozen 30-paper sample. The active candidate protocol is **`latex-writing-quality-9p-v1`**: five core writing ratings (1–5 or Uncertain), with a separate optional PDF visual check. Frontend publication requires the matching production database migration and passing checks.
+English-first, bilingual annotation for the frozen 30-paper sample. The active protocol is **`latex-writing-quality-9p-v1`**: five core writing ratings (1–5 or Uncertain), with a separate optional PDF visual check. Frontend publication requires the matching production database migration and passing checks.
 
 ## Shared human/model scope
 

@@ -2,7 +2,7 @@
   "protocol_id": "latex-writing-quality-9p-v1",
   "scope_id": "target-pdf-first9-maintext-v1",
   "verified_at_utc": "2026-11-04T14:27:37.608446+00:00",
-  "status": "local_checks_passed_candidate_awaiting_production_migration",
+  "status": "release_ready_production_database_verified",
   "software_verification_only": true,
   "human_annotation": false,
   "paid_llm_inference_run": false,
@@ -38,15 +38,22 @@
       ],
       "page_errors": [],
       "unexpected_requests": []
-    }
+    },
+    "github_candidate_verification": {
+      "status": "passed",
+      "commit": "2202bbeec89a53efb4ca698231600130451d648b",
+      "run_url": "https://github.com/MeloS7/human_annotation_for_xACL-Era/actions/runs/41850759919"
+    },
+    "focused_resize_then_enter_navigation": "passed_in_normal_and_expanded_view"
   },
   "local_environment": {
     "postgresql_major": 18,
     "browser": "installed Chrome via Playwright, isolated temporary profile"
   },
   "production": {
-    "migration004": "awaiting_database_owner_execution",
-    "frontend": "not_published_before_matching_health"
+    "migration004": "installed_and_health_verified",
+    "frontend": "publication_gated_by_main_branch_verification",
+    "health_verified_at_utc": "2026-11-04T14:51:45.194962+00:00"
   },
   "limits": [
     "No600-paper source-to-page input builder or paid model scoring is executed by this update.",
