@@ -1,49 +1,47 @@
-# xACL-Era · main-paper writing quality annotation
+# xACL-Era · manuscript data usability audit
 
-English-first, bilingual annotation for the frozen 30-paper sample. The active protocol is **`latex-writing-quality-9p-v1`**: five core writing ratings (1–5 or Uncertain), with a separate optional PDF visual check. Frontend publication requires the matching production database migration and passing checks.
+English-first annotation for the frozen 30-paper sample. The new protocol is **`latex-data-usability-v1`**: four core ratings and one independent optional PDF visual check. Its frontend must remain unpublished until the matching database migration and required checks pass.
 
-## Shared human/model scope
+| Dimension | Recording |
+| --- | --- |
+| Text Integrity & Readability | Core, 1–5 or Uncertain |
+| Document Structural Integrity | Core, 1–5 or Uncertain |
+| Non-text Asset Integrity & Usability | Core, 1–5, Uncertain, or N/A for no relevant objects |
+| Overall Data Usability | Core, direct judgment, 1–5 or Uncertain |
+| PDF Visual Integrity & Legibility | Optional auxiliary score, independent of core completion |
 
-Score the main-paper writing within **physical PDF pages 1–9, inclusive, or all existing pages if shorter**. Count from the PDF's first page, including the title page, not printed proceedings numbers. Include the title, abstract and in-scope technical explanations/captions. The complete target PDF and appendix remain browsable for auxiliary reference. Reference lists and appendices are not core-scored, even if they appear inside the window; later pages are also outside core scoring.
+Audit collected-data defects, including missing/corrupted text, damaged content ordering and unusable object representations. Do not grade the original authors' prose style, logic, scientific correctness or conference-version similarity. Expected but missing objects are defects; unavailable evidence is uncertainty. LaTeX-generated tables, equations and TikZ do not need separate image files. Overall is not an average or automatically capped score.
 
-Do not penalize a passage, table or equation continuing after page nine, a later conclusion, or reasonable appendix deferral. Structural Completeness concerns organization and narrative completeness **within the observed window**, not the unobserved complete article. Reading the full appendix is not required for completion.
+## Shared scope and evidence
 
-The five dimensions are Language Clarity & Fluency, Coherence & Logical Flow, Structural Completeness, Technical Expression & Referential Clarity, and Overall Writing Quality. All apply without mandatory figures/equations, with no core N/A. Judge Overall directly, not as an average or capped total. Judge communication, not novelty, scientific correctness, source-code elegance or image aesthetics. Unreadable/missing input is an assessment limitation, not automatically poor writing.
+Inspect main-paper content on physical PDF pages **1–min(9,total_pages)**, counting from the first PDF page. Full PDFs, references, appendices and later pages remain available as auxiliary reference. A planned cutoff, later conclusion and reasonable appendix deferral are not defects. No full scientific peer review or full-appendix reading is required.
 
-Canonical shared definitions, full scoring anchors, the exact system prompt, input/output templates and participant instructions are in [`docs/latex-writing-quality-9p-v1/`](docs/latex-writing-quality-9p-v1/README.md). Its `rubric.json` is byte-identical to the active site rubric. Humans read the target PDF; multimodal judges receive corresponding active LaTeX plus ordered images of the assigned pages. Separately declared appendix/reference material is supporting evidence, not additional scored prose. Judge outputs record consulted supporting blocks and the reading representation. The human interface allows auxiliary browsing but does not claim to measure actual appendix reading.
+The canonical [rubric, human instructions and LLM judge prompts](docs/latex-data-usability-v1/README.md) share the same anchors. The site rubric is byte-identical to the canonical document. Humans inspect the target PDF and bound resource report; multimodal judges additionally receive matching active LaTeX and ordered page images. Report this evidence difference when measuring agreement. The optional official-PDF version audit remains separate and opens after core completion.
 
-## Participant workflow and independent checks
+The resource report is an inventory of the **whole frozen source project**, not a resolved first-nine-page dependency graph or proof of source-to-official equivalence. It records actual checks and limitations. File hashes do not prove pixel legibility or correct caption association. Static inventories may contain unused or appendix resources. Missing tests remain not_checked; unknown does not mean absent. See the report and reproducible builder for exact coverage.
 
-Create or restore a pseudonymous profile using the existing nickname and personal recovery code. The nine-page protocol starts with blank ratings; previous ratings are not copied. Read the assigned window, optionally consult supporting pages, complete five ratings and confirm the assigned scope. All score definitions remain open by default. Autosave acknowledgments, first-unfinished resume, private unsaved recovery and bottom Previous/Next navigation remain available.
+## Participant workflow and persistence
 
-PDF Visual Integrity & Legibility is optional and applies only to inspected target pages. It is stored outside `scores`, never caps core ratings and does not gate completion. The official conference PDF remains hidden until an optional version audit is opened after core completion. Interface reference exposure is recorded monotonically; it does not prove external reading. Version observations never automatically change writing scores.
+Reuse existing nicknames and recovery codes. New-protocol ratings start blank. Inspect the assigned window, complete four responses and confirm the scope. All score definitions open by default. English default, autosave acknowledgment, first-unfinished resume, private unsaved recovery, bottom navigation and synchronized normal/expanded viewers remain available. Visual checks and version observations are optional. Normal data export belongs to the maintainer.
 
-The full PDF link may expose pages beyond the scoring window; these remain auxiliary. Displaying a complete file does not broaden the scoring scope.
+The original cohort, selection, provenance and 60 PDFs remain protected by `frozen-assets.json`. All previous protocol assets and records/history remain archived. The exact previous nine-page config is archived under `site/protocols/latex-writing-quality-9p-v1/config.json`; new metadata is locked by `usability-assets.json`. Shared identities are reused; no previous score or timestamp is relabeled. New records use a distinct protocol key and `xacl_usability_*` RPCs. Migration005 retires older write endpoints while retaining read access and historical data.
 
-## Preservation and persistence
+## Database and release
 
-The original cohort, selection, provenance and all 60 PDFs remain byte-identical under `frozen-assets.json`. Alignment, document-quality and full-scope writing assets/records/history remain archived. `writing-assets.json` still protects the old writing assets; the exact previous config is at `site/protocols/latex-writing-quality-v1/config.json`. New metadata and that archived config are locked by `writing9p-assets.json`.
+The database owner executes [setup-usability.sql](supabase/setup-usability.sql) after migrations001–004. It creates no participants and preserves old ratings. On a fresh installation, apply setup.sql, setup-quality.sql, setup-writing.sql, setup-writing9p.sql, then setup-usability.sql. The latest migration must remain last; archived migrations can restore old write grants if rerun afterward.
 
-The new scope uses a distinct protocol key in private multi-protocol tables and `xacl_writing9p_*` RPCs. Existing identities/recovery are reused. No old score, timestamp or history is relabeled. Old writing saves are revoked after migration004; old read paths remain available. `reviewed_full_scope` in the new record means the assigned page window, not the full article/appendix. Normal data export belongs to the maintainer, never the participant interface.
+Publish only after production health agrees with the protocol/cohort/rubric/guidance hashes. Candidate `codex/**` branches run verification without deploying; only successful `main` builds deploy Pages. Verification covers frozen assets, shared metadata, old/new unit checks, migration preservation/isolation/history/concurrency on disposable PostgreSQL, and browser saves/recovery/navigation/viewers.
 
-Maintainer export, using authorized database access:
+Maintainer export with authorized database access:
 
 ```sql
 SELECT annotator_id, revision, current_record, rubric_version, rubric_sha256,
        guidance_version, guidance_sha256, saved_at
 FROM xacl_private.quality_annotation_records
-WHERE protocol_id = 'latex-writing-quality-9p-v1'
+WHERE protocol_id = 'latex-data-usability-v1'
 ORDER BY annotator_id;
 ```
 
-## Database upgrade and release
+## Before model evaluation
 
-After migrations001–003, the database owner executes [`supabase/setup-writing9p.sql`](supabase/setup-writing9p.sql), the exact reviewed migration004 bundle. It creates no participants and preserves previous protocol records/history. On a new database install `setup.sql`, `setup-quality.sql`, `setup-writing.sql`, then `setup-writing9p.sql`, in that order. Reapplying archived migrations afterward can restore archived write grants; the latest migration must remain last.
-
-Do not publish the frontend until the production nine-page health endpoint agrees with the protocol, cohort, rubric and guidance hashes. Missing migration diagnostics are a deployment blocker, not a reason to bypass hash checks. A non-main branch can be verified without deployment; only a successful main workflow deploys `site/` to Pages.
-
-Verification includes frozen-asset checks, shared protocol metadata, old/current unit tests, migration roundtrip/isolation/history/concurrency tests on disposable PostgreSQL, and browser tests of signup/recovery, saves, navigation, full auxiliary-PDF access and expanded viewers. Synthetic QA judgments are never human annotation data.
-
-## Separate work before LLM scoring
-
-This update specifies the protocol and interface; it does not build 600 source/page packets or execute API calls. A future runner must bind the actual source snapshot and any compilation patches to each target PDF, map primary source to the physical-page window, freeze page rendering and provider/model settings, validate request coverage, and save raw requests/responses, hashes, usage/cost and run failures. Do not treat a planned nine-page cutoff as transport truncation or claim whole-paper quality from this windowed audit. No private API keys or recovery codes belong in Git.
+This update does not call paid models, choose a model provider, prepare all 600 source/page packets or certify their source-to-page mapping. A future runner must bind source and compatibility patches to target PDFs, map active LaTeX to the scoring window, attach readable images, preserve actual resource-check evidence, validate coverage, and save exact requests/responses, model settings, hashes, timing and usage/cost. A scoped integrity audit supports evidence of dataset usability, not an exhaustive guarantee of intrinsic writing quality or author-version equivalence. Do not put API keys or recovery codes in Git.

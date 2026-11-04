@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <title>xACL-Era · source-level writing quality</title>
-  <link rel="stylesheet" href="./styles.css?v=20261104-writing-9p-v1">
+  <title>xACL-Era · dataset integrity review</title>
+  <link rel="stylesheet" href="./styles.css?v=20261104-data-usability-v1">
   <script src="./vendor/supabase/supabase.js"></script>
-  <script type="module" src="./app.js?v=20261104-writing-9p-v1"></script>
+  <script type="module" src="./app.js?v=20261104-data-usability-v1"></script>
 </head>
 <body>
   <div class="app-shell" id="top">
@@ -128,7 +128,7 @@
             </div>
           </div>
 
-          <aside id="protocol-banner" class="protocol-banner" role="note" data-i18n="protocolBanner">New nine-page writing protocol. Earlier ratings remain preserved separately. Please rate this scope anew.</aside>
+          <aside id="protocol-banner" class="protocol-banner" role="note" data-i18n="protocolBanner">New data-usability protocol. Earlier ratings remain preserved separately. Please review this scope anew.</aside>
 
           <section id="all-complete-banner" class="all-complete-banner is-hidden" role="status" aria-live="polite"></section>
 
@@ -144,7 +144,7 @@
             <div class="section-heading">
               <div><span class="section-kicker" data-i18n="compareLabel">TARGET PDF · SAME-SOURCE READING AID</span><h3 id="comparison-title" data-i18n="pdfComparison">Target paper PDF</h3></div>
               <div class="comparison-actions">
-                <span class="scope-note"><span class="scope-dot" aria-hidden="true"></span><span data-i18n="targetOnlyScore">Score main-paper writing on physical PDF pages 1–9, or all pages if shorter.</span></span>
+                <span class="scope-note"><span class="scope-dot" aria-hidden="true"></span><span data-i18n="targetOnlyScore">Check collected data on physical PDF pages 1–9, or all pages if shorter.</span></span>
                 <div id="sync-pdf-pages-normal-slot" class="sync-toggle-slot">
                   <label class="sync-toggle" for="sync-pdf-pages">
                     <span id="sync-pdf-pages-label" data-i18n="syncPageTurns">Sync page turns</span>
@@ -158,7 +158,7 @@
             </div>
             <aside id="publication-notice" class="publication-notice" role="note" aria-labelledby="publication-notice-title">
               <span class="publication-notice-mark" aria-hidden="true">i</span>
-              <p><strong id="publication-notice-title">Scoring window: first 9 pages</strong><span id="publication-notice-text">The complete target PDF remains available. Core scores concern main-paper writing within physical pages 1–9 (all pages if shorter). Appendix and reference sections are auxiliary material, even if they begin inside this window.</span></p>
+              <p><strong id="publication-notice-title">Data usability review · first 9 pages</strong><span id="publication-notice-text">Core ratings concern collected-data integrity and usability on physical pages 1–9. The complete target PDF and appendix remain auxiliary reference.</span></p>
             </aside>
             <p id="audit-exposure-note" class="audit-exposure-note" role="note" hidden></p>
             <div class="viewer-grid is-target-only" id="viewer-grid">
@@ -206,9 +206,17 @@
             <p id="viewer-library-error" class="inline-alert is-hidden" role="alert"></p>
           </section>
 
+          <section id="resource-audit-panel" class="resource-audit-panel" aria-labelledby="resource-audit-title">
+            <div class="resource-audit-heading"><div><span class="section-kicker" data-i18n="resourceAuditKicker">SOURCE RESOURCE INVENTORY</span><h3 id="resource-audit-title" data-i18n="resourceAuditTitle">Non-text resource evidence</h3></div><span id="resource-audit-status" class="resource-audit-status">—</span></div>
+            <p id="resource-audit-scope" class="field-description" data-i18n="resourceAuditScope">This inventory covers the frozen source project, not verified page-by-page completeness or legibility.</p>
+            <p id="resource-audit-summary" class="resource-audit-summary" role="status" aria-live="polite"></p>
+            <p id="resource-audit-warning" class="resource-audit-warning is-hidden" role="status" aria-live="polite"></p>
+            <details id="resource-audit-details" class="resource-audit-details"><summary data-i18n="resourceAuditDetails">View listed file evidence and limitations</summary><div id="resource-audit-assets" class="resource-audit-assets"></div><ul id="resource-audit-limitations" class="resource-audit-limitations"></ul></details>
+          </section>
+
           <section class="annotation-section" aria-labelledby="annotation-title">
             <div class="section-heading annotation-heading">
-              <div><span class="section-kicker" data-i18n="rubricLabel">WRITING-QUALITY RUBRIC</span><h3 id="annotation-title" data-i18n="annotationTitle">Source-level writing ratings</h3></div>
+              <div><span class="section-kicker" data-i18n="rubricLabel">DATA-USABILITY RUBRIC</span><h3 id="annotation-title" data-i18n="annotationTitle">Collected-data integrity ratings</h3></div>
               <div class="rubric-version" id="rubric-version">—</div>
             </div>
             <div class="rubric-scope-card" aria-labelledby="guidance-title">
@@ -227,7 +235,7 @@
             <div id="rubric-scoring" class="rubric-scoring"></div>
             <section id="auxiliary-check-card" class="auxiliary-check-card" aria-labelledby="auxiliary-title">
               <div class="auxiliary-heading"><div><h4 id="auxiliary-title">PDF Visual Integrity &amp; Legibility</h4><p id="auxiliary-definition" class="field-description">Optional: rate only the rendered target PDF.</p></div><span id="visual-check-status" class="visual-check-status" data-assessed="false">Not assessed</span></div>
-              <p class="field-description" data-i18n="auxiliaryHelp">Assess only the rendered target PDF. This check is separate from writing quality and never affects completion or caps any score.</p>
+              <p class="field-description" data-i18n="auxiliaryHelp">Assess only the rendered target PDF. This optional check is separate from data usability and never affects completion or caps any score.</p>
               <div id="visual-score-options" class="score-options" role="group" aria-label="Optional target PDF visual integrity"></div>
               <details id="visual-scale-details" class="score-scale-details" open><summary data-i18n="scoreScale">Score definitions</summary></details>
               <div class="visual-issues-heading"><strong data-i18n="visualIssuesTitle">Observed PDF issues (optional)</strong><button id="clear-visual-check" class="button button-quiet" type="button" disabled data-i18n="clearVisualCheck">Clear visual check</button></div>
@@ -235,7 +243,7 @@
             </section>
             <section id="version-observations" class="version-observations" aria-labelledby="version-observations-title" hidden aria-hidden="true">
               <h4 id="version-observations-title" data-i18n="versionDifferencesTitle">Version differences (optional audit)</h4>
-              <p class="field-description" data-i18n="versionDifferencesHelp">After completing the five writing ratings, you may inspect the official PDF and record observed differences. These observations never change writing scores or completion.</p>
+              <p class="field-description" data-i18n="versionDifferencesHelp">After completing the four core ratings, you may inspect the official PDF and record observed differences. These observations never change usability scores or completion.</p>
               <div id="version-difference-list" class="version-difference-list"></div>
               <div class="version-notes-card">
                 <label for="version-notes"><span data-i18n="versionNotesTitle">Version notes</span><span class="optional-hint" data-i18n="optional">Optional</span></label>
@@ -245,8 +253,8 @@
             </section>
             <div class="completion-flow">
               <div class="completion-card">
-                <div class="completion-check-wrap"><label class="check-label"><input id="reviewed-full-scope" type="checkbox"><span class="check-custom" aria-hidden="true"></span><span><strong data-i18n="fullScopeTitle">I reviewed the assigned main-paper scoring window</strong><small data-i18n="fullScopeHelp">Review physical PDF pages 1–9, or all available pages if the paper is shorter. Pages after 9 are optional auxiliary reference. References and appendices are context only, not scored for themselves.</small></span></label></div>
-                <div class="completion-actions"><div id="validation-message" class="validation-message" role="status" aria-live="polite"></div><button id="complete-review" class="button button-complete" type="button" data-i18n="markComplete">Mark paper complete</button></div>
+                <div class="completion-check-wrap"><label class="check-label"><input id="reviewed-full-scope" type="checkbox"><span class="check-custom" aria-hidden="true"></span><span><strong data-i18n="fullScopeTitle">I inspected the assigned main-paper data window</strong><small data-i18n="fullScopeHelp">Inspect physical PDF pages 1–9, or all available pages if the paper is shorter. Later pages are optional reference; references and appendices are not core-scored.</small></span></label></div>
+                <div class="completion-actions"><div id="validation-message" class="validation-message" role="status" aria-live="polite"></div><button id="complete-review" class="button button-complete" type="button" data-i18n="markComplete">Mark review complete</button></div>
               </div>
               <nav class="paper-stepper paper-stepper-bottom" data-i18n-title="paperNavigation" aria-label="Paper navigation">
                 <button id="previous-paper" class="button button-secondary" type="button" data-i18n="previousPaper">← Previous</button>
@@ -256,7 +264,7 @@
             </div>
           </section>
 
-          <footer class="workspace-footer"><span data-i18n="footerNotice">Writing ratings apply to the selected LaTeX source. PDF visual integrity and the optional official-version audit are separate.</span><span id="last-saved">—</span></footer>
+          <footer class="workspace-footer"><span data-i18n="footerNotice">Ratings concern collected-data integrity and usability. PDF visual quality and the optional official-version audit are separate.</span><span id="last-saved">—</span></footer>
         </section>
       </main>
     </div>

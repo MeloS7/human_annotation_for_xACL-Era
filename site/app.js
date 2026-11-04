@@ -1,17 +1,16 @@
-import { assertHostedHealth, createHostedAdapter, loadHostedAssets, randomRecoveryCode } from "./cloud.mjs?v=20261104-writing-9p-v1";
+import { assertHostedHealth, createHostedAdapter, loadHostedAssets, randomRecoveryCode } from "./cloud.mjs?v=20261104-data-usability-v1";
 import {
-  WRITING_9P_PROTOCOL_ID as WRITING_PROTOCOL_ID,
-  WRITING_9P_RECORD_SCHEMA as WRITING_RECORD_SCHEMA,
-  WRITING_9P_RUBRIC_VERSION,
-  WRITING_9P_SCORE_KEYS as WRITING_SCORE_KEYS,
-  WRITING_9P_VERSION_DIFFERENCE_KEYS as VERSION_DIFFERENCE_KEYS,
-  WRITING_9P_VISUAL_ISSUE_KEYS as VISUAL_ISSUE_KEYS,
-  blankWriting9pAnnotation as blankWritingAnnotation,
-  writing9pAnnotationErrors as writingAnnotationErrors,
-  writing9pRecordIssue as writingRecordIssue,
-  CORE_SCORING_PAGE_COUNT,
-  coreScoringPageCount,
-} from "./writing9p-protocol.mjs?v=20261104-writing-9p-v1";
+  USABILITY_PROTOCOL_ID as WRITING_PROTOCOL_ID,
+  USABILITY_RECORD_SCHEMA as WRITING_RECORD_SCHEMA,
+  USABILITY_RUBRIC_VERSION,
+  USABILITY_SCORE_KEYS as WRITING_SCORE_KEYS,
+  USABILITY_VERSION_DIFFERENCE_KEYS as VERSION_DIFFERENCE_KEYS,
+  USABILITY_VISUAL_ISSUE_KEYS as VISUAL_ISSUE_KEYS,
+  blankUsabilityAnnotation as blankWritingAnnotation,
+  usabilityAnnotationErrors as writingAnnotationErrors,
+  usabilityRecordIssue as writingRecordIssue,
+} from "./usability-protocol.mjs?v=20261104-data-usability-v1";
+import { CORE_SCORING_PAGE_COUNT, coreScoringPageCount } from "./writing9p-protocol.mjs?v=20261104-writing-9p-v1";
 
 const SCORE_KEYS = WRITING_SCORE_KEYS;
 const FLAG_KEYS = VERSION_DIFFERENCE_KEYS;
@@ -21,129 +20,142 @@ const WEB_BASE_URL = PACKAGE_BASE_URL;
 
 const STRINGS = {
   en: {
-    eyebrow: "RESEARCH ANNOTATION", studyLabel: "Study", studyTitle: "xACL-Era · source-level writing quality", loading: "Loading study…", connecting: "Connecting…",
+    eyebrow: "RESEARCH ANNOTATION", studyLabel: "Study", studyTitle: "xACL-Era · dataset integrity review", loading: "Loading study…", connecting: "Connecting…",
     sampleSet: "SAMPLE SET", papers: "Papers", searchPapers: "Search papers", searchPlaceholder: "Search title or ID",
     period: "Period", allPeriods: "All periods", early: "Early", late: "Late", reviewStatus: "Review status",
     allStatuses: "All status", notStarted: "Not started", draft: "Draft", completed: "Completed",
-    annotatorId: "Nickname", annotatorPlaceholder: "Choose a nickname", privateNote: "Writing ratings are stored privately in the project database.",
-    loginKicker: "xACL-Era · WRITING QUALITY REVIEW", loginTitle: "Create or resume your writing-review profile",
+    annotatorId: "Nickname", annotatorPlaceholder: "Choose a nickname", privateNote: "Review responses are stored privately in the project database.",
+    loginKicker: "xACL-Era · DATASET INTEGRITY REVIEW", loginTitle: "Create or resume your review profile",
     loginDescription: "Choose a pseudonymous nickname. A private recovery code lets you resume on another device.",
     loginIdHint: "Use a nickname, not your real name or email.",
-    loginPrivacy: "Your nickname identifies your private writing-quality record. The recovery code is not stored in the rating record.",
+    loginPrivacy: "Your nickname identifies your private data-usability record. The recovery code is not stored in the rating record.",
     createProfileMode: "Create profile", restoreProfileMode: "Restore on another device", createProfileButton: "Create profile", restoreProfileButton: "Restore profile",
     recoveryCodeLabel: "Personal recovery code", recoveryCodePlaceholder: "Paste your recovery code", recoveryCodeHint: "Enter the 64-character code saved when your profile was created.",
     recoveryCodeTitle: "Save your recovery code", recoveryCodeIntro: "This code is shown once. Save it somewhere private before continuing; it is needed to restore your profile on another device.",
     recoveryNicknameLabel: "Nickname", downloadRecoveryCode: "Download recovery code", recoveryCodeAck: "I saved this code somewhere private.", continueToStudy: "Continue to the study",
     currentProfileTitle: "A profile is already available on this device", currentProfileLabel: "Continue as", currentProfileHint: "Continue uses this device session. You need your recovery code to restore the profile elsewhere; it cannot be shown again.", currentProfileUnknown: "Current profile", continueProfile: "Continue on this device", useAnotherProfile: "Use another profile",
-    preparingStudy: "Checking the study package and private writing-review service…",
+    preparingStudy: "Checking the study package and private review service…",
     readyToCreate: "Choose a nickname to create a profile.", readyToRestore: "Enter your nickname and recovery code to restore your profile.", currentProfileReady: "Your profile is ready on this device. Continue or switch profiles.",
     setupFailed: "The study could not be prepared. Retry setup or contact the study coordinator.", retrySetup: "Retry loading study",
     staticHashMismatch: "A frozen study file failed its integrity check. Scoring is locked until the package is restored.",
-    backendNotReady: "The writing-review service is not ready yet. Retry in a moment.",
+    backendNotReady: "The review service is not ready yet. Retry in a moment.",
     serviceUnavailable: "The private annotation service could not be reached. Check your connection and retry.",
-    guidanceLoadFailed: "The required writing-quality guidance is missing or could not be loaded. Scoring remains locked until the package is repaired.",
-    guidanceInvalid: "The writing-quality guidance is incomplete or has an unsupported format. Scoring remains locked until the package is repaired.",
-    guidanceRevisionLabel: "Guidance revision", recordInvalid: "The saved writing record does not match this protocol. Scoring is locked; contact the study coordinator.",
+    guidanceLoadFailed: "The required review guidance is missing or could not be loaded. Scoring remains locked until the package is repaired.",
+    guidanceInvalid: "The review guidance is incomplete or has an unsupported format. Scoring remains locked until the package is repaired.",
+    guidanceRevisionLabel: "Guidance revision", recordInvalid: "The saved review record does not match this protocol. Scoring is locked; contact the study coordinator.",
     annotatorRequired: "Enter a nickname.", invalidAnnotator: "Use 1–64 letters, numbers, underscores or hyphens. Do not use personal information.", recoveryCodeRequired: "Enter your recovery code.", invalidCredentials: "The nickname or recovery code was not accepted. Check both and try again.", nameTaken: "That nickname is already in use. Choose another one.", profileExists: "This device is already linked to a different profile. Continue with it, or use another profile before restoring.", registrationFailed: "Could not create the profile. Retry; the same recovery code will be reused for this attempt.", restoreFailed: "Could not restore this profile. Check the nickname and recovery code, then retry.", currentProfileFailed: "Could not load the profile on this device. Retry or restore with its recovery code.", switchAnnotator: "Switch profile",
     anonymousAuthUnavailable: "Private sign-in is not enabled for this study yet. Contact the study coordinator.",
-    switchingSave: "Saving your writing ratings before switching…", switchSaveFailed: "Could not safely switch because your changes are not saved. Your work remains open here; download a private recovery JSON if needed.",
-    allComplete: "All {count} papers are complete. The last paper is open for review.", loadingSession: "Loading writing-quality record…",
+    switchingSave: "Saving your review responses before switching…", switchSaveFailed: "Could not safely switch because your changes are not saved. Your work remains open here; download a private recovery JSON if needed.",
+    allComplete: "All {count} papers are complete. The last paper is open for review.", loadingSession: "Loading review record…",
     currentPaper: "CURRENT PAPER", saveNow: "Save now",
     previousPaper: "← Previous", nextPaper: "Next →", paperNavigation: "Paper navigation", compareLabel: "TARGET PDF · SAME-SOURCE READING AID", pdfComparison: "Target paper PDF",
-    targetOnlyScore: "Score main-paper writing on physical PDF pages 1–9, or all pages if shorter.", scopeCurrentCore: "Page {page} is within the core scoring window (physical PDF pages 1–{count}). References and appendices here are supporting context only.", scopeAllShort: "This paper has {count} pages; all available pages are within the core scoring window. References and appendices are supporting context only.", scopeAuxiliary: "Page {page} is auxiliary reference material, outside the core scoring window (physical PDF pages 1–9). Do not score later-page content.", expandViewers: "Expand target viewer", returnToAnnotation: "Return to ratings", syncPageTurns: "Sync page turns",
+    targetOnlyScore: "Check collected data on physical PDF pages 1–9, or all pages if shorter.", scopeCurrentCore: "Page {page} is within the assigned inspection window (physical PDF pages 1–{count}). References and appendices here are supporting context only.", scopeAllShort: "This paper has {count} pages; all available pages are within the assigned inspection window. References and appendices are supporting context only.", scopeAuxiliary: "Page {page} is auxiliary reference material, outside the assigned inspection window (physical PDF pages 1–9). Do not score later-page content.", expandViewers: "Expand target viewer", returnToAnnotation: "Return to ratings", syncPageTurns: "Sync page turns",
     targetPdf: "TARGET PDF", compiledArxiv: "Selected arXiv source version", referencePdf: "OPTIONAL AUDIT", officialConference: "Official conference PDF",
     openNewTab: "Open in new tab", openFullPdf: "Open full PDF in new tab", page: "Page", fit: "Fit", pdfWait: "Select a paper to view its target PDF.", firstPageReached: "First page reached", lastPageReached: "Last page reached",
-    pageCountPending: "Page count pending", rubricLabel: "WRITING-QUALITY RUBRIC", annotationTitle: "Source-level writing ratings",
+    pageCountPending: "Page count pending", rubricLabel: "DATA-USABILITY RUBRIC", annotationTitle: "Collected-data integrity ratings",
+    resourceAuditKicker: "SOURCE RESOURCE INVENTORY", resourceAuditTitle: "Non-text resource evidence",
+    resourceAuditScope: "This inventory covers the frozen source project, not verified page-by-page completeness or legibility. The official PDF is a separate reference.",
+    resourceAuditUnavailable: "The resource inventory could not be verified. This does not block the other ratings; use Uncertain for non-text assets if evidence is insufficient.",
+    resourceAuditDetails: "View listed file evidence and limitations", resourceStatusVerified: "File inventory checked",
+    resourceStatusPartial: "Partial file inventory", resourceStatusUnavailable: "Inventory unavailable",
+    resourceSummary: "{count} listed project files: {present} present, {missing} reported missing, {unknown} unknown; openability not checked for {unchecked}.",
+    resourceBindingVerified: "Frozen source-reference hashes are recorded as checked. This does not verify page-specific mapping or compilation equivalence.",
+    resourceBindingUnknown: "Source binding is unknown.", resourceBindingMismatch: "A source-reference hash differs. This alone does not establish data corruption; see the recorded check limitations.",
+    resourceNoPaper: "Select a paper to view its source-resource evidence.", resourceRepresentationFile: "External file", resourceRepresentationGenerated: "Generated from LaTeX",
+    resourceAvailabilityPresent: "Present in inventory", resourceAvailabilityMissing: "Reported missing", resourceAvailabilityUnknown: "Unknown",
+    resourceOpenabilityPassed: "Openability checked", resourceOpenabilityFailed: "Openability check failed", resourceOpenabilityNotChecked: "Openability not checked",
+    resourceInventoryFiles: "Listed files", resourceLimitations: "Inventory limitations",
+    naRulePrefix: "N/A may be used only when",
     scoreFor: "Rate", scoreScale: "Score definitions", uncertain: "Uncertain",
-    overallDirect: "Judge overall writing quality directly; do not average the other dimensions.",
-    versionDifferencesTitle: "Version differences (optional audit)", versionDifferencesHelp: "After completing the five writing ratings, you may inspect the official PDF and record observed differences. These observations never change writing scores or completion.",
+    overallDirect: "Judge overall data usability directly; do not average the other dimensions.",
+    versionDifferencesTitle: "Version differences (optional audit)", versionDifferencesHelp: "After completing the four core ratings, you may inspect the official PDF and record observed differences. These observations never change usability scores or completion.",
     versionNotesTitle: "Version notes", versionNotesPlaceholder: "Add brief context for the optional version observations.", versionNotesHelp: "Leave blank if no version observations were made.",
     optional: "Optional",
-    fullScopeTitle: "I reviewed the assigned main-paper scoring window",
-    fullScopeHelp: "Review physical PDF pages 1–9, or all available pages if the paper is shorter. Later pages remain available as optional context. References and appendices are not scored for themselves.",
-    markComplete: "Mark writing review complete", reopenPaper: "Reopen writing review", footerNotice: "Writing ratings apply to the selected LaTeX source. PDF visual integrity and the optional official-version audit are separate.",
-    protocolBanner: "New nine-page writing protocol. Earlier ratings remain preserved separately. Please rate this scope anew.",
+    fullScopeTitle: "I inspected the assigned main-paper data window",
+    fullScopeHelp: "Inspect physical PDF pages 1–9, or all available pages if the paper is shorter. Later pages remain available as optional context. References and appendices are not core-scored.",
+    markComplete: "Mark review complete", reopenPaper: "Reopen review", footerNotice: "Ratings concern collected-data integrity and usability. PDF visual quality and the optional official-version audit are separate.",
+    protocolBanner: "New data-usability protocol. Earlier ratings remain preserved separately. Please review this scope anew.",
     noPapersMatch: "No papers match these filters.", noTitle: "Untitled paper", noSession: "Load your annotator session to begin.",
-    sessionLoaded: "Writing-quality session loaded.", sessionLoadFailed: "Could not load the writing-quality record. Retry or restore with your recovery code.", manifestFailed: "Could not load the frozen paper manifest or writing rubric.",
-    rubricMissing: "The writing-quality rubric is missing or incomplete. Scoring is locked until the study package is repaired.",
+    sessionLoaded: "Review session loaded.", sessionLoadFailed: "Could not load the review record. Retry or restore with your recovery code.", manifestFailed: "Could not load the frozen paper manifest or usability rubric.",
+    rubricMissing: "The usability rubric is missing or incomplete. Scoring is locked until the study package is repaired.",
     noActivePaper: "Select a paper from the list to begin.", saved: "Saved", saving: "Saving…", unsaved: "Unsaved changes", saveFailed: "Save failed — recovery copy available",
     sessionNotLoaded: "Create or restore a profile to begin.", conflict: "Save conflict — this record changed elsewhere. Download the private recovery JSON before resolving.",
     savedAt: "Saved", saveOffline: "The private service could not be reached. Your latest edits are held in this browser; download a private recovery JSON.",
     downloadRecovery: "Download private recovery JSON", localRecovery: "A local unsaved recovery copy exists.", restoreRecovery: "Restore local copy", noSavedWork: "No saved work yet", noChanges: "No changes to save.",
     localConflict: "The server record is newer than this local copy. The local copy was not applied; download it to compare.",
-    recordRecoveryRejected: "The local recovery copy does not match the writing-quality protocol and was not applied.", recoveryRestored: "Local writing-quality recovery copy restored.",
-    completed: "Completed", noFullScope: "Confirm that you reviewed the assigned main-paper scoring window.", missingScores: "Rate all five writing dimensions before completing this paper.",
-    invalidAnnotation: "This paper contains an invalid writing rating. Review the ratings before saving.",
-    completedSaved: "Writing review marked complete and saved.", draftSaved: "Writing review returned to draft.",
+    recordRecoveryRejected: "The local recovery copy does not match the data-usability protocol and was not applied.", recoveryRestored: "Local review recovery copy restored.",
+    completed: "Completed", noFullScope: "Confirm that you inspected the assigned main-paper data window.", missingScores: "Answer all four core dimensions before completing this paper.",
+    invalidAnnotation: "This paper contains an invalid usability response. Review the ratings before saving.",
+    completedSaved: "Review marked complete and saved.", draftSaved: "Review returned to draft.",
     pageLabelTarget: "Target PDF page", pageLabelOfficial: "Optional official PDF page", canvasTarget: "Rendered target PDF page", canvasOfficial: "Rendered official PDF page",
     previousTarget: "Previous target page", nextTarget: "Next target page", previousReference: "Previous official PDF page", nextReference: "Next official PDF page", of: "of",
     fileNotFound: "This PDF path is missing or invalid in the manifest.", pdfLibFailed: "The local PDF viewer could not be loaded. Check that the packaged PDF.js files are present.",
-    renderFailed: "The browser viewer could not render this PDF. Open the same-source target PDF separately before judging the writing; use Uncertain only if evaluation remains blocked.",
-    pageUnavailable: "The browser viewer could not render this page. Check the same-source target PDF separately before judging writing quality.",
+    renderFailed: "The browser viewer could not render this PDF. Open the same-source target PDF separately before judging the collected data; use Uncertain only if evaluation remains blocked.",
+    pageUnavailable: "The browser viewer could not render this page. Check the same-source target PDF separately before judging collected-data integrity.",
     renderingPage: "Rendering page…", noStatus: "Not started", statusDraft: "Draft", statusCompleted: "Complete", genericError: "Something went wrong.",
   },
   zh: {
-    eyebrow: "研究标注", studyLabel: "研究项目", studyTitle: "xACL-Era · 源码写作质量", loading: "正在加载项目…", connecting: "正在连接…",
+    eyebrow: "研究标注", studyLabel: "研究项目", studyTitle: "xACL-Era · 数据完整性审查", loading: "正在加载项目…", connecting: "正在连接…",
     sampleSet: "论文样本", papers: "论文", searchPapers: "搜索论文", searchPlaceholder: "按标题或 ID 搜索",
     period: "时期", allPeriods: "全部时期", early: "早期", late: "晚期", reviewStatus: "标注状态",
     allStatuses: "所有状态", notStarted: "未开始", draft: "草稿", completed: "已完成",
-    annotatorId: "昵称", annotatorPlaceholder: "选择昵称", privateNote: "写作评分会私密地保存在项目数据库中。",
-    loginKicker: "xACL-Era · 写作质量复核", loginTitle: "创建或继续你的写作复核档案",
+    annotatorId: "昵称", annotatorPlaceholder: "选择昵称", privateNote: "审查结果会私密地保存在项目数据库中。",
+    loginKicker: "xACL-Era · 数据完整性审查", loginTitle: "创建或继续你的审查档案",
     loginDescription: "选择一个匿名昵称。跨设备恢复档案需要专属恢复码。",
     loginIdHint: "请使用昵称，不要填写真实姓名或电子邮箱。",
-    loginPrivacy: "昵称用于标识你的私密写作质量记录。恢复码不会写入评分记录。",
+    loginPrivacy: "昵称用于标识你的私密数据可用性记录。恢复码不会写入评分记录。",
     createProfileMode: "创建档案", restoreProfileMode: "在另一设备恢复", createProfileButton: "创建档案", restoreProfileButton: "恢复档案",
     recoveryCodeLabel: "个人恢复码", recoveryCodePlaceholder: "粘贴恢复码", recoveryCodeHint: "输入创建档案时保存的64位恢复码。",
     recoveryCodeTitle: "保存你的恢复码", recoveryCodeIntro: "恢复码只显示一次。继续前请将它保存在安全的私密位置；在另一台设备恢复档案需要此码。",
     recoveryNicknameLabel: "昵称", downloadRecoveryCode: "下载恢复码", recoveryCodeAck: "我已将恢复码保存在安全的私密位置。", continueToStudy: "进入研究标注",
     currentProfileTitle: "此设备上已有一个档案", currentProfileLabel: "继续使用", currentProfileHint: "继续使用此设备上的登录状态即可恢复。若要在其他设备恢复，必须使用恢复码；此码不会再次显示。", currentProfileUnknown: "当前档案", continueProfile: "在此设备继续", useAnotherProfile: "使用其他档案",
-    preparingStudy: "正在检查研究文件和私密写作复核服务…",
+    preparingStudy: "正在检查研究文件和私密审查服务…",
     readyToCreate: "选择昵称以创建档案。", readyToRestore: "输入昵称和恢复码以恢复档案。", currentProfileReady: "此设备上的档案已就绪。你可以继续或切换档案。",
     setupFailed: "研究环境未能准备完成。请重试，或联系研究协调人。", retrySetup: "重试加载研究",
     staticHashMismatch: "固定研究文件未通过完整性检查。恢复文件前，评分功能已锁定。",
-    backendNotReady: "私密写作复核服务尚未就绪，请稍后重试。", serviceUnavailable: "无法连接私密标注服务。请检查网络连接后重试。",
-    guidanceLoadFailed: "缺少必需的写作质量说明，或无法加载。请先修复随包文件，再开放评分。",
-    guidanceInvalid: "必需的写作质量说明不完整或格式不受支持。请先修复随包文件，再开放评分。",
-    guidanceRevisionLabel: "说明版本", recordInvalid: "已保存的写作记录与当前协议不符。评分已锁定，请联系研究协调人。",
+    backendNotReady: "私密审查服务尚未就绪，请稍后重试。", serviceUnavailable: "无法连接私密标注服务。请检查网络连接后重试。",
+    guidanceLoadFailed: "缺少必需的审查说明，或无法加载。请先修复随包文件，再开放评分。",
+    guidanceInvalid: "必需的审查说明不完整或格式不受支持。请先修复随包文件，再开放评分。",
+    guidanceRevisionLabel: "说明版本", recordInvalid: "已保存的审查记录与当前协议不符。评分已锁定，请联系研究协调人。",
     annotatorRequired: "请输入昵称。", invalidAnnotator: "昵称需为1–64位字母、数字、下划线或连字符。请勿使用个人信息。",
     recoveryCodeRequired: "请输入恢复码。", invalidCredentials: "昵称或恢复码不正确，请检查后重试。", nameTaken: "该昵称已被使用，请选择其他昵称。",
     profileExists: "此设备已关联到其他档案。请继续使用此档案，或先切换档案后再恢复。",
     registrationFailed: "无法创建档案。请重试；本次尝试会继续使用同一个恢复码。", restoreFailed: "无法恢复该档案。请检查昵称和恢复码后重试。",
     currentProfileFailed: "无法加载此设备上的档案。请重试，或使用恢复码恢复。", switchAnnotator: "切换档案",
     anonymousAuthUnavailable: "此研究尚未启用私密登录，请联系研究协调人。",
-    switchingSave: "正在保存写作评分，然后切换…", switchSaveFailed: "修改尚未保存，无法安全切换。当前评分仍保持打开；如有需要，请下载私密恢复 JSON。",
-    allComplete: "已完成全部 {count} 篇论文。最后一篇已打开供复核。", loadingSession: "正在加载写作质量记录…",
+    switchingSave: "正在保存审查结果，然后切换…", switchSaveFailed: "修改尚未保存，无法安全切换。当前结果仍保持打开；如有需要，请下载私密恢复 JSON。",
+    allComplete: "已完成全部 {count} 篇论文。最后一篇已打开供复核。", loadingSession: "正在加载审查记录…",
     currentPaper: "当前论文", saveNow: "立即保存",
     previousPaper: "← 上一篇", nextPaper: "下一篇 →", paperNavigation: "论文导航", compareLabel: "目标 PDF · 同源阅读辅助", pdfComparison: "目标论文 PDF",
-    targetOnlyScore: "评价目标 PDF 物理第1–9页的正文写作；若不足9页则评价全部页面。", scopeCurrentCore: "第{page}页位于核心评分范围（PDF物理第1–{count}页）。此范围内的参考文献和附录仅作辅助上下文。", scopeAllShort: "本文共{count}页，所有页面均在核心评分范围内。参考文献和附录仅作辅助上下文。", scopeAuxiliary: "第{page}页属于核心评分范围（PDF物理第1–9页）之外的辅助材料，不评价后续页面内容。", expandViewers: "展开目标查看器", returnToAnnotation: "返回评分", syncPageTurns: "同步翻页",
+    targetOnlyScore: "检查目标 PDF 物理第1–9页中的收集数据；若不足9页则检查全部页面。", scopeCurrentCore: "第{page}页位于指定检查范围（PDF物理第1–{count}页）。此范围内的参考文献和附录仅作辅助上下文。", scopeAllShort: "本文共{count}页，所有页面均位于指定检查范围。参考文献和附录仅作辅助上下文。", scopeAuxiliary: "第{page}页属于指定检查范围（PDF物理第1–9页）之外的辅助材料。", expandViewers: "展开目标查看器", returnToAnnotation: "返回评分", syncPageTurns: "同步翻页",
     targetPdf: "目标 PDF", compiledArxiv: "选定的 arXiv 源码版本", referencePdf: "选填核查", officialConference: "会议官方 PDF",
     openNewTab: "在新标签页打开", openFullPdf: "在新标签页打开完整 PDF", page: "页", fit: "适应窗口", pdfWait: "选择论文后即可查看目标 PDF。", firstPageReached: "已到第一页", lastPageReached: "已到最后一页",
-    pageCountPending: "等待读取页数", rubricLabel: "写作质量评分标准", annotationTitle: "源码写作评分",
+    pageCountPending: "等待读取页数", rubricLabel: "数据可用性评分标准", annotationTitle: "收集数据完整性评分",
     scoreFor: "评分", scoreScale: "分数定义", uncertain: "无法判断",
-    overallDirect: "直接判断总体写作质量，不要计算其他分项的平均值。",
-    versionDifferencesTitle: "版本差异（选填核查）", versionDifferencesHelp: "完成五项写作评分后，可检查官方 PDF 并记录观察到的差异。这些观察不会改变写作分数或完成状态。",
+    overallDirect: "直接判断总体数据可用性，不要计算其他分项的平均值。",
+    versionDifferencesTitle: "版本差异（选填核查）", versionDifferencesHelp: "完成四项核心评分后，可检查官方 PDF 并记录观察到的差异。这些观察不会改变数据可用性评分或完成状态。",
     versionNotesTitle: "版本说明", versionNotesPlaceholder: "可简要补充选填版本观察的背景。", versionNotesHelp: "未观察版本差异时请留空。",
     optional: "选填",
-    fullScopeTitle: "我已检查指定的正文评分范围", fullScopeHelp: "检查目标 PDF 物理第1–9页；若论文不足9页则检查全部页面。后续页面可选作上下文。参考文献和附录不单独评分。",
-    markComplete: "标记写作复核完成", reopenPaper: "重新打开写作复核", footerNotice: "写作评分针对选定的 LaTeX 源码。PDF 视觉完整性和选填官方版本核查单独记录。",
-    protocolBanner: "新的九页写作质量协议。此前评分仍单独保留。请按此范围重新评分。",
+    fullScopeTitle: "我已检查指定的正文数据范围", fullScopeHelp: "检查目标 PDF 物理第1–9页；若论文不足9页则检查全部页面。后续页面可作辅助参考。参考文献和附录不计核心分。",
+    markComplete: "标记审查完成", reopenPaper: "重新打开审查", footerNotice: "评分针对收集数据的完整性与可用性。PDF 视觉质量和选填官方版本核查单独记录。",
+    protocolBanner: "新的数据可用性协议。此前评分仍单独保留。请按此范围重新审查。",
     noPapersMatch: "没有符合筛选条件的论文。", noTitle: "无标题论文", noSession: "加载标注者会话后即可开始。",
-    sessionLoaded: "写作质量会话已加载。", sessionLoadFailed: "无法加载写作质量记录。请检查昵称和恢复码，或稍后重试。", manifestFailed: "无法加载冻结的论文清单或写作评分标准。",
-    rubricMissing: "写作质量评分标准缺失或不完整。修复研究包后才能评分。",
+    sessionLoaded: "审查会话已加载。", sessionLoadFailed: "无法加载审查记录。请检查昵称和恢复码，或稍后重试。", manifestFailed: "无法加载冻结的论文清单或数据可用性评分标准。",
+    rubricMissing: "数据可用性评分标准缺失或不完整。修复研究包后才能评分。",
     noActivePaper: "从列表中选择一篇论文开始。", saved: "已保存", saving: "保存中…", unsaved: "有未保存修改", saveFailed: "保存失败，可下载恢复副本",
     sessionNotLoaded: "创建或恢复档案后即可开始。", conflict: "保存冲突：此记录已在其他位置更新。请先下载私密恢复 JSON。",
     savedAt: "已保存", saveOffline: "无法连接私密标注服务。最新修改暂存在此浏览器中，请下载私密恢复 JSON。",
     downloadRecovery: "下载私密恢复 JSON", localRecovery: "检测到本地未保存的恢复副本。", restoreRecovery: "恢复本地副本", noSavedWork: "尚无已保存评分", noChanges: "没有需要保存的修改。",
     localConflict: "服务器记录版本高于本地副本。未应用本地副本；可下载后进行比较。",
-    recordRecoveryRejected: "本地恢复副本与写作质量协议不符，未应用。", recoveryRestored: "本地写作质量恢复副本已恢复。",
-    completed: "已完成", noFullScope: "请确认已检查指定的正文评分范围。", missingScores: "完成前请评价全部五个写作维度。",
-    invalidAnnotation: "此论文包含不符合当前协议的写作评分。请检查评分后再保存。",
-    completedSaved: "写作复核已标记为完成并保存。", draftSaved: "写作复核已恢复为草稿。",
+    recordRecoveryRejected: "本地恢复副本与数据可用性协议不符，未应用。", recoveryRestored: "本地审查恢复副本已恢复。",
+    completed: "已完成", noFullScope: "请确认已检查指定的正文数据范围。", missingScores: "完成前请回答全部四项核心维度。",
+    invalidAnnotation: "此论文包含不符合当前协议的可用性回答。请检查后再保存。",
+    completedSaved: "审查已标记为完成并保存。", draftSaved: "审查已恢复为草稿。",
     pageLabelTarget: "目标 PDF 页码", pageLabelOfficial: "选填官方 PDF 页码", canvasTarget: "已渲染的目标 PDF 页面", canvasOfficial: "已渲染的官方 PDF 页面",
     previousTarget: "目标 PDF 上一页", nextTarget: "目标 PDF 下一页", previousReference: "官方 PDF 上一页", nextReference: "官方 PDF 下一页", of: "/",
     fileNotFound: "清单中缺少此 PDF 路径或路径无效。", pdfLibFailed: "无法加载本地 PDF 查看器。请检查随包提供的 PDF.js 文件。",
-    renderFailed: "浏览器内查看器无法渲染此 PDF。请单独打开同源目标 PDF 后再评价写作；仅当评价仍受阻时选择“无法判断”。",
-    pageUnavailable: "浏览器内查看器无法显示此页。请单独检查同源目标 PDF 后再评价写作质量。",
+    renderFailed: "浏览器内查看器无法渲染此 PDF。请单独打开同源目标 PDF 后再评价收集数据；仅当评价仍受阻时选择“无法判断”。",
+    pageUnavailable: "浏览器内查看器无法显示此页。请单独检查同源目标 PDF 后再判断收集数据的完整性。",
     renderingPage: "正在渲染页面…", noStatus: "未开始", statusDraft: "草稿", statusCompleted: "完成", genericError: "发生错误。",
   },
 };
@@ -151,10 +163,10 @@ Object.assign(STRINGS.en, {
   auditOpen: "Open version audit (optional)",
   auditReopen: "Reopen version audit (optional)",
   auditClose: "Close version audit",
-  auditUnavailable: "Complete all five writing ratings before opening the official-version audit.",
-  auditSaveFailed: "The official-version audit stays closed until the completed writing review and exposure marker are saved. Resolve the save issue and retry.",
+  auditUnavailable: "Complete all four core ratings before opening the official-version audit.",
+  auditSaveFailed: "The official-version audit stays closed until the completed data-usability review and exposure marker are saved. Resolve the save issue and retry.",
   auditExposure: "Opening this audit is recorded as official-version exposure. This records the interface state, not what you may have read elsewhere.",
-  auxiliaryHelp: "Assess only the rendered target PDF. This check is separate from writing quality and never affects completion or caps any score.",
+  auxiliaryHelp: "Assess only the rendered target PDF. This optional check is separate from data usability and never affects completion or caps any score.",
   visualIssuesTitle: "Observed PDF issues (optional)",
   visualNotAssessed: "Not assessed",
   visualAssessed: "Assessed",
@@ -165,15 +177,39 @@ Object.assign(STRINGS.zh, {
   auditOpen: "打开版本核查（选填）",
   auditReopen: "重新打开版本核查（选填）",
   auditClose: "关闭版本核查",
-  auditUnavailable: "请先完成全部五项写作评分，再打开官方版本核查。",
-  auditSaveFailed: "已完成的写作复核及参考显示标记保存前，官方版本核查会保持关闭。请先解决保存问题再重试。",
+  auditUnavailable: "请先完成全部四项核心评分，再打开官方版本核查。",
+  auditSaveFailed: "数据可用性审查和参考显示标记成功保存前，官方版本核查会保持关闭。请先解决保存问题再重试。",
   auditExposure: "打开此核查会记录官方版本已显示。这只记录页面状态，不代表你在其他位置阅读过什么。",
-  auxiliaryHelp: "仅检查渲染后的目标 PDF。此项与写作质量分开，不影响完成状态，也不会限制任何分数。",
+  auxiliaryHelp: "仅检查渲染后的目标 PDF。此项与数据可用性分开，不影响完成状态，也不会限制任何分数。",
   visualIssuesTitle: "观察到的 PDF 问题（选填）",
   visualNotAssessed: "未评估",
   visualAssessed: "已评估",
   visualUncertainHelp: "仅当目标 PDF 无法可靠评估时选择“无法判断”。",
   clearVisualCheck: "清除视觉检查",
+  resourceAuditKicker: "源码资源清单",
+  resourceAuditTitle: "非文本资源证据",
+  resourceAuditScope: "此清单覆盖冻结的源码项目，不证明逐页资源完整或可读。官方 PDF 单独作为参考。",
+  resourceAuditUnavailable: "无法验证资源清单。这不会阻止其他评分；若非文本资源的证据不足，请选“无法判断”。",
+  resourceAuditDetails: "查看文件记录与局限",
+  resourceStatusVerified: "已检查文件清单",
+  resourceStatusPartial: "部分文件清单",
+  resourceStatusUnavailable: "清单不可用",
+  resourceSummary: "项目中列出 {count} 个文件：{present} 个存在，{missing} 个记录为缺失，{unknown} 个未知；其中 {unchecked} 个未检查是否可打开。",
+  resourceBindingVerified: "冻结源码引用的哈希记录显示已核查；这不证明逐页映射或编译等价。",
+  resourceBindingUnknown: "源码绑定状态未知。",
+  resourceBindingMismatch: "记录中的源码引用哈希不一致；这本身不能证明数据损坏，请查看检查局限。",
+  resourceNoPaper: "选择论文后查看对应的源码资源证据。",
+  resourceRepresentationFile: "外部文件",
+  resourceRepresentationGenerated: "由 LaTeX 生成",
+  resourceAvailabilityPresent: "清单记录存在",
+  resourceAvailabilityMissing: "记录为缺失",
+  resourceAvailabilityUnknown: "未知",
+  resourceOpenabilityPassed: "已检查可打开",
+  resourceOpenabilityFailed: "无法打开",
+  resourceOpenabilityNotChecked: "未检查是否可打开",
+  resourceInventoryFiles: "列出的文件",
+  resourceLimitations: "清单局限",
+  naRulePrefix: "N/A 仅可用于以下情况：",
 });
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -187,7 +223,7 @@ const element = (tag, className, text) => {
 const state = {
   language: "en",
   config: null, hosted: null, guidanceHash: null,
-  manifest: null, manifestHash: null, rubric: null, guidance: null, papers: [],
+  manifest: null, manifestHash: null, rubric: null, guidance: null, resourceAudit: null, resourceAuditIssue: "", papers: [],
   record: null, annotatorId: "", activeSampleId: null, activeIndex: -1,
   authMode: "create", currentProfileId: "", currentProfileRecord: null,
   profileSessionUnknown: false, pendingRegistration: null, recoveryReveal: null,
@@ -228,7 +264,9 @@ function guidanceIsComplete(guidance) {
     bilingualText(guidance.publication_notice?.title) && bilingualText(guidance.publication_notice?.text) &&
     bilingualText(guidance.details_title) && Array.isArray(guidance.details) &&
     guidance.details.length >= 1 && guidance.details.length <= 8 &&
-    guidance.details.every((item) => bilingualText(item?.title) && bilingualText(item?.text));
+    guidance.details.every((item) => bilingualText(item?.title) && bilingualText(item?.text)) &&
+    guidance.resource_audit?.path === "protocols/latex-data-usability-v1/resource-audit.json" &&
+    /^[a-f0-9]{64}$/.test(guidance.resource_audit.sha256);
 }
 function setLanguage(language) {
   const guidanceWasOpen = Boolean($("#guidance-details")?.open);
@@ -338,7 +376,7 @@ function hostedStartupErrorKey(error) {
     static_package_unavailable: "manifestFailed",
     crypto_unavailable: "manifestFailed",
     anonymous_auth_unavailable: "anonymousAuthUnavailable",
-    writing_record_invalid: "recordInvalid",
+    usability_record_invalid: "recordInvalid",
   })[error?.code] || "setupFailed";
 }
 
@@ -369,6 +407,8 @@ async function initialize() {
     state.manifestHash = assets.manifestHash;
     state.rubric = assets.rubric;
     state.guidance = assets.guidance;
+    state.resourceAudit = assets.resourceAudit;
+    state.resourceAuditIssue = assets.resourceAuditIssue;
     state.guidanceHash = assets.guidanceHash;
     state.guidanceReady = guidanceIsComplete(state.guidance);
     state.papers = assets.manifest.papers;
@@ -385,7 +425,7 @@ async function initialize() {
       const currentRecord = await hosted.currentAnnotations();
       if (currentRecord) {
         if (!isMatchingRecord(currentRecord, currentRecord.annotator_id)) {
-          throw Object.assign(new Error(), { code: "writing_record_invalid" });
+          throw Object.assign(new Error(), { code: "usability_record_invalid" });
         }
         state.currentProfileId = currentRecord.annotator_id;
         state.currentProfileRecord = normalizeRecord(currentRecord, currentRecord.annotator_id);
@@ -414,17 +454,20 @@ async function initialize() {
 }
 function rubricIsComplete(rubric) {
   if (!rubric || rubric.schema !== "xacl.latex-writing-quality-rubric.v1" || rubric.protocol_id !== WRITING_PROTOCOL_ID ||
-      rubric.version !== WRITING_9P_RUBRIC_VERSION || !bilingualText(rubric.title) || !bilingualText(rubric.scope) ||
+      rubric.version !== USABILITY_RUBRIC_VERSION || !bilingualText(rubric.title) || !bilingualText(rubric.scope) ||
       !Array.isArray(rubric.dimensions) || rubric.dimensions.length !== SCORE_KEYS.length ||
       !Array.isArray(rubric.version_difference_flags) || rubric.version_difference_flags.length !== FLAG_KEYS.length ||
       !Array.isArray(rubric.visual_issue_flags) || rubric.visual_issue_flags.length !== VISUAL_ISSUE_KEYS.length) return false;
   const dimensions = new Map(rubric.dimensions.map((item) => [item.key, item]));
   const dimensionsReady = SCORE_KEYS.every((key) => {
     const item = dimensions.get(key);
-    return item && typeof item.label === "string" && item.label.trim() &&
+    const allowsNA = key === "nontext_asset_integrity";
+    return item && item.allows_na === allowsNA && typeof item.label === "string" && item.label.trim() &&
       typeof item.label_zh === "string" && item.label_zh.trim() &&
       typeof item.definition === "string" && item.definition.trim() &&
       typeof item.definition_zh === "string" && item.definition_zh.trim() &&
+      (!allowsNA || (typeof item.na_definition === "string" && item.na_definition.trim() &&
+        typeof item.na_definition_zh === "string" && item.na_definition_zh.trim())) &&
       item.scale && item.scale_zh && [1, 2, 3, 4, 5].every((score) =>
         typeof item.scale[String(score)] === "string" && item.scale[String(score)].trim() &&
         typeof item.scale_zh[String(score)] === "string" && item.scale_zh[String(score)].trim());
@@ -444,7 +487,8 @@ function rubricIsComplete(rubric) {
     rubric.version_difference_flags.every((item) => typeof item.label === "string" && item.label.trim() && typeof item.label_zh === "string" && item.label_zh.trim()) &&
     new Set(visualKeys).size === VISUAL_ISSUE_KEYS.length && VISUAL_ISSUE_KEYS.every((key) => visualKeys.includes(key)) &&
     rubric.visual_issue_flags.every((item) => typeof item.label === "string" && item.label.trim() && typeof item.label_zh === "string" && item.label_zh.trim()) &&
-    auxiliaryReady && rubric.dimensions.every((item) => SCORE_KEYS.includes(item.key));
+    auxiliaryReady && rubric.dimensions.every((item) => SCORE_KEYS.includes(item.key)) &&
+    JSON.stringify(rubric.core_score_values) === JSON.stringify([1, 2, 3, 4, 5, "uncertain"]);
 }
 function showRubricMissing() {
   $("#guidance-scope").textContent = t("rubricMissing");
@@ -869,7 +913,7 @@ function isMatchingRecord(record, annotatorId) {
   }) === null;
 }
 function normalizeRecord(record, annotatorId) {
-  if (!isMatchingRecord(record, annotatorId)) throw Object.assign(new Error(), { code: "writing_record_invalid" });
+  if (!isMatchingRecord(record, annotatorId)) throw Object.assign(new Error(), { code: "usability_record_invalid" });
   return structuredClone(record);
 }
 
@@ -1001,11 +1045,13 @@ function renderBlankAnnotation() {
   $("#validation-message").removeAttribute("data-kind");
   renderAuxiliaryCheck(null);
   renderAuditControls(null);
+  renderResourceAudit();
   for (const side of ["compiled", "official"]) clearViewer(side, t("pdfWait"));
 }
 function renderAnnotation() {
   const row = activeAnnotation();
   if (!row) { renderBlankAnnotation(); return; }
+  renderResourceAudit();
   for (const key of SCORE_KEYS) {
     const score = row.scores?.[key] ?? null;
     $$('[data-score-key="' + key + '"]').forEach((button) => {
@@ -1056,6 +1102,67 @@ function renderGuidance() {
   }));
   $("#guidance-revision").textContent = guidance.version;
 }
+function renderResourceAudit() {
+  const status = $("#resource-audit-status");
+  const summary = $("#resource-audit-summary");
+  const warning = $("#resource-audit-warning");
+  const assetsNode = $("#resource-audit-assets");
+  const limitationsNode = $("#resource-audit-limitations");
+  const details = $("#resource-audit-details");
+  if (!status || !summary || !assetsNode || !limitationsNode || !details) return;
+  const paper = activePaper();
+  const entry = paper ? state.resourceAudit?.papers?.[paper.sample_id] : null;
+  const reportAvailable = Boolean(state.resourceAudit && entry);
+  const inventoryStatus = reportAvailable ? entry.status : "unavailable";
+  status.dataset.status = inventoryStatus;
+  status.textContent = t(inventoryStatus === "verified_inventory" ? "resourceStatusVerified" : inventoryStatus === "partial" ? "resourceStatusPartial" : "resourceStatusUnavailable");
+  if (!paper) {
+    summary.textContent = t("resourceNoPaper");
+    warning.classList.add("is-hidden");
+    details.classList.add("is-hidden");
+    assetsNode.replaceChildren();
+    limitationsNode.replaceChildren();
+    return;
+  }
+  details.classList.toggle("is-hidden", !reportAvailable);
+  warning.classList.toggle("is-hidden", reportAvailable);
+  warning.textContent = reportAvailable ? "" : t("resourceAuditUnavailable");
+  assetsNode.replaceChildren();
+  limitationsNode.replaceChildren();
+  if (!reportAvailable) {
+    summary.textContent = t("resourceAuditUnavailable");
+    return;
+  }
+  const files = entry.assets;
+  const counts = {
+    present: files.filter((asset) => asset.availability === "present").length,
+    missing: files.filter((asset) => asset.availability === "missing").length,
+    unknown: files.filter((asset) => asset.availability === "unknown").length,
+    unchecked: files.filter((asset) => asset.openability === "not_checked").length,
+  };
+  summary.textContent = t("resourceSummary", { count: files.length, ...counts });
+  const binding = entry.source_binding?.status || "unknown";
+  const bindingMessage = t(binding === "verified" ? "resourceBindingVerified" : binding === "mismatch" ? "resourceBindingMismatch" : "resourceBindingUnknown");
+  assetsNode.append(element("p", "resource-binding-note", bindingMessage));
+  assetsNode.append(element("h4", "resource-list-title", t("resourceInventoryFiles") + " (" + files.length + ")"));
+  const list = element("ul", "resource-asset-list");
+  for (const asset of files) {
+    const row = element("li", "resource-asset-row");
+    row.dataset.availability = asset.availability;
+    row.dataset.openability = asset.openability;
+    const path = element("code", "resource-asset-path", asset.source_path);
+    const representation = asset.representation === "generated_latex" ? "resourceRepresentationGenerated" : "resourceRepresentationFile";
+    const availability = asset.availability === "present" ? "resourceAvailabilityPresent" : asset.availability === "missing" ? "resourceAvailabilityMissing" : "resourceAvailabilityUnknown";
+    const openability = asset.openability === "passed" ? "resourceOpenabilityPassed" : asset.openability === "failed" ? "resourceOpenabilityFailed" : "resourceOpenabilityNotChecked";
+    row.append(path, element("span", "resource-asset-kind", asset.kind + " · " + t(representation)),
+      element("span", "resource-asset-state", t(availability)), element("span", "resource-asset-state", t(openability)));
+    if (asset.bytes !== undefined) row.append(element("span", "resource-asset-size", asset.bytes.toLocaleString() + " bytes"));
+    list.append(row);
+  }
+  assetsNode.append(list);
+  limitationsNode.append(element("li", "", t("resourceAuditScope")));
+  for (const limitation of entry.limitations) limitationsNode.append(element("li", "", limitation));
+}
 function renderScoreCards() {
   const cards = SCORE_KEYS.map((key) => {
     const dimension = getDimension(key);
@@ -1076,6 +1183,12 @@ function renderScoreCards() {
       options.append(makeScoreButton(key, String(score), String(score), state.language === "zh" ? dimension.scale_zh[String(score)] : dimension.scale[String(score)]));
     }
     options.append(makeScoreButton(key, "uncertain", t("uncertain"), t("uncertain")));
+    if (dimension.allows_na === true) {
+      const naLabel = state.language === "zh" ? "不适用" : "N/A";
+      const naDefinition = state.language === "zh" ? dimension.na_definition_zh : dimension.na_definition;
+      options.append(makeScoreButton(key, "na", naLabel, naDefinition));
+      card.append(element("p", "score-na-rule", t("naRulePrefix") + " " + naDefinition));
+    }
     card.append(options);
 
     const details = element("details", "score-scale-details");
@@ -1089,7 +1202,7 @@ function renderScoreCards() {
     }
     details.append(list);
     card.append(details);
-    if (key === "overall_writing_quality") card.append(element("p", "overall-rule", t("overallDirect")));
+    if (key === "overall_data_usability") card.append(element("p", "overall-rule", t("overallDirect")));
     return card;
   });
   $("#rubric-scoring").replaceChildren(...cards);
@@ -1359,8 +1472,9 @@ function setScore(key, value) {
   const row = activeAnnotation();
   if (!row) return;
   const current = row.scores?.[key] ?? null;
-  const next = String(current) === value ? null : (value === "uncertain" ? value : Number(value));
-  if (next !== null && ![1, 2, 3, 4, 5, "uncertain"].includes(next)) return;
+  const next = String(current) === value ? null : (value === "uncertain" || value === "na" ? value : Number(value));
+  const naAllowed = getDimension(key)?.allows_na === true;
+  if (next !== null && ![1, 2, 3, 4, 5, "uncertain", ...(naAllowed ? ["na"] : [])].includes(next)) return;
   mutateActive((annotation) => { annotation.scores[key] = next; });
   renderAnnotation();
 }
@@ -1572,7 +1686,7 @@ async function flushSave(manual) {
 }
 async function saveLoop() {
   if (!isMatchingRecord(state.record, state.annotatorId)) {
-    state.saveError = "writing_record_invalid";
+    state.saveError = "usability_record_invalid";
     const message = t("recordInvalid");
     setSaveState("error", message);
     setToast(message, "error", 7000);
@@ -1629,7 +1743,7 @@ function storeLocalRecovery() {
   if (!state.record || !state.annotatorId || !state.manifestHash) return;
   try {
     const recovery = {
-      schema: "xacl.latex-writing-quality-9p-recovery.v1",
+      schema: "xacl.latex-data-usability-recovery.v1",
       protocol_id: WRITING_PROTOCOL_ID,
       saved_revision: state.record.revision,
       unsaved: true,
@@ -1652,7 +1766,7 @@ function readLocalRecovery() {
     const value = localStorage.getItem(stableLocalKey());
     if (!value) return null;
     const parsed = JSON.parse(value);
-    const valid = parsed?.schema === "xacl.latex-writing-quality-9p-recovery.v1" &&
+    const valid = parsed?.schema === "xacl.latex-data-usability-recovery.v1" &&
       parsed.protocol_id === WRITING_PROTOCOL_ID && parsed.unsaved === true &&
       Number.isSafeInteger(parsed.saved_revision) && isMatchingRecord(parsed.record, state.annotatorId) &&
       parsed.saved_revision === parsed.record.revision;
@@ -1736,7 +1850,7 @@ function downloadRecovery() {
   if (!state.record) return;
   const record = state.localRecovery?.record && state.localRecoveryConflict ? state.localRecovery.record : state.record;
   const recovery = {
-    schema: "xacl.latex-writing-quality-9p-recovery.v1",
+    schema: "xacl.latex-data-usability-recovery.v1",
     protocol_id: WRITING_PROTOCOL_ID,
     saved_revision: record.revision,
     unsaved: true,

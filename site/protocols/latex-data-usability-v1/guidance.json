@@ -1,0 +1,111 @@
+{
+  "schema": "xacl.latex-writing-quality-guidance.v1",
+  "version": "latex-data-usability-guidance-20261104-v1",
+  "protocol_id": "latex-data-usability-v1",
+  "title": {
+    "en": "Quick guidance",
+    "zh": "快速说明"
+  },
+  "scope": {
+    "en": "Inspect main-paper data on physical PDF pages 1–9 (all pages if shorter). Full appendix and later pages are auxiliary reference.",
+    "zh": "检查 PDF 前至多9个物理页面内正文数据；完整附录及后续页面仅作辅助参考。"
+  },
+  "quick_rules": [
+    {
+      "en": "Inspect the first 9 physical pages (all pages if shorter) for collected-data defects. Do not grade the original author's prose style, logic, novelty or scientific correctness.",
+      "zh": "检查前至多9个物理页面内的数据缺陷，不评价原作者文风、逻辑、创新或科学正确性。"
+    },
+    {
+      "en": "Give four core ratings. Only non-text assets allow N/A when no relevant objects exist; use Uncertain when evidence is insufficient, not when a defect is confirmed.",
+      "zh": "完成四项核心评分。只有非文本资源在范围内无相关对象时可选 N/A；证据不足选无法判断，已确认缺陷按程度评分。"
+    },
+    {
+      "en": "PDF visual quality is a separate optional fifth check. Overall is a direct usability judgment, not an average or automatically capped total.",
+      "zh": "PDF 视觉质量为独立选填第五项；总体可用性直接判断，不求平均或自动限分。"
+    },
+    {
+      "en": "Full PDFs and appendices remain available as auxiliary reference. Normal conference-version revisions and the planned page-nine boundary are not data defects.",
+      "zh": "完整 PDF 和附录可辅助查阅；正常会议版本修订及预设第9页边界不算数据缺陷。"
+    }
+  ],
+  "publication_notice": {
+    "title": {
+      "en": "Data usability audit · first 9 pages",
+      "zh": "数据可用性审查 · 前至多9页"
+    },
+    "text": {
+      "en": "Score collected main-paper data, not native writing quality or exact conference-version alignment. Appendix, references and later pages are auxiliary. Resource inventories cover their declared scope only.",
+      "zh": "评收集到的正文数据，不评原生写作或与会议版本精确对齐；附录、参考文献及后续页面仅辅助参考，资源清单只覆盖其声明范围。"
+    }
+  },
+  "details_title": {
+    "en": "Detailed guidance",
+    "zh": "详细说明"
+  },
+  "details": [
+    {
+      "title": {
+        "en": "What to inspect",
+        "zh": "检查内容"
+      },
+      "text": {
+        "en": "Scan the assigned window for text loss/corruption, broken structure and unusable technical objects. Check suspicious passages or resource evidence as needed; a full scientific peer review is not required. Confirm only the scope you inspected.",
+        "zh": "浏览窗口内文字丢失或乱码、结构损坏与技术对象不可用等问题，按需细查疑点与资源证据；不要求完整科学同行评审，只确认实际检查范围。"
+      }
+    },
+    {
+      "title": {
+        "en": "Assets and evidence",
+        "zh": "资源与证据"
+      },
+      "text": {
+        "en": "A source resource inventory supports file-level checks; it does not prove page-specific completeness, actual pixel legibility or correct association. Unused files may appear. Generated tables, math and TikZ need no separate images. Missing evidence means unknown, not absent.",
+        "zh": "源码资源清单支持文件级检查，不证明逐页完整性、像素可读或关联正确；可能包含未使用文件。表格、数学与 TikZ 无需独立图片；证据缺失表示未知，不表示资源缺失。"
+      }
+    },
+    {
+      "title": {
+        "en": "Scope boundaries",
+        "zh": "范围边界"
+      },
+      "text": {
+        "en": "Count physical PDF pages from 1, not proceedings numbers. Exclude reference and appendix sections even inside the window. Do not penalize a later conclusion, continuation after page 9 or reasonable appendix deferral. Full appendix reading is not required.",
+        "zh": "从 PDF 首页计物理页，不按论文集页码。窗口内参考文献和附录仍不计核心分；后续结论、第9页之后续写与合理附录分配不扣分，无需读完整附录。"
+      }
+    },
+    {
+      "title": {
+        "en": "Separate defects from uncertainty",
+        "zh": "区分缺陷与不确定"
+      },
+      "text": {
+        "en": "Rate confirmed data damage by its repair burden. A rendering-only problem belongs in the visual check; use intact same-source content for core ratings where available. If evidence prevents judgment, choose Uncertain. Do not invent source checks or treat native awkward writing as collection damage.",
+        "zh": "根据已确认数据损坏的修复负担评分。纯渲染问题放视觉检查，有完整同源内容时据此评核心分；受证据限制则选无法判断。不虚构源码检查，也不把原生不流畅写作当收集损坏。"
+      }
+    },
+    {
+      "title": {
+        "en": "Optional version audit",
+        "zh": "可选版本观察"
+      },
+      "text": {
+        "en": "After core completion, you may reveal the official PDF for a separate version audit. Submission/camera-ready changes and publisher headers/footers do not lower data-usability scores by themselves.",
+        "zh": "核心完成后可显示官方 PDF 单独观察版本。投稿与定稿修订以及出版页眉页脚本身不降低数据可用性分。"
+      }
+    },
+    {
+      "title": {
+        "en": "New ratings, preserved history",
+        "zh": "新评分与保留历史"
+      },
+      "text": {
+        "en": "Earlier writing/alignment ratings remain archived. This protocol starts blank and requires four answers plus inspection confirmation. Visual checks, version observations and notes are optional.",
+        "zh": "旧写作与对齐评分保留归档；本协议从空白开始，四项回答加检查确认即可完成。视觉检查、版本观察与备注均选填。"
+      }
+    }
+  ],
+  "resource_audit": {
+    "path": "protocols/latex-data-usability-v1/resource-audit.json",
+    "sha256": "996d511463f812382995337780ade405710d9281df96e70d24cf2c2ea7019703"
+  }
+}

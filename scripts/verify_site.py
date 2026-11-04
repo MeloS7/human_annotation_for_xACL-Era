@@ -30,6 +30,10 @@ writing9p_lock = json.loads((root / "writing9p-assets.json").read_text())
 for name, expected in writing9p_lock["files"].items():
     if hashlib.sha256((site / name).read_bytes()).hexdigest() != expected:
         raise SystemExit(f"Nine-page writing asset mismatch: {name}")
+usability_lock = json.loads((root / "usability-assets.json").read_text())
+for name, expected in usability_lock["files"].items():
+    if hashlib.sha256((site / name).read_bytes()).hexdigest() != expected:
+        raise SystemExit(f"Data usability asset mismatch: {name}")
 
 
 def verify_protocol(protocol_id, protocol_config, protocol_lock):
@@ -61,9 +65,15 @@ assert config["schema"] == "xacl.hosted-config.v3"
 writing_archive_config = json.loads((site / "protocols/latex-writing-quality-v1/config.json").read_text())
 archived_contract, archived_rubric = verify_protocol("latex-writing-quality-v1", writing_archive_config, writing_lock)
 assert (root / "docs/latex-writing-quality-v1/rubric.json").read_bytes() == (site / writing_archive_config["rubric_path"]).read_bytes()
-protocol_id = "latex-writing-quality-9p-v1"
-contract, rubric = verify_protocol(protocol_id, config, writing9p_lock)
-assert len(rubric["dimensions"]) == 5 and contract["na_keys"] == []
+writing9p_archive_config = json.loads((site / "protocols/latex-writing-quality-9p-v1/config.json").read_text())
+old9p_contract, old9p_rubric = verify_protocol("latex-writing-quality-9p-v1", writing9p_archive_config, writing9p_lock)
+assert len(old9p_rubric["dimensions"]) == 5 and old9p_contract["na_keys"] == []
+assert (root / "docs/latex-writing-quality-9p-v1/rubric.json").read_bytes() == (site / writing9p_archive_config["rubric_path"]).read_bytes()
+protocol_id = "latex-data-usability-v1"
+contract, rubric = verify_protocol(protocol_id, config, usability_lock)
+assert contract["score_keys"] == ["text_integrity_readability", "document_structural_integrity", "nontext_asset_integrity", "overall_data_usability"]
+assert len(rubric["dimensions"]) == 4 and contract["na_keys"] == ["nontext_asset_integrity"]
+assert all(d["scale"].keys() == {"1", "2", "3", "4", "5"} for d in rubric["dimensions"])
 assert "visual_integrity" not in contract["score_keys"]
 assert [flag["key"] for flag in rubric["visual_issue_flags"]] == contract["visual_issue_keys"]
 assert rubric["auxiliary_pdf_visual_integrity"]["included_in_core_scores"] is False
@@ -79,17 +89,39 @@ judge_template = json.loads((root / f"docs/{protocol_id}/judge-output-template.j
 assert judge_template["protocol_id"] == protocol_id
 assert judge_template["rubric_version"] == rubric["version"]
 assert judge_template["scope_id"] == scope["scope_id"]
-assert judge_template["input_condition"] == "source_plus_pdf_pages"
+assert judge_template["input_condition"] == "source_plus_pdf_pages_and_resource_report"
 assert list(judge_template["core_scores"]) == contract["score_keys"]
 assert all(value is None for value in judge_template["core_scores"].values()), "Templates must not be mistaken for ratings"
 for name in ["human-instructions.txt", "judge-system.txt", "judge-input-template.md", "rubric-for-raters.md"]:
     assert (root / f"docs/{protocol_id}/{name}").is_file()
+raters_text = (root / f"docs/{protocol_id}/rubric-for-raters.md").read_text()
+judge_text = (root / f"docs/{protocol_id}/judge-system.txt").read_text()
+for dimension in rubric["dimensions"]:
+    assert dimension["label"] in raters_text
+    assert all(anchor in raters_text for anchor in dimension["scale"].values())
+    assert dimension["key"] in judge_text
+assert list(judge_template["judge_audit"]) == contract["score_keys"]
+guidance = json.loads((site / config["guidance_path"]).read_text())
+report_ref = guidance["resource_audit"]
+report_path = site / report_ref["path"]
+assert report_path.resolve().is_relative_to(site.resolve())
+assert report_ref["sha256"] == hashlib.sha256(report_path.read_bytes()).hexdigest()
+report = json.loads(report_path.read_text())
+assert report["schema"] == "xacl.nontext-resource-audit.v1"
+assert report["manifest_sha256"] == config["manifest_sha256"]
+assert report["scope_id"] == "whole-target-source-project-inventory-v1"
+assert set(report["papers"]) == {p["sample_id"] for p in manifest["papers"]}
+for paper in manifest["papers"]:
+    entry = report["papers"][paper["sample_id"]]
+    assert entry["paper_id"] == paper["paper_id"]
+    assert entry["selected_vN"] == paper["selected_vN"]
+    assert entry["compiled_pdf_sha256"] == paper["compiled_pdf"]["sha256"]
 assert config["supabase_publishable_key"].startswith("sb_publishable_")
 assert config["auth_mode"] == "anonymous_recovery_v1"
 assert (site / "vendor/supabase/supabase.js").is_file()
 assert "sb_secret_" not in (site / "config.json").read_text()
 assert len(list((site / "pdfs").rglob("*.pdf"))) == 60
-for name in ["index.html", "app.js", "cloud.mjs", "score-protocol.mjs", "quality-protocol.mjs", "writing-protocol.mjs", "writing9p-protocol.mjs", "styles.css", "vendor/pdfjs/legacy/build/pdf.mjs", "vendor/pdfjs/legacy/build/pdf.worker.mjs"]:
+for name in ["index.html", "app.js", "cloud.mjs", "score-protocol.mjs", "quality-protocol.mjs", "writing-protocol.mjs", "writing9p-protocol.mjs", "usability-protocol.mjs", "styles.css", "vendor/pdfjs/legacy/build/pdf.mjs", "vendor/pdfjs/legacy/build/pdf.worker.mjs"]:
     assert (site / name).is_file(), name
 assert not (site / "outputs").exists()
-print("Verified frozen cohort and 60 PDFs, all previous protocol archives, shared nine-page scope, and five writing scores with an independent optional visual check.")
+print("Verified frozen cohort and 60 PDFs, archived protocols, four shared data-usability ratings, independent visual check and bound source-resource inventory.")

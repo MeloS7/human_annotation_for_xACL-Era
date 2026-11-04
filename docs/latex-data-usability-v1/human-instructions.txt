@@ -1,0 +1,11 @@
+Audit the collected manuscript data, not how well the original authors write.
+
+Inspect main-paper content on physical PDF pages 1–9, or all pages if shorter. Look for missing/corrupted/repeated text, broken content ordering and unusable figures, tables, display equations or diagrams. You need not fully study or peer-review the scientific argument. Complete four 1–5 ratings, or use Uncertain when the evidence is insufficient, and confirm the inspected window.
+
+Only Non-text Asset Integrity & Usability permits N/A: no relevant non-text objects occur in the inspected main-paper scope. A missing expected object is a defect, not N/A. Source-generated tables, equations and TikZ need no separate image file. The resource panel reports its actual check coverage; a whole-project inventory does not prove which objects belong to the first nine pages, correct association or pixel legibility. Use Uncertain for a material unresolved evidence gap.
+
+Do not penalize the original prose style, grammar, logic, novelty or scientific correctness. Do not demand a fixed section template. The planned page-nine boundary, later conclusion and reasonable appendix deferral are not defects. The complete PDF, appendix and references remain browsable as auxiliary context, without requiring full-appendix review.
+
+Overall Data Usability is a direct judgment, not an average. PDF Visual Integrity & Legibility is a separate optional fifth check for inspected target pages. A display-only problem does not prove source damage; if it blocks a core judgment and no readable same-source evidence resolves it, choose Uncertain.
+
+The official PDF can be opened after core completion for an optional, separate version audit. Ordinary submission/camera-ready revisions and publisher headers/footers are not data defects by themselves and do not automatically lower core scores. Earlier protocols remain archived; these ratings start blank.

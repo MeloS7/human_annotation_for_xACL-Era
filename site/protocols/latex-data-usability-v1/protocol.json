@@ -1,0 +1,94 @@
+{
+  "protocol_id": "latex-data-usability-v1",
+  "record_schema": "xacl.latex-data-usability-annotations.v1",
+  "record_keys": [
+    "schema",
+    "protocol_id",
+    "dataset_id",
+    "manifest_sha256",
+    "rubric_version",
+    "annotator_id",
+    "revision",
+    "created_at",
+    "updated_at",
+    "annotations"
+  ],
+  "annotation_keys": [
+    "scores",
+    "auxiliary_checks",
+    "version_differences",
+    "version_notes",
+    "reference_exposed",
+    "reviewed_full_scope",
+    "status",
+    "updated_at"
+  ],
+  "score_keys": [
+    "text_integrity_readability",
+    "document_structural_integrity",
+    "nontext_asset_integrity",
+    "overall_data_usability"
+  ],
+  "na_keys": [
+    "nontext_asset_integrity"
+  ],
+  "visual_issue_keys": [
+    "missing_glyphs",
+    "overlap",
+    "clipping",
+    "unexpected_blank_regions",
+    "unreadable_objects"
+  ],
+  "version_difference_keys": [
+    "text_revision",
+    "scientific_content_revision",
+    "technical_objects_revision",
+    "structure_revision",
+    "references_revision",
+    "appendix_revision",
+    "identity_uncertain"
+  ],
+  "pdf_visual_shape": {
+    "keys": [
+      "status",
+      "score",
+      "issue_codes"
+    ],
+    "statuses": [
+      "not_assessed",
+      "assessed"
+    ],
+    "not_assessed": {
+      "score": null,
+      "issue_codes": []
+    },
+    "assessed_score_values": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      "uncertain"
+    ]
+  },
+  "reference_exposed_rule": "Boolean, initially false; monotonic false to true. Opening the official audit after core completion records true; subsequent core edits retain it. This logs interface exposure, not actual reading or external access.",
+  "completion_rule": "Four non-null core responses (1–5 or uncertain; only nontext_asset_integrity also permits na) plus reviewed_full_scope=true. The confirmation concerns inspection of the assigned main-paper window, not a complete scientific reading. Optional visual/version checks do not gate completion.",
+  "study_id": "revisionlens-alignment30-v1",
+  "manifest_sha256": "d60e722740919ee30896e2c4a84df256970c0b67c36e831af18a3a68ed3df071",
+  "rubric_version": "latex-data-usability-rubric-v1",
+  "rubric_sha256": "25936187e5e55acdc4783b6cf597b7792fba7efe3ea4a093e03c40caaf0e86c0",
+  "guidance_version": "latex-data-usability-guidance-20261104-v1",
+  "guidance_sha256": "37ea7993b18649afdc5491be3a54cc9914c9bc0d1901cbff58ce5803deee7468",
+  "rpc_prefix": "xacl_usability_",
+  "scope_policy": {
+    "scope_id": "target-pdf-first9-maintext-v1",
+    "page_numbering": "physical_pdf_pages_1_based",
+    "first_page": 1,
+    "last_page_inclusive": 9,
+    "short_pdf_rule": "all_existing_pages",
+    "primary": "Integrity and usability of collected main-paper text, structure and non-text objects visible within physical target PDF pages 1 through min(9, total_pages), with matching active LaTeX and supplied resource evidence.",
+    "supporting": "Complete target PDF, references, appendices and later pages remain available as auxiliary reference. References and appendices are not core-scored even inside the window. A whole-project resource inventory is supporting evidence, not a page-specific object-completeness proof.",
+    "boundary_rule": "The planned window cutoff, later conclusion, cross-page continuation and reasonable appendix deferral are not defects. Do not demand a fixed section template or judge unobserved whole-paper completeness.",
+    "completion": "Inspect the assigned main-paper window for observable data defects, without reviewing scientific merit or fully studying its argument. Confirm this window, not the complete article/appendix. Missing assessment evidence is uncertainty, not an inferred data defect."
+  }
+}

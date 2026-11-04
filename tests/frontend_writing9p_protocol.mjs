@@ -20,10 +20,10 @@ import {
 } from "../site/writing9p-protocol.mjs";
 
 const siteRoot = new URL("../site/", import.meta.url);
-const config = JSON.parse(await readFile(new URL("config.json", siteRoot), "utf8"));
+const config = JSON.parse(await readFile(new URL("protocols/latex-writing-quality-9p-v1/config.json", siteRoot), "utf8"));
 const manifest = JSON.parse(await readFile(new URL("manifest.json", siteRoot), "utf8"));
 const assetBytes = new Map([
-  ["config.json", new Uint8Array(await readFile(new URL("config.json", siteRoot)))],
+  ["config.json", new Uint8Array(await readFile(new URL("protocols/latex-writing-quality-9p-v1/config.json", siteRoot)))],
   ["manifest.json", new Uint8Array(await readFile(new URL("manifest.json", siteRoot)))],
   [config.rubric_path, new Uint8Array(await readFile(new URL(config.rubric_path, siteRoot)))],
   [config.guidance_path, new Uint8Array(await readFile(new URL(config.guidance_path, siteRoot)))],

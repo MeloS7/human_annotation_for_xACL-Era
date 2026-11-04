@@ -1,0 +1,11 @@
+{
+  "schema": "xacl.usability-assets.v1",
+  "protocol_id": "latex-data-usability-v1",
+  "files": {
+    "protocols/latex-data-usability-v1/rubric.json": "25936187e5e55acdc4783b6cf597b7792fba7efe3ea4a093e03c40caaf0e86c0",
+    "protocols/latex-data-usability-v1/guidance.json": "37ea7993b18649afdc5491be3a54cc9914c9bc0d1901cbff58ce5803deee7468",
+    "protocols/latex-data-usability-v1/protocol.json": "b11b8ae87f3544c55b387914aa2ce6f8d61140de4c32cc5da6ffaa1d227465ed",
+    "protocols/latex-writing-quality-9p-v1/config.json": "ca9affe07c5448e407d4f0ca75ae54469cb4d19e63c5d064352e51209ce8a5bf",
+    "protocols/latex-data-usability-v1/resource-audit.json": "996d511463f812382995337780ade405710d9281df96e70d24cf2c2ea7019703"
+  }
+}
