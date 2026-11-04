@@ -286,11 +286,51 @@ async function setPageInput(page, side, value) {
   await input.fill(String(value));
   await input.press('Enter');
   const expected = Math.max(1, Math.min(Number(manifest.papers.find((paper) => paper.sample_id === 'RL01')[side === 'compiled' ? 'compiled_pdf' : 'official_pdf'].pages), Math.round(value)));
-  await page.waitForFunction(({ side, expected }) => {
-    const canvas = document.querySelector('[data-canvas="' + side + '"]');
-    const stage = document.querySelector('[data-stage="' + side + '"]');
-    return canvas?.dataset.renderedPage === String(expected) && stage?.getAttribute('aria-busy') === 'false';
-  }, { side, expected }, { timeout: 60000 });
+  try {
+    await page.waitForFunction(({ side, expected }) => {
+      const canvas = document.querySelector('[data-canvas="' + side + '"]');
+      const stage = document.querySelector('[data-stage="' + side + '"]');
+      return canvas?.dataset.renderedPage === String(expected) && stage?.getAttribute('aria-busy') === 'false';
+    }, { side, expected }, { timeout: 60000 });
+  } catch (error) {
+    let state = null;
+    try {
+      state = await page.evaluate((viewer) => {
+        const input = document.querySelector('[data-page-input="' + viewer + '"]');
+        const canvas = document.querySelector('[data-canvas="' + viewer + '"]');
+        const stage = document.querySelector('[data-stage="' + viewer + '"]');
+        const errorNode = document.querySelector('[data-error="' + viewer + '"]');
+        const loading = document.querySelector('[data-loading-status="' + viewer + '"]');
+        const scope = document.querySelector('#assessment-page-scope');
+        return {
+          activeSample: document.querySelector('[data-sample-id][aria-current="true"]')?.dataset.sampleId || null,
+          input: input ? { value: input.value, min: input.min, max: input.max, disabled: input.disabled } : null,
+          canvas: canvas ? {
+            dataset: { ...canvas.dataset },
+            ariaLabel: canvas.getAttribute('aria-label'),
+            className: canvas.className,
+            width: canvas.width,
+            height: canvas.height,
+          } : null,
+          stage: stage ? { busy: stage.getAttribute('aria-busy'), className: stage.className } : null,
+          renderError: errorNode ? { text: errorNode.textContent, hidden: errorNode.classList.contains('is-hidden') } : null,
+          loading: loading ? { text: loading.textContent, hidden: loading.classList.contains('is-hidden') } : null,
+          pageStatus: document.querySelector('[data-page-status="' + viewer + '"]')?.textContent || null,
+          scope: scope ? { text: scope.textContent, hidden: scope.classList.contains('is-hidden') } : null,
+          focusViewers: document.querySelector('#focus-viewers')?.getAttribute('aria-pressed') || null,
+        };
+      }, side);
+    } catch (diagnosticError) {
+      state = { diagnosticError: diagnosticError.message };
+    }
+    throw new Error(`${error.message}; page-input diagnostic=${JSON.stringify({
+      side,
+      requestedValue: value,
+      expectedPage: expected,
+      state,
+      recentPageErrors: report.page_errors.slice(-10),
+    })}`);
+  }
   assert.equal(await input.inputValue(), String(expected));
   return expected;
 }
