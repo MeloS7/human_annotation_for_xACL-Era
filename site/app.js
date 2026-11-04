@@ -1888,11 +1888,12 @@ async function renderPage(id, pageNumber, expectedGeneration) {
   if (!viewer.pdf || expectedGeneration !== viewer.generation) return;
   viewer.renderSequence = (viewer.renderSequence || 0) + 1;
   const renderSequence = viewer.renderSequence;
+  const previousPage = viewer.page;
   const page = Math.max(1, Math.min(viewer.pdf.numPages, Math.round(pageNumber)));
   viewer.page = page;
   if (id === "compiled") updateAssessmentPageScope();
   const pageInput = $(`[data-page-input="${id}"]`);
-  pageInput.value = String(page);
+  if (page !== previousPage || document.activeElement !== pageInput) pageInput.value = String(page);
   const stage = $(`[data-stage="${id}"]`);
   const canvas = $(`[data-canvas="${id}"]`);
   const hasCurrentPaperPage = canvas.dataset.renderedSample === viewer.paperSampleId && Boolean(canvas.dataset.renderedPage);

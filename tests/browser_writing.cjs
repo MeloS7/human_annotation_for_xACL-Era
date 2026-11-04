@@ -335,6 +335,26 @@ async function setPageInput(page, side, value) {
   return expected;
 }
 
+async function setTargetPageAfterResize(page, sampleId, targetPage, renderedPageBeforeResize) {
+  const input = page.locator('[data-page-input="compiled"]');
+  assert.equal(await input.inputValue(), String(renderedPageBeforeResize));
+  await input.fill(String(targetPage));
+  const resizeState = await page.evaluate(() => {
+    window.dispatchEvent(new Event('resize'));
+    return document.querySelector('[data-stage="compiled"]')?.getAttribute('aria-busy');
+  });
+  assert.equal(resizeState, 'true', 'The resize event must start the same-page layout rerender while the page input has an uncommitted value.');
+  await page.waitForFunction((expectedPage) => {
+    const canvas = document.querySelector('[data-canvas="compiled"]');
+    const stage = document.querySelector('[data-stage="compiled"]');
+    return canvas?.dataset.renderedPage === String(expectedPage) && stage?.getAttribute('aria-busy') === 'false';
+  }, renderedPageBeforeResize, { timeout: 60000 });
+  assert.equal(await input.inputValue(), String(targetPage), 'A same-page layout rerender must preserve the focused, uncommitted page input.');
+  await input.press('Enter');
+  await renderedTargetPage(page, sampleId, targetPage);
+  assert.equal(await input.inputValue(), String(targetPage));
+}
+
 async function setSync(page, enabled) {
   const toggle = page.locator('#sync-pdf-pages');
   if (await toggle.isChecked() !== enabled) await page.locator('.sync-toggle').click();
@@ -676,14 +696,15 @@ async function auditFocusLayout(page, width, height, sampleId, compiledPage, off
   const targetPageCount = manifest.papers.find((paper) => paper.sample_id === 'RL01').compiled_pdf.pages;
   assert.ok(targetPageCount > 9, 'The PDF navigation regression requires a sample with auxiliary pages.');
   assert.equal(await pageA.locator('[data-page-count="compiled"]').innerText(), String(targetPageCount), 'The viewer reports the actual full PDF page count.');
-  await setPageInput(pageA, 'compiled', 9);
+  await setTargetPageAfterResize(pageA, 'RL01', 9, 1);
   assert.equal(await pageA.locator('#assessment-page-scope').isVisible(), true);
   assert.match((await pageA.locator('#assessment-page-scope').innerText()).toLowerCase(), /within the core scoring window/);
   await pageA.locator('[data-viewer-action="next"][data-viewer="compiled"]').click();
   await renderedTargetPage(pageA, 'RL01', 10);
   assert.match((await pageA.locator('#assessment-page-scope').innerText()).toLowerCase(), /auxiliary reference material/);
   await pageA.locator('#focus-viewers').click();
-  await setPageInput(pageA, 'compiled', 9);
+  await renderedTargetPage(pageA, 'RL01', 10);
+  await setTargetPageAfterResize(pageA, 'RL01', 9, 10);
   assert.equal(await pageA.locator('#assessment-page-scope').isVisible(), true, 'The page-scope status must remain visible in expanded target-viewer mode.');
   await pageA.locator('[data-viewer-action="next"][data-viewer="compiled"]').click();
   await renderedTargetPage(pageA, 'RL01', 10);
