@@ -37,6 +37,7 @@ jobs:
           node-version: '24'
       - run: python scripts/verify_site.py
       - run: python tests/resource_audit_test.py
+      - run: python tests/judge_request_test.py
       - run: python tests/backend_setup.py
       - run: node --check site/app.js && node --check site/cloud.mjs && node --check site/writing-protocol.mjs && node --check site/writing9p-protocol.mjs && node --check site/usability-protocol.mjs
       - run: bash scripts/test_database.sh

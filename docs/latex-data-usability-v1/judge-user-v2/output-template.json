@@ -1,0 +1,10 @@
+{
+  "core_scores": {
+    "text_integrity_readability": {"score": null, "reason": ""},
+    "document_structural_integrity": {"score": null, "reason": ""},
+    "nontext_asset_integrity": {"score": null, "reason": ""},
+    "overall_data_usability": {"score": null, "reason": ""}
+  },
+  "pdf_visual_integrity": {"score": null, "reason": ""},
+  "limitations": []
+}
