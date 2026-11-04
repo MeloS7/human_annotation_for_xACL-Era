@@ -504,7 +504,7 @@ function bindEvents() {
   document.addEventListener("click", onDocumentClick);
   document.addEventListener("change", onDocumentChange);
   window.addEventListener("resize", onWindowResize, { passive: true });
-  document.addEventListener("keydown", (event) => { if (event.key === "Escape" && state.focusViewers) toggleViewerFocus(); });
+  document.addEventListener("keydown", onDocumentKeydown);
   window.addEventListener("beforeunload", (event) => {
     if (!state.dirty && !state.savingPromise && !state.pendingRegistration && !state.recoveryReveal) return;
     event.preventDefault();
@@ -533,10 +533,22 @@ function onDocumentChange(event) {
   const visualIssue = event.target.closest("[data-visual-issue-key]");
   if (visualIssue) updateVisualIssue(visualIssue.dataset.visualIssueKey, visualIssue.checked);
   const pageInput = event.target.closest("[data-page-input]");
-  if (pageInput) {
-    clearBoundaryStatuses();
-    goToPage(pageInput.dataset.pageInput, Number(pageInput.value));
+  if (pageInput) commitPageInput(pageInput);
+}
+
+function onDocumentKeydown(event) {
+  const pageInput = event.target.closest?.("[data-page-input]");
+  if (event.key === "Enter" && pageInput) {
+    event.preventDefault();
+    commitPageInput(pageInput);
+    return;
   }
+  if (event.key === "Escape" && state.focusViewers) toggleViewerFocus();
+}
+
+function commitPageInput(pageInput) {
+  clearBoundaryStatuses();
+  goToPage(pageInput.dataset.pageInput, Number(pageInput.value));
 }
 
 function setAuthMode(mode) {
