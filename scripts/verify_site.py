@@ -2,7 +2,6 @@
 """Verify the unchanged frozen cohort and runtime assets before deployment."""
 import hashlib
 import json
-import re
 from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
@@ -86,46 +85,19 @@ assert scope["scope_id"] == "target-pdf-first9-maintext-v1"
 assert scope["page_numbering"] == "physical_pdf_pages_1_based"
 assert scope["first_page"] == 1 and scope["last_page_inclusive"] == 9
 assert scope["short_pdf_rule"] == "all_existing_pages"
-# Preserve the archived first judge transport as well as the active user-only one.
-judge_template = json.loads((root / f"docs/{protocol_id}/judge-output-template.json").read_text())
-assert judge_template["protocol_id"] == protocol_id
-assert judge_template["rubric_version"] == rubric["version"]
-assert judge_template["scope_id"] == scope["scope_id"]
-assert judge_template["input_condition"] == "source_plus_pdf_pages_and_resource_report"
-assert list(judge_template["core_scores"]) == contract["score_keys"]
-assert all(value is None for value in judge_template["core_scores"].values()), "Templates must not be mistaken for ratings"
-for name in ["human-instructions.txt", "judge-system.txt", "judge-input-template.md", "rubric-for-raters.md"]:
+for name in ["human-instructions.txt", "rubric-for-raters.md"]:
     assert (root / f"docs/{protocol_id}/{name}").is_file()
 raters_text = (root / f"docs/{protocol_id}/rubric-for-raters.md").read_text()
-judge_text = (root / f"docs/{protocol_id}/judge-system.txt").read_text()
 for dimension in rubric["dimensions"]:
     assert dimension["label"] in raters_text
     assert all(anchor in raters_text for anchor in dimension["scale"].values())
-    assert dimension["key"] in judge_text
-assert list(judge_template["judge_audit"]) == contract["score_keys"]
-active_judge_dir = root / f"docs/{protocol_id}/judge-user-v3"
-active_template = json.loads((active_judge_dir / "output-template.json").read_text())
-assert list(active_template) == ["core_scores", "pdf_visual_integrity", "limitations"]
-assert list(active_template["core_scores"]) == contract["score_keys"]
-for entry in [*active_template["core_scores"].values(), active_template["pdf_visual_integrity"]]:
-    assert entry == {"score": None, "reason": ""}
-assert active_template["limitations"] == []
-assert (active_judge_dir / "output-template.json").read_bytes() == (root / f"docs/{protocol_id}/judge-user-v2/output-template.json").read_bytes()
-active_prompt = (active_judge_dir / "prompt-template.txt").read_text()
-assert set(re.findall(r"\{\{[A-Z_]+\}\}", active_prompt)) == {
-    "{{PRIMARY_LATEX}}", "{{PAGE_COUNT}}"
-}
-for removed_input in ["RESOURCE EVIDENCE", "INPUT LIMITATIONS", "{{RESOURCE_EVIDENCE}}", "{{INPUT_LIMITATIONS}}"]:
-    assert removed_input not in active_prompt
-for dimension in [*rubric["dimensions"], rubric["auxiliary_pdf_visual_integrity"]]:
-    assert dimension["label"] in active_prompt
-    assert dimension["definition"] in active_prompt
-    assert all(anchor in active_prompt for anchor in dimension["scale"].values())
-for key in [*active_template, *contract["score_keys"], "score", "reason"]:
-    assert json.dumps(key) in active_prompt
-for host_only_key in ["manifest_sha256", "rubric_sha256", "protocol_id", "source_pdf_binding_verified"]:
-    assert host_only_key not in active_prompt
-assert (active_judge_dir / "README.md").is_file()
+annotation_readme = (root / "README.md").read_text()
+protocol_readme = (root / f"docs/{protocol_id}/README.md").read_text()
+judge_prompt_url = "https://github.com/MeloS7/revision-lens/tree/g5k/pilot/prompts/latex-data-usability-v1/judge-user-v3"
+judge_workflow_url = "https://github.com/MeloS7/revision-lens/blob/g5k/pilot/docs/llm_judge.md"
+for document in [annotation_readme, protocol_readme]:
+    assert judge_prompt_url in document
+    assert judge_workflow_url in document
 guidance = json.loads((site / config["guidance_path"]).read_text())
 report_ref = guidance["resource_audit"]
 report_path = site / report_ref["path"]
