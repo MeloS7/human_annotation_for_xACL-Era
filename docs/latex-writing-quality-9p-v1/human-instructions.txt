@@ -1,0 +1,11 @@
+Assess the main-paper writing on physical PDF pages 1–9, inclusive, or all pages if the target PDF is shorter. Count from the PDF's first page, including the title page, not printed proceedings page numbers.
+
+The complete target PDF and appendix remain available for auxiliary reference. References and appendices are not core-scored, even if they appear within the first nine pages. You may consult them to understand the main paper; you do not need to review the whole appendix.
+
+Rate five dimensions using the shared definitions: Language Clarity & Fluency; Coherence & Logical Flow; Structural Completeness; Technical Expression & Referential Clarity; and Overall Writing Quality. Use 1–5 or Uncertain. There is no core N/A. Judge Overall directly, not as an average.
+
+Judge structure and explanation within the assigned window. Do not penalize a paragraph, table or equation continuing after page 9, a conclusion outside the window, or details reasonably deferred to an appendix. The planned cutoff alone does not require Uncertain.
+
+Assess communication, not scientific novelty, correctness, image aesthetics or LaTeX coding style. Record PDF rendering problems only in the optional visual check for inspected pages. If unreadable or missing input prevents a defensible core judgment, choose Uncertain for the affected dimension.
+
+Complete the five ratings and confirm that you reviewed the assigned window. The official conference PDF is available only for a separate optional audit after completion; version differences do not lower writing scores. Previous protocol scores remain separate; rate this scope anew.

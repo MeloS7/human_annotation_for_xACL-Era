@@ -7,6 +7,12 @@ import {
   WRITING_SCORE_KEYS,
   writingRecordIssue,
 } from "./writing-protocol.mjs";
+import {
+  WRITING_9P_PROTOCOL_ID,
+  WRITING_9P_RECORD_SCHEMA,
+  WRITING_9P_RUBRIC_VERSION,
+  writing9pRecordIssue,
+} from "./writing9p-protocol.mjs";
 
 const SITE_BASE_URL = new URL("./", import.meta.url);
 const LEGACY_CONFIG_SCHEMA = "xacl.hosted-config.v1";
@@ -45,10 +51,19 @@ const WRITING_RPC_NAMES = Object.freeze({
   load: "xacl_writing_load_annotations",
   save: "xacl_writing_save_annotations",
 });
+const WRITING_9P_RPC_NAMES = Object.freeze({
+  health: "xacl_writing9p_annotation_health",
+  register: "xacl_writing9p_register_annotator",
+  resume: "xacl_writing9p_resume_annotator",
+  current: "xacl_writing9p_current_annotations",
+  load: "xacl_writing9p_load_annotations",
+  save: "xacl_writing9p_save_annotations",
+});
 const RPC_NAMES = new Set([
   ...Object.values(LEGACY_RPC_NAMES),
   ...Object.values(QUALITY_RPC_NAMES),
   ...Object.values(WRITING_RPC_NAMES),
+  ...Object.values(WRITING_9P_RPC_NAMES),
 ]);
 
 export class HostedAdapterError extends Error {
@@ -82,11 +97,19 @@ function isQualityConfig(config) {
 }
 
 function isWritingConfig(config) {
-  return config.schema === WRITING_CONFIG_SCHEMA;
+  return config.schema === WRITING_CONFIG_SCHEMA && config.protocol_id === WRITING_PROTOCOL_ID;
+}
+
+function isWriting9pConfig(config) {
+  return config.schema === WRITING_CONFIG_SCHEMA && config.protocol_id === WRITING_9P_PROTOCOL_ID;
+}
+
+function isAnyWritingConfig(config) {
+  return isWritingConfig(config) || isWriting9pConfig(config);
 }
 
 function isProtocolConfig(config) {
-  return isQualityConfig(config) || isWritingConfig(config);
+  return isQualityConfig(config) || isAnyWritingConfig(config);
 }
 
 function parseJsonBytes(bytes) {
@@ -145,6 +168,14 @@ function validateConfig(config) {
       config.guidance_path === "protocols/document-quality-v1/guidance.json" &&
       config.sample_rubric_version === "alignment-rubric-v1") ||
     (config.schema === WRITING_CONFIG_SCHEMA && hasExactlyKeys(config, qualityConfigKeys) &&
+      config.protocol_id === WRITING_9P_PROTOCOL_ID && config.record_schema === WRITING_9P_RECORD_SCHEMA &&
+      config.rubric_version === WRITING_9P_RUBRIC_VERSION &&
+      config.rubric_path === "protocols/latex-writing-quality-9p-v1/rubric.json" &&
+      validSha256(config.rubric_sha256) &&
+      config.guidance_path === "protocols/latex-writing-quality-9p-v1/guidance.json" &&
+      config.sample_rubric_version === "alignment-rubric-v1")
+    ||
+    (config.schema === WRITING_CONFIG_SCHEMA && hasExactlyKeys(config, qualityConfigKeys) &&
       config.protocol_id === WRITING_PROTOCOL_ID && config.record_schema === WRITING_RECORD_SCHEMA &&
       config.rubric_version === "latex-writing-quality-rubric-v1" &&
       config.rubric_path === "protocols/latex-writing-quality-v1/rubric.json" &&
@@ -190,7 +221,7 @@ function validateManifest(manifest, config, rubric) {
 }
 
 function validateRubric(rubric, manifest, config) {
-  if (isWritingConfig(config)) {
+  if (isAnyWritingConfig(config)) {
     const bilingual = (value) => isPlainObject(value) && typeof value.en === "string" && value.en.trim() &&
       typeof value.zh === "string" && value.zh.trim();
     const scoreLevels = ["1", "2", "3", "4", "5"];
@@ -215,7 +246,7 @@ function validateRubric(rubric, manifest, config) {
       hasExactlyKeys(auxiliary.scale_zh, scoreLevels) &&
       scoreLevels.every((level) => typeof auxiliary.scale_zh[level] === "string" && auxiliary.scale_zh[level].trim());
     if (!isPlainObject(rubric) || rubric.schema !== WRITING_RUBRIC_SCHEMA ||
-        rubric.protocol_id !== WRITING_PROTOCOL_ID || rubric.version !== config.rubric_version ||
+        rubric.protocol_id !== config.protocol_id || rubric.version !== config.rubric_version ||
         !bilingual(rubric.title) || !bilingual(rubric.scope) || !dimensionsValid || !auxiliaryValid ||
         !validFlags(rubric.version_difference_flags, WRITING_VERSION_DIFFERENCE_KEYS) ||
         !validFlags(rubric.visual_issue_flags, VISUAL_ISSUE_KEYS)) fail("rubric_invalid");
@@ -233,7 +264,7 @@ function validateRubric(rubric, manifest, config) {
 
 function validateGuidance(guidance, config) {
   const quality = isProtocolConfig(config);
-  const schema = isWritingConfig(config) ? WRITING_GUIDANCE_SCHEMA :
+  const schema = isAnyWritingConfig(config) ? WRITING_GUIDANCE_SCHEMA :
     quality ? QUALITY_GUIDANCE_SCHEMA : LEGACY_GUIDANCE_SCHEMA;
   const protocolId = quality ? config.protocol_id : null;
   const bilingual = (value) => isPlainObject(value) && typeof value.en === "string" && value.en.trim() &&
@@ -292,13 +323,14 @@ function safeRpcFailure(name, status, payload) {
   }
   if (code === "name_taken") return new HostedAdapterError("name_taken", status);
   if (code === "profile_exists") return new HostedAdapterError("profile_exists", status);
-  if (Object.values(WRITING_RPC_NAMES).includes(name) && ["writing_record_invalid", "invalid_record"].includes(code)) {
+  if ((Object.values(WRITING_RPC_NAMES).includes(name) || Object.values(WRITING_9P_RPC_NAMES).includes(name)) &&
+      ["writing_record_invalid", "invalid_record"].includes(code)) {
     return new HostedAdapterError("writing_record_invalid", status);
   }
   if (["invalid_access", "invalid_access_code", "invalid_credentials", "unauthorized", "forbidden"].includes(code) || status === 401 || status === 403) {
     return new HostedAdapterError("invalid_credentials", status);
   }
-  if ([LEGACY_RPC_NAMES.health, QUALITY_RPC_NAMES.health, WRITING_RPC_NAMES.health].includes(name) &&
+  if ([LEGACY_RPC_NAMES.health, QUALITY_RPC_NAMES.health, WRITING_RPC_NAMES.health, WRITING_9P_RPC_NAMES.health].includes(name) &&
       (status === 404 || ["study_not_ready", "study_mismatch"].includes(code))) {
     return new HostedAdapterError("backend_not_ready", status);
   }
@@ -359,8 +391,10 @@ export function createHostedAdapter(config, {
   const checkedConfig = validateConfig(config);
   const quality = isQualityConfig(checkedConfig);
   const writing = isWritingConfig(checkedConfig);
-  const recordIssue = quality ? qualityRecordIssue : writingRecordIssue;
-  const rpcNames = writing ? WRITING_RPC_NAMES : quality ? QUALITY_RPC_NAMES : LEGACY_RPC_NAMES;
+  const writing9p = isWriting9pConfig(checkedConfig);
+  const writingProtocol = writing || writing9p;
+  const recordIssue = writing9p ? writing9pRecordIssue : quality ? qualityRecordIssue : writingRecordIssue;
+  const rpcNames = writing9p ? WRITING_9P_RPC_NAMES : writing ? WRITING_RPC_NAMES : quality ? QUALITY_RPC_NAMES : LEGACY_RPC_NAMES;
   const createClient = supabaseLibrary?.createClient;
   if (typeof fetchImpl !== "function" || typeof createClient !== "function") fail("service_unavailable");
 
@@ -385,21 +419,21 @@ export function createHostedAdapter(config, {
     try { result = await client.rpc(name, args); } catch (error) { throw safeRpcFailure(name, error?.status || 0, error); }
     if (result?.error) throw safeRpcFailure(name, result.error.status || result.status || 0, result.error);
     const payload = Array.isArray(result?.data) && result.data.length === 1 ? result.data[0] : result?.data;
-    if (!isPlainObject(payload)) fail([LEGACY_RPC_NAMES.health, QUALITY_RPC_NAMES.health, WRITING_RPC_NAMES.health].includes(name) ? "backend_not_ready" : "service_unavailable");
+    if (!isPlainObject(payload)) fail([LEGACY_RPC_NAMES.health, QUALITY_RPC_NAMES.health, WRITING_RPC_NAMES.health, WRITING_9P_RPC_NAMES.health].includes(name) ? "backend_not_ready" : "service_unavailable");
     if (typeof payload.error === "string" || typeof payload.code === "string") throw safeRpcFailure(name, 200, payload);
     return payload;
   }
 
   function checkedRecord(payload, annotatorId = null) {
     const record = isPlainObject(payload?.record) ? payload.record : payload;
-    if (quality || writing) {
+    if (quality || writingProtocol) {
       const issue = recordIssue(record, {
         annotatorId: annotatorId === null ? undefined : annotatorId,
         datasetId: checkedConfig.study_id,
         manifestSha256: checkedConfig.manifest_sha256,
         rubricVersion: rubricVersion || checkedConfig.rubric_version,
       });
-      if (issue) fail(writing ? "writing_record_invalid" : "service_unavailable");
+      if (issue) fail(writingProtocol ? "writing_record_invalid" : "service_unavailable");
     } else if (!isPlainObject(record) || record.schema !== LEGACY_RECORD_SCHEMA || !validAnnotatorId(record.annotator_id) ||
         (annotatorId !== null && record.annotator_id !== annotatorId) ||
         record.dataset_id !== checkedConfig.study_id || record.manifest_sha256 !== checkedConfig.manifest_sha256 ||
@@ -478,12 +512,12 @@ export function createHostedAdapter(config, {
     async save(annotatorId, record, operation = "save") {
       if (!validAnnotatorId(annotatorId) || !isPlainObject(record) || record.annotator_id !== annotatorId ||
           !["save", "import"].includes(operation)) fail("service_unavailable");
-      if ((quality || writing) && recordIssue(record, {
+      if ((quality || writingProtocol) && recordIssue(record, {
         annotatorId,
         datasetId: checkedConfig.study_id,
         manifestSha256: checkedConfig.manifest_sha256,
         rubricVersion: rubricVersion || checkedConfig.rubric_version,
-      })) fail(writing ? "writing_record_invalid" : "service_unavailable");
+      })) fail(writingProtocol ? "writing_record_invalid" : "service_unavailable");
       const payload = await rpc(rpcNames.save, {
         p_annotator_id: annotatorId,
         p_record: record,

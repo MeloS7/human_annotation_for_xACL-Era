@@ -1,8 +1,17 @@
-import { assertHostedHealth, createHostedAdapter, loadHostedAssets, randomRecoveryCode } from "./cloud.mjs?v=20261027-writing-v1";
+import { assertHostedHealth, createHostedAdapter, loadHostedAssets, randomRecoveryCode } from "./cloud.mjs?v=20261104-writing-9p-v1";
 import {
-  WRITING_PROTOCOL_ID, WRITING_RECORD_SCHEMA, WRITING_SCORE_KEYS, VERSION_DIFFERENCE_KEYS,
-  VISUAL_ISSUE_KEYS, blankWritingAnnotation, writingAnnotationErrors, writingRecordIssue,
-} from "./writing-protocol.mjs?v=20261027-writing-v1";
+  WRITING_9P_PROTOCOL_ID as WRITING_PROTOCOL_ID,
+  WRITING_9P_RECORD_SCHEMA as WRITING_RECORD_SCHEMA,
+  WRITING_9P_RUBRIC_VERSION,
+  WRITING_9P_SCORE_KEYS as WRITING_SCORE_KEYS,
+  WRITING_9P_VERSION_DIFFERENCE_KEYS as VERSION_DIFFERENCE_KEYS,
+  WRITING_9P_VISUAL_ISSUE_KEYS as VISUAL_ISSUE_KEYS,
+  blankWriting9pAnnotation as blankWritingAnnotation,
+  writing9pAnnotationErrors as writingAnnotationErrors,
+  writing9pRecordIssue as writingRecordIssue,
+  CORE_SCORING_PAGE_COUNT,
+  coreScoringPageCount,
+} from "./writing9p-protocol.mjs?v=20261104-writing-9p-v1";
 
 const SCORE_KEYS = WRITING_SCORE_KEYS;
 const FLAG_KEYS = VERSION_DIFFERENCE_KEYS;
@@ -41,19 +50,19 @@ const STRINGS = {
     allComplete: "All {count} papers are complete. The last paper is open for review.", loadingSession: "Loading writing-quality record…",
     currentPaper: "CURRENT PAPER", saveNow: "Save now",
     previousPaper: "← Previous", nextPaper: "Next →", paperNavigation: "Paper navigation", compareLabel: "TARGET PDF · SAME-SOURCE READING AID", pdfComparison: "Target paper PDF",
-    targetOnlyScore: "Rate writing represented by the selected LaTeX source; use this PDF as a reading aid.", expandViewers: "Expand target viewer", returnToAnnotation: "Return to ratings", syncPageTurns: "Sync page turns",
+    targetOnlyScore: "Score main-paper writing on physical PDF pages 1–9, or all pages if shorter.", scopeCurrentCore: "Page {page} is within the core scoring window (physical PDF pages 1–{count}). References and appendices here are supporting context only.", scopeAllShort: "This paper has {count} pages; all available pages are within the core scoring window. References and appendices are supporting context only.", scopeAuxiliary: "Page {page} is auxiliary reference material, outside the core scoring window (physical PDF pages 1–9). Do not score later-page content.", expandViewers: "Expand target viewer", returnToAnnotation: "Return to ratings", syncPageTurns: "Sync page turns",
     targetPdf: "TARGET PDF", compiledArxiv: "Selected arXiv source version", referencePdf: "OPTIONAL AUDIT", officialConference: "Official conference PDF",
-    openNewTab: "Open in new tab", page: "Page", fit: "Fit", pdfWait: "Select a paper to view its target PDF.", firstPageReached: "First page reached", lastPageReached: "Last page reached",
+    openNewTab: "Open in new tab", openFullPdf: "Open full PDF in new tab", page: "Page", fit: "Fit", pdfWait: "Select a paper to view its target PDF.", firstPageReached: "First page reached", lastPageReached: "Last page reached",
     pageCountPending: "Page count pending", rubricLabel: "WRITING-QUALITY RUBRIC", annotationTitle: "Source-level writing ratings",
     scoreFor: "Rate", scoreScale: "Score definitions", uncertain: "Uncertain",
     overallDirect: "Judge overall writing quality directly; do not average the other dimensions.",
     versionDifferencesTitle: "Version differences (optional audit)", versionDifferencesHelp: "After completing the five writing ratings, you may inspect the official PDF and record observed differences. These observations never change writing scores or completion.",
     versionNotesTitle: "Version notes", versionNotesPlaceholder: "Add brief context for the optional version observations.", versionNotesHelp: "Leave blank if no version observations were made.",
     optional: "Optional",
-    fullScopeTitle: "I reviewed the full target manuscript",
-    fullScopeHelp: "Review the full target manuscript represented by the selected LaTeX source. Its PDF is a reading aid. The optional official-version audit is not required.",
+    fullScopeTitle: "I reviewed the assigned main-paper scoring window",
+    fullScopeHelp: "Review physical PDF pages 1–9, or all available pages if the paper is shorter. Later pages remain available as optional context. References and appendices are not scored for themselves.",
     markComplete: "Mark writing review complete", reopenPaper: "Reopen writing review", footerNotice: "Writing ratings apply to the selected LaTeX source. PDF visual integrity and the optional official-version audit are separate.",
-    protocolBanner: "New writing-quality protocol. Previous alignment and document-quality ratings are preserved separately. Please rate each paper anew.",
+    protocolBanner: "New nine-page writing protocol. Earlier ratings remain preserved separately. Please rate this scope anew.",
     noPapersMatch: "No papers match these filters.", noTitle: "Untitled paper", noSession: "Load your annotator session to begin.",
     sessionLoaded: "Writing-quality session loaded.", sessionLoadFailed: "Could not load the writing-quality record. Retry or restore with your recovery code.", manifestFailed: "Could not load the frozen paper manifest or writing rubric.",
     rubricMissing: "The writing-quality rubric is missing or incomplete. Scoring is locked until the study package is repaired.",
@@ -63,7 +72,7 @@ const STRINGS = {
     downloadRecovery: "Download private recovery JSON", localRecovery: "A local unsaved recovery copy exists.", restoreRecovery: "Restore local copy", noSavedWork: "No saved work yet", noChanges: "No changes to save.",
     localConflict: "The server record is newer than this local copy. The local copy was not applied; download it to compare.",
     recordRecoveryRejected: "The local recovery copy does not match the writing-quality protocol and was not applied.", recoveryRestored: "Local writing-quality recovery copy restored.",
-    completed: "Completed", noFullScope: "Confirm that you reviewed the full target manuscript.", missingScores: "Rate all five writing dimensions before completing this paper.",
+    completed: "Completed", noFullScope: "Confirm that you reviewed the assigned main-paper scoring window.", missingScores: "Rate all five writing dimensions before completing this paper.",
     invalidAnnotation: "This paper contains an invalid writing rating. Review the ratings before saving.",
     completedSaved: "Writing review marked complete and saved.", draftSaved: "Writing review returned to draft.",
     pageLabelTarget: "Target PDF page", pageLabelOfficial: "Optional official PDF page", canvasTarget: "Rendered target PDF page", canvasOfficial: "Rendered official PDF page",
@@ -106,18 +115,18 @@ const STRINGS = {
     allComplete: "已完成全部 {count} 篇论文。最后一篇已打开供复核。", loadingSession: "正在加载写作质量记录…",
     currentPaper: "当前论文", saveNow: "立即保存",
     previousPaper: "← 上一篇", nextPaper: "下一篇 →", paperNavigation: "论文导航", compareLabel: "目标 PDF · 同源阅读辅助", pdfComparison: "目标论文 PDF",
-    targetOnlyScore: "评价选定 LaTeX 源码所呈现的写作内容；此 PDF 用于辅助阅读。", expandViewers: "展开目标查看器", returnToAnnotation: "返回评分", syncPageTurns: "同步翻页",
+    targetOnlyScore: "评价目标 PDF 物理第1–9页的正文写作；若不足9页则评价全部页面。", scopeCurrentCore: "第{page}页位于核心评分范围（PDF物理第1–{count}页）。此范围内的参考文献和附录仅作辅助上下文。", scopeAllShort: "本文共{count}页，所有页面均在核心评分范围内。参考文献和附录仅作辅助上下文。", scopeAuxiliary: "第{page}页属于核心评分范围（PDF物理第1–9页）之外的辅助材料，不评价后续页面内容。", expandViewers: "展开目标查看器", returnToAnnotation: "返回评分", syncPageTurns: "同步翻页",
     targetPdf: "目标 PDF", compiledArxiv: "选定的 arXiv 源码版本", referencePdf: "选填核查", officialConference: "会议官方 PDF",
-    openNewTab: "在新标签页打开", page: "页", fit: "适应窗口", pdfWait: "选择论文后即可查看目标 PDF。", firstPageReached: "已到第一页", lastPageReached: "已到最后一页",
+    openNewTab: "在新标签页打开", openFullPdf: "在新标签页打开完整 PDF", page: "页", fit: "适应窗口", pdfWait: "选择论文后即可查看目标 PDF。", firstPageReached: "已到第一页", lastPageReached: "已到最后一页",
     pageCountPending: "等待读取页数", rubricLabel: "写作质量评分标准", annotationTitle: "源码写作评分",
     scoreFor: "评分", scoreScale: "分数定义", uncertain: "无法判断",
     overallDirect: "直接判断总体写作质量，不要计算其他分项的平均值。",
     versionDifferencesTitle: "版本差异（选填核查）", versionDifferencesHelp: "完成五项写作评分后，可检查官方 PDF 并记录观察到的差异。这些观察不会改变写作分数或完成状态。",
     versionNotesTitle: "版本说明", versionNotesPlaceholder: "可简要补充选填版本观察的背景。", versionNotesHelp: "未观察版本差异时请留空。",
     optional: "选填",
-    fullScopeTitle: "我已检查目标论文全文", fullScopeHelp: "检查选定 LaTeX 源码所呈现的目标论文全文。PDF 用于辅助阅读；无需进行选填官方版本核查。",
+    fullScopeTitle: "我已检查指定的正文评分范围", fullScopeHelp: "检查目标 PDF 物理第1–9页；若论文不足9页则检查全部页面。后续页面可选作上下文。参考文献和附录不单独评分。",
     markComplete: "标记写作复核完成", reopenPaper: "重新打开写作复核", footerNotice: "写作评分针对选定的 LaTeX 源码。PDF 视觉完整性和选填官方版本核查单独记录。",
-    protocolBanner: "新的写作质量协议。此前的版本对齐和文档质量评分单独保留。请为每篇论文重新评分。",
+    protocolBanner: "新的九页写作质量协议。此前评分仍单独保留。请按此范围重新评分。",
     noPapersMatch: "没有符合筛选条件的论文。", noTitle: "无标题论文", noSession: "加载标注者会话后即可开始。",
     sessionLoaded: "写作质量会话已加载。", sessionLoadFailed: "无法加载写作质量记录。请检查昵称和恢复码，或稍后重试。", manifestFailed: "无法加载冻结的论文清单或写作评分标准。",
     rubricMissing: "写作质量评分标准缺失或不完整。修复研究包后才能评分。",
@@ -127,7 +136,7 @@ const STRINGS = {
     downloadRecovery: "下载私密恢复 JSON", localRecovery: "检测到本地未保存的恢复副本。", restoreRecovery: "恢复本地副本", noSavedWork: "尚无已保存评分", noChanges: "没有需要保存的修改。",
     localConflict: "服务器记录版本高于本地副本。未应用本地副本；可下载后进行比较。",
     recordRecoveryRejected: "本地恢复副本与写作质量协议不符，未应用。", recoveryRestored: "本地写作质量恢复副本已恢复。",
-    completed: "已完成", noFullScope: "请确认已检查目标论文全文。", missingScores: "完成前请评价全部五个写作维度。",
+    completed: "已完成", noFullScope: "请确认已检查指定的正文评分范围。", missingScores: "完成前请评价全部五个写作维度。",
     invalidAnnotation: "此论文包含不符合当前协议的写作评分。请检查评分后再保存。",
     completedSaved: "写作复核已标记为完成并保存。", draftSaved: "写作复核已恢复为草稿。",
     pageLabelTarget: "目标 PDF 页码", pageLabelOfficial: "选填官方 PDF 页码", canvasTarget: "已渲染的目标 PDF 页面", canvasOfficial: "已渲染的官方 PDF 页面",
@@ -191,7 +200,10 @@ const state = {
   localRecovery: null, localRecoveryConflict: false, localRecoveryRejected: false,
 };
 
-function t(key) { return STRINGS[state.language]?.[key] ?? STRINGS.en[key] ?? key; }
+function t(key, values = {}) {
+  const message = STRINGS[state.language]?.[key] ?? STRINGS.en[key] ?? key;
+  return Object.entries(values).reduce((text, [name, value]) => text.replaceAll(`{${name}}`, String(value)), message);
+}
 function localized(value) {
   if (value && typeof value === "object") return String(value[state.language] ?? value.en ?? value.zh ?? "");
   if (typeof value !== "string") return "";
@@ -402,7 +414,7 @@ async function initialize() {
 }
 function rubricIsComplete(rubric) {
   if (!rubric || rubric.schema !== "xacl.latex-writing-quality-rubric.v1" || rubric.protocol_id !== WRITING_PROTOCOL_ID ||
-      rubric.version !== "latex-writing-quality-rubric-v1" || !bilingualText(rubric.title) || !bilingualText(rubric.scope) ||
+      rubric.version !== WRITING_9P_RUBRIC_VERSION || !bilingualText(rubric.title) || !bilingualText(rubric.scope) ||
       !Array.isArray(rubric.dimensions) || rubric.dimensions.length !== SCORE_KEYS.length ||
       !Array.isArray(rubric.version_difference_flags) || rubric.version_difference_flags.length !== FLAG_KEYS.length ||
       !Array.isArray(rubric.visual_issue_flags) || rubric.visual_issue_flags.length !== VISUAL_ISSUE_KEYS.length) return false;
@@ -1498,6 +1510,28 @@ function renderDynamicLabels() {
       ? `${pageCount} ${state.language === "zh" ? "页" : "pages"}`
       : t("pageCountPending");
   }
+  updateAssessmentPageScope();
+}
+function updateAssessmentPageScope() {
+  const scope = $("#assessment-page-scope");
+  if (!scope) return;
+  const viewer = state.viewers.compiled;
+  const pdf = viewer?.pdf;
+  if (!pdf || !Number.isInteger(pdf.numPages) || pdf.numPages < 1) {
+    scope.textContent = "";
+    scope.classList.add("is-hidden");
+    scope.classList.remove("is-auxiliary");
+    return;
+  }
+  const page = Math.max(1, Math.min(pdf.numPages, viewer.page || 1));
+  const corePages = coreScoringPageCount(pdf.numPages);
+  scope.textContent = page > corePages
+    ? t("scopeAuxiliary", { page })
+    : pdf.numPages < CORE_SCORING_PAGE_COUNT
+      ? t("scopeAllShort", { count: pdf.numPages })
+      : t("scopeCurrentCore", { page, count: corePages });
+  scope.classList.toggle("is-auxiliary", page > corePages);
+  scope.classList.remove("is-hidden");
 }
 function scheduleSave() {
   if (state.saveBlocked || !state.sessionReady) return;
@@ -1583,7 +1617,7 @@ function storeLocalRecovery() {
   if (!state.record || !state.annotatorId || !state.manifestHash) return;
   try {
     const recovery = {
-      schema: "xacl.latex-writing-quality-recovery.v1",
+      schema: "xacl.latex-writing-quality-9p-recovery.v1",
       protocol_id: WRITING_PROTOCOL_ID,
       saved_revision: state.record.revision,
       unsaved: true,
@@ -1606,7 +1640,7 @@ function readLocalRecovery() {
     const value = localStorage.getItem(stableLocalKey());
     if (!value) return null;
     const parsed = JSON.parse(value);
-    const valid = parsed?.schema === "xacl.latex-writing-quality-recovery.v1" &&
+    const valid = parsed?.schema === "xacl.latex-writing-quality-9p-recovery.v1" &&
       parsed.protocol_id === WRITING_PROTOCOL_ID && parsed.unsaved === true &&
       Number.isSafeInteger(parsed.saved_revision) && isMatchingRecord(parsed.record, state.annotatorId) &&
       parsed.saved_revision === parsed.record.revision;
@@ -1690,7 +1724,7 @@ function downloadRecovery() {
   if (!state.record) return;
   const record = state.localRecovery?.record && state.localRecoveryConflict ? state.localRecovery.record : state.record;
   const recovery = {
-    schema: "xacl.latex-writing-quality-recovery.v1",
+    schema: "xacl.latex-writing-quality-9p-recovery.v1",
     protocol_id: WRITING_PROTOCOL_ID,
     saved_revision: record.revision,
     unsaved: true,
@@ -1844,6 +1878,7 @@ async function renderPage(id, pageNumber, expectedGeneration) {
   const renderSequence = viewer.renderSequence;
   const page = Math.max(1, Math.min(viewer.pdf.numPages, Math.round(pageNumber)));
   viewer.page = page;
+  if (id === "compiled") updateAssessmentPageScope();
   const pageInput = $(`[data-page-input="${id}"]`);
   pageInput.value = String(page);
   const stage = $(`[data-stage="${id}"]`);

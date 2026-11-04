@@ -1,0 +1,55 @@
+{
+  "protocol_id": "latex-writing-quality-9p-v1",
+  "rubric_version": "latex-writing-quality-9p-rubric-v1",
+  "input_condition": "source_plus_pdf_pages",
+  "reviewed_declared_scope": false,
+  "core_scores": {
+    "language_clarity": null,
+    "coherence_flow": null,
+    "structural_completeness": null,
+    "technical_expression": null,
+    "overall_writing_quality": null
+  },
+  "judge_audit": {
+    "language_clarity": {
+      "explanation": "",
+      "evidence_block_ids": [],
+      "evidence_page_ids": []
+    },
+    "coherence_flow": {
+      "explanation": "",
+      "evidence_block_ids": [],
+      "evidence_page_ids": []
+    },
+    "structural_completeness": {
+      "explanation": "",
+      "evidence_block_ids": [],
+      "evidence_page_ids": []
+    },
+    "technical_expression": {
+      "explanation": "",
+      "evidence_block_ids": [],
+      "evidence_page_ids": []
+    },
+    "overall_writing_quality": {
+      "explanation": "",
+      "evidence_block_ids": [],
+      "evidence_page_ids": []
+    }
+  },
+  "input_limitations": [],
+  "auxiliary_checks": {
+    "pdf_visual_integrity": {
+      "status": "not_assessed",
+      "score": null,
+      "issue_codes": [],
+      "inspected_page_ids": []
+    },
+    "conference_version_audit": {
+      "status": "not_assessed",
+      "observations": []
+    }
+  },
+  "scope_id": "target-pdf-first9-maintext-v1",
+  "supporting_material_consulted": []
+}

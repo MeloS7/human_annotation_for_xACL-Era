@@ -1,0 +1,251 @@
+{
+  "schema": "xacl.latex-writing-quality-rubric.v1",
+  "protocol_id": "latex-writing-quality-9p-v1",
+  "version": "latex-writing-quality-9p-rubric-v1",
+  "status": "implementation_version",
+  "target": "Main-paper writing represented by the fixed target LaTeX snapshot within physical target PDF pages 1 through min(9, total_pages).",
+  "core_score_values": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    "uncertain"
+  ],
+  "aggregation": "Overall Writing Quality is a direct judgment. Do not calculate an average or weighted total, or cap it using auxiliary findings.",
+  "shared_rules": [
+    "Apply the same five anchors to humans and models evaluating the same target snapshot and page window. Record their reading representations and any supporting-material use.",
+    "Count physical PDF pages starting at one, not printed proceedings page numbers. Review pages 1 through min(9, total_pages). Score main-paper writing only, including its title, abstract and in-scope technical explanations.",
+    "References and appendices are supporting material, even when visible inside the window. Later pages and the full appendix may be consulted to understand a dependency, but their writing is not included in core scores and reading all of them is not required.",
+    "The deliberate page-nine cutoff is an assessment boundary. Do not penalize a paragraph, formula or table continuing later, a conclusion outside the window, or details reasonably deferred to an appendix. Judge observed organization and explanation within the window, not whole-paper completeness.",
+    "Normal stylistic variation and minor copyediting preferences do not prevent a 5. Do not force a balanced score distribution.",
+    "Evaluate communication, not novelty, acceptance merit, external factual truth, scientific correctness, source-code elegance, image aesthetics or preferred typesetting.",
+    "Do not demand a fixed section order, experiment, figure, table or equation. Technical expression also covers concepts, methods and analysis; all five dimensions apply and there is no core N/A.",
+    "Use uncertain for a dimension when unreadable or unavailable evidence prevents a defensible judgment. Missing input evidence is not a low-quality manuscript. A planned scope boundary alone does not require uncertain.",
+    "Distinguish confirmed defects in active in-scope source from unsupported preprocessing, compile/render errors and unplanned request truncation. Do not treat comments or inactive source branches as manuscript text.",
+    "Use same-snapshot LaTeX for wording, notation and source-readable content, and rendered pages for figures and reading context. Do not claim to see unsupplied pixels. Report source/PDF inconsistencies without guessing or silently repairing the target.",
+    "PDF visual integrity is a separate auxiliary score limited to inspected pages. Conference-version differences are a separate audit. Neither automatically lowers or caps core scores.",
+    "Judge Overall directly, not as an average or weighted sum. If the complete declared primary window was not received or reviewed, return an incomplete run with uncertain core scores; do not claim a completed whole-window assessment."
+  ],
+  "dimensions": [
+    {
+      "key": "language_clarity",
+      "label": "Language Clarity & Fluency",
+      "definition": "Assess sentence-level comprehensibility, wording, grammar and terminology in the in-scope main-paper writing. Scientific truth and preference for a particular English style are outside this dimension.",
+      "allows_na": false,
+      "scale": {
+        "1": "Most of the relevant prose is unintelligible or too ambiguous to recover its meaning.",
+        "2": "Frequent severe wording or grammatical problems obscure important meanings across substantial passages.",
+        "3": "Recurring unclear, ambiguous or awkward passages require substantial rereading or reader reconstruction, although the main meanings can be recovered.",
+        "4": "A few localized wording, grammar or terminology problems require minor clarification; the main meanings remain readily understandable.",
+        "5": "The prose is clear and fluent, with sufficiently precise wording for its purpose. Harmless stylistic differences or minor copyediting preferences do not reduce this score."
+      },
+      "label_zh": "语言清晰度与流畅性",
+      "definition_zh": "评价评分窗口内正文句子的可理解性、措辞、语法与术语；不评价科学事实真伪，也不因英文风格偏好扣分。",
+      "scale_zh": {
+        "1": "大部分相关文字无法理解，或含义模糊到难以还原。",
+        "2": "频繁且严重的措辞或语法问题，遮蔽多个重要段落的含义。",
+        "3": "反复出现含混或不自然的表述，需明显重读或推断，但主要含义仍可还原。",
+        "4": "少量局部措辞、语法或术语问题需要澄清，主要含义仍易于理解。",
+        "5": "表达清楚、流畅，措辞足以准确传达目的；无碍理解的风格差异或轻微润色偏好不扣分。"
+      }
+    },
+    {
+      "key": "coherence_flow",
+      "label": "Coherence & Logical Flow",
+      "definition": "Assess connections among sentences, paragraphs, sections, claims and explanations within the scored main-paper window. Do not count the planned page cutoff as a logical gap or judge scientific truth.",
+      "allows_na": false,
+      "scale": {
+        "1": "The manuscript lacks a recoverable main line of exposition; most connections cannot be followed.",
+        "2": "Major disconnections, unexplained jumps or internal contradictions block understanding of important parts of the exposition.",
+        "3": "Repeated weak transitions, unexplained dependencies, repetition or inconsistent exposition require the reader to reconstruct important connections.",
+        "4": "The exposition is followable, with a few local jumps, repetitions or weak transitions that need minor revision.",
+        "5": "Ideas and supporting explanations progress coherently; the reader can follow the main line without supplying missing connections."
+      },
+      "label_zh": "连贯性与逻辑展开",
+      "definition_zh": "评价评分窗口内句段、章节、论点和解释的衔接；页数边界不算逻辑断裂，也不判断科学结论真伪。",
+      "scale_zh": {
+        "1": "缺少可还原的主要论述线索，大部分联系无法跟随。",
+        "2": "严重脱节、无解释跳跃或内部矛盾妨碍理解重要论述。",
+        "3": "反复出现衔接不足、悬空依赖、重复或表述不一致，需要读者重建重要联系。",
+        "4": "论述可以跟随，存在少量局部跳跃、重复或衔接不足，需要轻微修订。",
+        "5": "思想与支撑解释展开连贯，读者无需自行补足缺失联系即可跟随主线。"
+      }
+    },
+    {
+      "key": "structural_completeness",
+      "label": "Structural Completeness",
+      "definition": "Assess organization and narrative completeness within the observed main-paper window, relative to paper type and stated aims. Exclude the deliberate page-nine cutoff, out-of-window sections and reasonable appendix deferral from missing-content penalties. This is not whole-paper or conference-version coverage.",
+      "allows_na": false,
+      "scale": {
+        "1": "Most essential narrative content within the scored window is demonstrably absent, replaced by placeholders or too fragmented to recover; the planned cutoff is excluded.",
+        "2": "Major confirmed omissions or unfinished passages within the scored window prevent understanding of important in-scope exposition; the planned cutoff and reasonable appendix deferral are excluded.",
+        "3": "Several substantive in-scope narrative gaps or unexplained dependencies require reconstruction, although the central observed account can be followed.",
+        "4": "The observed in-scope account is organized and substantially complete; a few local omissions or organizational gaps need minor clarification.",
+        "5": "The observed main-paper window is navigable and sufficiently complete for what it presents, without material narrative gaps. Continuation beyond the window or valid appendix deferral does not reduce this score."
+      },
+      "label_zh": "结构完整性",
+      "definition_zh": "相对于论文类型和目的，评价已观察正文窗口内的组织与叙述完整性。第9页截断、窗口外章节及合理放入附录的细节不算缺失；不评价全文或会议版覆盖率。",
+      "scale_zh": {
+        "1": "窗口内关键叙述大部分已证实缺失、仍是占位内容或严重破碎；不计预设截断。",
+        "2": "窗口内重要叙述已证实遗漏或未完成，妨碍理解；不计页数边界或合理的附录承接。",
+        "3": "窗口内存在多个实质叙述缺口或悬空依赖，需读者重建，但仍可跟随已观察主线。",
+        "4": "已观察范围内论述有组织且基本完整，少量局部遗漏或组织缺口需澄清。",
+        "5": "已观察正文窗口清楚可定位，所呈现论述足够完整，无实质叙述缺口；窗口外续写或合理附录承接不扣分。"
+      }
+    },
+    {
+      "key": "technical_expression",
+      "label": "Technical Expression & Referential Clarity",
+      "definition": "Assess in-scope definitions, concepts, symbols, methods, steps, mathematical explanations, tables, captions and explanatory links, using the supplied same-source pages and optional supporting appendix. Judge technical communication, not image aesthetics or scientific correctness; auxiliary appendix writing is not itself scored.",
+      "allows_na": false,
+      "scale": {
+        "1": "Most of the essential technical account cannot be interpreted because its expressions, definitions or referential links are missing or uninterpretable.",
+        "2": "Major undefined concepts or symbols, ambiguous steps or broken explanatory dependencies prevent understanding of important technical content.",
+        "3": "Recurring insufficient definitions, ambiguous notation, unclear captions or unexplained links require substantial reader inference.",
+        "4": "The key technical account is understandable; a few local definitions, explanations or referential links need clarification.",
+        "5": "Technical concepts and relevant expressions are sufficiently defined and explained; the supplied methods, notation and referential links support clear understanding within the declared scope."
+      },
+      "label_zh": "技术表达与引用指向清晰度",
+      "definition_zh": "结合同源页面及按需查阅的辅助附录，评价窗口内概念、定义、符号、方法步骤、公式、表格、图注与指向解释；不评价图片美观或科学正确性，附录本身不计分。",
+      "scale_zh": {
+        "1": "大部分必要技术内容因表达、定义或指向联系缺失或不可解读而无法理解。",
+        "2": "重要概念或符号未定义、步骤含混或解释依赖断裂，妨碍理解关键技术内容。",
+        "3": "反复出现定义不足、符号含混、说明不清或关联未解释，需要大量读者推断。",
+        "4": "关键技术论述可以理解，少量局部定义、解释或指向联系需要澄清。",
+        "5": "技术概念及相关表达定义和说明充分，已提供的方法、符号及指向联系支持理解声明范围内的内容。"
+      }
+    },
+    {
+      "key": "overall_writing_quality",
+      "label": "Overall Writing Quality",
+      "definition": "Directly judge how clear, coherent and sufficiently complete the main-paper writing is within the scored page window. Do not infer whole-paper quality, average component scores, penalize the planned cutoff or require novelty, perfect rendering or conference-version agreement.",
+      "allows_na": false,
+      "scale": {
+        "1": "The manuscript is largely unusable as an understandable scientific account because of pervasive writing or confirmed content-completeness problems.",
+        "2": "Serious writing or content-completeness problems require substantial rewriting or restoration before the main account is understandable.",
+        "3": "The main account is usable, but noticeable writing or narrative problems require substantial reader reconstruction or meaningful revision.",
+        "4": "The manuscript is clear and usable overall, with localized writing issues needing minor revision.",
+        "5": "The observed main-paper writing communicates a clear, coherent and sufficiently complete account within the scored window. Minor stylistic preferences and the planned cutoff do not reduce this score."
+      },
+      "label_zh": "总体写作质量",
+      "definition_zh": "直接判断评分窗口内正文表达是否清楚、连贯且足够完整；不推断全文质量，不计算分项平均，不因预设截断扣分，也不要求创新性、完美排版或会议版本一致。",
+      "scale_zh": {
+        "1": "普遍的写作问题或已证实的内容缺失，使论文大部分无法作为可理解的科学论述使用。",
+        "2": "严重写作或内容完整性问题，需要大量重写或恢复，才能理解主要论述。",
+        "3": "主要论述基本可用，但明显写作或叙述问题需要读者大量推断或进行实质修订。",
+        "4": "论文总体清楚可用，局部写作问题需要轻微修订。",
+        "5": "评分窗口内正文传达清楚、连贯且足够完整的论述；轻微风格偏好和预设页数边界不扣分。"
+      }
+    }
+  ],
+  "auxiliary_pdf_visual_integrity": {
+    "included_in_core_scores": false,
+    "requires": "Actual observation of the target rendered PDF pages, identified by PDF hash and inspected page IDs.",
+    "unobserved": "not_assessed",
+    "unassessable": "uncertain",
+    "scale": {
+      "1": "Most displayed content cannot be read normally.",
+      "2": "Multiple important displayed parts are difficult or impossible to read.",
+      "3": "Localized rendering defects impede reading of some displayed content.",
+      "4": "Minor visual defects do not materially impede reading.",
+      "5": "The inspected target PDF is visually intact and legible."
+    },
+    "source_only_rule": "Return not_assessed with a null score and no issue codes; do not infer rendering quality from LaTeX.",
+    "core_interpretation": "If display defects block a human core judgment, consult a readable same-source representation; otherwise mark the affected core judgment uncertain rather than penalizing source writing.",
+    "label": "PDF Visual Integrity & Legibility",
+    "label_zh": "PDF 视觉完整性与可读性",
+    "definition": "Optional: rate only the inspected target PDF pages, not the uninspected full file. This does not contribute to writing scores or completion.",
+    "definition_zh": "选填：仅评价实际检查的目标 PDF 页面，不推断未检查的全文；不计入写作评分或完成条件。",
+    "scale_zh": {
+      "1": "大部分显示内容无法正常阅读。",
+      "2": "多处重要显示内容难以或无法阅读。",
+      "3": "局部渲染缺陷影响部分内容阅读。",
+      "4": "轻微视觉缺陷，不明显影响阅读。",
+      "5": "检查的目标 PDF 视觉完整、清晰可读。"
+    }
+  },
+  "title": {
+    "en": "Main-paper writing quality · first 9 pages",
+    "zh": "正文写作质量 · 前至多9页"
+  },
+  "scope": {
+    "en": "Score main-paper writing on physical PDF pages 1–9, or all pages if shorter. The complete appendix is available only as auxiliary reference.",
+    "zh": "核心评分针对目标 PDF 第1–9个物理页面中的正文；不足9页则全部提供。完整附录可浏览，仅作辅助参考。"
+  },
+  "version_difference_flags": [
+    {
+      "key": "text_revision",
+      "label": "Text or wording revision",
+      "label_zh": "文字或措辞修订"
+    },
+    {
+      "key": "scientific_content_revision",
+      "label": "Methods, experiments, results or conclusions differ",
+      "label_zh": "方法、实验、结果或结论不同"
+    },
+    {
+      "key": "technical_objects_revision",
+      "label": "Figures, tables or equations differ",
+      "label_zh": "图表或公式不同"
+    },
+    {
+      "key": "structure_revision",
+      "label": "Section organization differs",
+      "label_zh": "章节组织不同"
+    },
+    {
+      "key": "references_revision",
+      "label": "Reference list differs",
+      "label_zh": "参考文献不同"
+    },
+    {
+      "key": "appendix_revision",
+      "label": "Appendix differs, added or absent",
+      "label_zh": "附录不同、新增或缺失"
+    },
+    {
+      "key": "identity_uncertain",
+      "label": "Paper identity needs verification",
+      "label_zh": "论文身份待核实"
+    }
+  ],
+  "visual_issue_flags": [
+    {
+      "key": "missing_glyphs",
+      "label": "Missing or incorrect glyphs",
+      "label_zh": "字形缺失或错误"
+    },
+    {
+      "key": "overlap",
+      "label": "Overlapping content",
+      "label_zh": "内容重叠"
+    },
+    {
+      "key": "clipping",
+      "label": "Clipped content",
+      "label_zh": "内容裁切"
+    },
+    {
+      "key": "unexpected_blank_regions",
+      "label": "Unexpected blank regions",
+      "label_zh": "异常空白区域"
+    },
+    {
+      "key": "unreadable_objects",
+      "label": "Unreadable figures, tables or equations",
+      "label_zh": "图表或公式无法辨认"
+    }
+  ],
+  "scope_policy": {
+    "scope_id": "target-pdf-first9-maintext-v1",
+    "page_numbering": "physical_pdf_pages_1_based",
+    "first_page": 1,
+    "last_page_inclusive": 9,
+    "short_pdf_rule": "all_existing_pages",
+    "primary": "Main-paper writing visible within physical PDF pages 1 through min(9, total_pages), including title, abstract, prose, in-scope technical material and captions.",
+    "supporting": "The full target PDF and appendix remain available as auxiliary reference. References and appendices, even within the first nine pages, are not core-scored. Later main-paper pages are also outside core scoring.",
+    "boundary_rule": "The planned page-window cutoff is not a manuscript defect or a failed transport. Do not penalize continuation beyond page nine, a missing out-of-window conclusion, or reasonable appendix deferral.",
+    "completion": "Review the assigned page window, not the full appendix. Unplanned missing pages, unreadable evidence or request truncation remain input failures."
+  }
+}

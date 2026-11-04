@@ -1,0 +1,55 @@
+{
+  "protocol_id": "latex-writing-quality-9p-v1",
+  "scope_id": "target-pdf-first9-maintext-v1",
+  "verified_at_utc": "2026-11-04T14:27:37.608446+00:00",
+  "status": "local_checks_passed_candidate_awaiting_production_migration",
+  "software_verification_only": true,
+  "human_annotation": false,
+  "paid_llm_inference_run": false,
+  "rubric_sha256": "02e538e65740f9aa27ea69cdaede14625ca755447162f3641be4d69fcdfa8db0",
+  "guidance_sha256": "4ea4026501ff23bb3b209bf8815ed8209b15cdd5675f82c0aa9fce2ab866f58f",
+  "prompt_sha256": "e5753ff34384e1369893b89ac65fc74a4a1be0104ad2641a747669f2d648762b",
+  "checks": {
+    "frozen_cohort_and_60_original_pdfs": "passed",
+    "shared_human_model_scope_and_rubric": "passed",
+    "frontend_unit_tests": {
+      "passed": 42,
+      "failed": 0
+    },
+    "legacy_database_upgrade_and_concurrency": "passed",
+    "independent_fresh_database_migration004": "passed",
+    "browser_end_to_end": {
+      "status": "passed",
+      "checks": [
+        "Missing writing health locks registration and workspace without falling back to an older RPC namespace or touching archived recovery copies.",
+        "New profile starts at RL01 with an empty backend annotation map, 0/30 completed, five unanswered core ratings, no N/A, open definitions, default unassessed visual check, and no old recovery or evidence/private-note controls.",
+        "All six auxiliary PDF visual scale descriptions have substantial width and remain within their card at desktop and 390px viewport widths.",
+        "Target-only expanded viewer remains within 390px, 712px, and 1600px widths with a hittable return control and no hidden-reference fetch. Physical page 9→10 remains navigable in normal and expanded modes, later pages are marked auxiliary, and the full PDF page count is preserved.",
+        "Five core 5s plus assigned-window confirmation complete without auxiliary scores or version observations; the new profile uses only writing recovery storage.",
+        "Optional PDF visual score/issues persist on a completed row without changing five core 5s; issue controls require an assessment, clicking the selected score is a no-op, and Clear restores not_assessed/null/empty.",
+        "Missing any core response or missing full-scope confirmation blocks completion; all five 5s complete regardless of unassessed auxiliary checks, first-unfinished resume and bottom navigation select RL02/RL03.",
+        "A failed first-exposure save keeps the reference hidden and makes no official-PDF request.",
+        "The official PDF is requested only after a clean completed row saves reference_exposed=true; a paused exposure save keeps it hidden and duplicate open clicks are blocked.",
+        "All seven optional version flags and a maximum-length note save on a completed row with five core 5s and auxiliary 1; no auxiliary score or difference count caps writing quality.",
+        "Normal and expanded two-view page sync preserves independent offsets, advances relative pages, clamps at the last page with a boundary message, and retains a stable, hittable sticky switch at 390px, 712px, and 1600px.",
+        "Closing/reopening and reload preserve exposure; a core edit reopens draft and hides the official reference while retaining monotonic metadata, and the server rejects attempts to clear it.",
+        "Recovery code restores the same profile on a second device; optimistic revision conflict preserves the authoritative row and offers only the namespaced private unsaved-recovery download.",
+        "A separate profile confirms a failed exposure save keeps the optional reference hidden and makes no official-PDF request."
+      ],
+      "page_errors": [],
+      "unexpected_requests": []
+    }
+  },
+  "local_environment": {
+    "postgresql_major": 18,
+    "browser": "installed Chrome via Playwright, isolated temporary profile"
+  },
+  "production": {
+    "migration004": "awaiting_database_owner_execution",
+    "frontend": "not_published_before_matching_health"
+  },
+  "limits": [
+    "No600-paper source-to-page input builder or paid model scoring is executed by this update.",
+    "A nine-page audit does not establish quality of the unscored full article or appendix."
+  ]
+}

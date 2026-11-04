@@ -1,4 +1,4 @@
-// Synthetic browser regression for latex-writing-quality-v1 against disposable PostgreSQL.
+// Synthetic browser regression for latex-writing-quality-9p-v1 against disposable PostgreSQL.
 // Never use this fixture or its judgments as human annotation data.
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const { spawn } = require('node:child_process');
@@ -7,11 +7,11 @@ const fs = require('node:fs');
 const assert = require('node:assert/strict');
 
 const root = path.resolve(__dirname, '..');
-const artifacts = path.join(root, '.runtime', 'browser-writing-results');
+const artifacts = path.join(root, '.runtime', 'browser-writing9p-results');
 fs.mkdirSync(artifacts, { recursive: true });
 const reportPath = path.join(artifacts, process.env.WRITING_RESUME_SMOKE === '1' ? 'resume-smoke-report.json' : 'report.json');
 const config = JSON.parse(fs.readFileSync(path.join(root, 'site/config.json'), 'utf8'));
-const contract = JSON.parse(fs.readFileSync(path.join(root, 'site/protocols/latex-writing-quality-v1/protocol.json'), 'utf8'));
+const contract = JSON.parse(fs.readFileSync(path.join(root, 'site/protocols/latex-writing-quality-9p-v1/protocol.json'), 'utf8'));
 const manifest = JSON.parse(fs.readFileSync(path.join(root, 'site/manifest.json'), 'utf8'));
 const scoreKeys = contract.score_keys;
 const differenceKeys = contract.version_difference_keys;
@@ -53,6 +53,7 @@ function oldRecoveryKeys(id) {
   return [
     'xacl.annotation.recovery:' + suffix,
     'xacl.document-quality-v1.recovery:' + suffix,
+    'xacl.latex-writing-quality-v1.recovery:' + suffix,
   ];
 }
 
@@ -95,7 +96,7 @@ async function rpc(context, name, args = {}) {
 }
 
 async function writingRecord(context, id) {
-  return (await rpc(context, 'xacl_writing_load_annotations', { p_annotator_id: id })).record;
+  return (await rpc(context, 'xacl_writing9p_load_annotations', { p_annotator_id: id })).record;
 }
 
 async function saved(context, id, predicate, message) {
@@ -140,8 +141,8 @@ async function freshContext(id, options = {}) {
     '  window.__writingOldStorageCalls = [];',
     '  window.__writingNewStorageCalls = [];',
     '  for (const key of keys) if (rawGet.call(localStorage, key) === null) rawSet.call(localStorage, key, sentinel);',
-    '  const isOld = (name) => typeof name === "string" && (name.startsWith("xacl.annotation.recovery:") || name.startsWith("xacl.document-quality-v1.recovery:"));',
-    '  const isWriting = (name) => typeof name === "string" && name.startsWith("xacl.latex-writing-quality-v1.recovery:");',
+    '  const isOld = (name) => typeof name === "string" && (name.startsWith("xacl.annotation.recovery:") || name.startsWith("xacl.document-quality-v1.recovery:") || name.startsWith("xacl.latex-writing-quality-v1.recovery:"));',
+    '  const isWriting = (name) => typeof name === "string" && name.startsWith("xacl.latex-writing-quality-9p-v1.recovery:");',
     '  Storage.prototype.getItem = function (name) { if (isOld(name)) window.__writingOldStorageCalls.push(["get", name]); return rawGet.call(this, name); };',
     '  Storage.prototype.setItem = function (name, value) { if (isOld(name)) window.__writingOldStorageCalls.push(["set", name]); if (isWriting(name)) window.__writingNewStorageCalls.push(["set", name]); return rawSet.call(this, name, value); };',
     '  Storage.prototype.removeItem = function (name) { if (isOld(name)) window.__writingOldStorageCalls.push(["remove", name]); if (isWriting(name)) window.__writingNewStorageCalls.push(["remove", name]); return rawRemove.call(this, name); };',
@@ -162,11 +163,11 @@ async function freshContext(id, options = {}) {
     if (name) {
       report.writing_rpc_calls.push(name);
       try { body = request.postDataJSON(); } catch { body = null; }
-      if (name === 'xacl_writing_save_annotations' && body && body.p_record &&
+      if (name === 'xacl_writing9p_save_annotations' && body && body.p_record &&
           Object.values(body.p_record.annotations || {}).some((row) => row && row.reference_exposed === true)) {
         report.event_order.push({ context: label, event: 'exposure-save-start' });
       }
-      if (options.healthUnavailable && name === 'xacl_writing_annotation_health') {
+      if (options.healthUnavailable && name === 'xacl_writing9p_annotation_health') {
         await route.fulfill({
           status: 404,
           contentType: 'application/json',
@@ -175,13 +176,13 @@ async function freshContext(id, options = {}) {
         });
         return;
       }
-      if (name === 'xacl_writing_save_annotations' && control.pauseNextSave) {
+      if (name === 'xacl_writing9p_save_annotations' && control.pauseNextSave) {
         const gate = control.pauseNextSave;
         control.pauseNextSave = null;
         gate.startResolve();
         await gate.waiting;
       }
-      if (name === 'xacl_writing_save_annotations' && control.failNextSave) {
+      if (name === 'xacl_writing9p_save_annotations' && control.failNextSave) {
         control.failNextSave = false;
         report.event_order.push({ context: label, event: 'forced-save-failure' });
         await route.fulfill({
@@ -200,8 +201,8 @@ async function freshContext(id, options = {}) {
       ...(request.postData() ? { data: request.postDataJSON() } : {}),
     });
     if (name) {
-      report.event_order.push({ context: label, event: name === 'xacl_writing_save_annotations' ? 'save-response-ready' : 'rpc-response', name });
-      if (name === 'xacl_writing_save_annotations' && body && body.p_record &&
+      report.event_order.push({ context: label, event: name === 'xacl_writing9p_save_annotations' ? 'save-response-ready' : 'rpc-response', name });
+      if (name === 'xacl_writing9p_save_annotations' && body && body.p_record &&
           Object.values(body.p_record.annotations || {}).some((row) => row && row.reference_exposed === true)) {
         report.event_order.push({ context: label, event: 'exposure-save-acknowledged-by-bridge' });
       }
@@ -255,6 +256,16 @@ async function renderedTarget(page, sampleId) {
       canvas.dataset.renderedSample === id && canvas.dataset.renderedPage === '1' &&
       stage && stage.getAttribute('aria-busy') === 'false';
   }, sampleId, { timeout: 60000 });
+}
+
+async function renderedTargetPage(page, sampleId, pageNumber) {
+  await page.waitForFunction(({ id, expectedPage }) => {
+    const canvas = document.querySelector('[data-canvas="compiled"]');
+    const stage = document.querySelector('[data-stage="compiled"]');
+    return canvas && canvas.dataset.renderedSample === id &&
+      canvas.dataset.renderedPage === String(expectedPage) &&
+      !canvas.classList.contains('is-hidden') && stage?.getAttribute('aria-busy') === 'false';
+  }, { id: sampleId, expectedPage: pageNumber }, { timeout: 60000 });
 }
 
 async function renderedBoth(page, sampleId, compiledPage, officialPage) {
@@ -367,13 +378,14 @@ async function setCoreScores(page, values) {
 async function assertOldRecoveryUntouched(page, id) {
   const result = await page.evaluate(() => ({
     calls: window.__writingOldStorageCalls || [],
-    values: (window.__writingRawGet ? [
-      window.__writingRawGet.call(localStorage, window.__writingOldKeys[0]),
-      window.__writingRawGet.call(localStorage, window.__writingOldKeys[1]),
-    ] : []),
+    values: (window.__writingRawGet && Array.isArray(window.__writingOldKeys)
+      ? window.__writingOldKeys.map((key) => window.__writingRawGet.call(localStorage, key))
+      : []),
   }));
-  assert.deepEqual(result.calls, [], 'Old alignment and document-quality recovery keys must never be read, written, or removed.');
-  assert.deepEqual(result.values, [JSON.stringify({ synthetic_test_sentinel: true, never_import: true }), JSON.stringify({ synthetic_test_sentinel: true, never_import: true })]);
+  assert.deepEqual(result.calls, [], 'Archived alignment, document-quality, and full-scope writing recovery keys must never be read, written, or removed.');
+  assert.equal(result.values.length, 3, 'The archived alignment, document-quality, and full-scope writing recovery keys must all be checked.');
+  assert.deepEqual(result.values, Array(3).fill(JSON.stringify({ synthetic_test_sentinel: true, never_import: true })),
+    'Archived alignment, document-quality, and full-scope writing recovery copies must remain unchanged.');
   assert.ok(id);
 }
 
@@ -381,7 +393,7 @@ async function assertNewRecovery(page, id, expectedSample, expectedScore) {
   const raw = await page.evaluate((key) => localStorage.getItem(key), writingRecoveryKey(id));
   assert.ok(raw, 'Unsaved writing work should use its own recovery namespace.');
   const recovery = JSON.parse(raw);
-  assert.equal(recovery.schema, 'xacl.latex-writing-quality-recovery.v1');
+  assert.equal(recovery.schema, 'xacl.latex-writing-quality-9p-recovery.v1');
   assert.equal(recovery.protocol_id, contract.protocol_id);
   assert.equal(recovery.unsaved, true);
   assert.equal(recovery.record.annotations[expectedSample].scores.language_clarity, expectedScore);
@@ -557,11 +569,11 @@ async function auditFocusLayout(page, width, height, sampleId, compiledPage, off
   }, null, { timeout: 20000 });
   assert.equal(await healthPage.locator('#load-session').isDisabled(), true);
   assert.ok(await healthPage.locator('#annotation-app').isHidden());
-  assert.deepEqual(report.writing_rpc_calls.filter((name) => name.startsWith('xacl_') && !name.startsWith('xacl_writing_')), []);
-  assert.deepEqual(report.writing_rpc_calls.filter((name) => name !== 'xacl_writing_annotation_health'), []);
+  assert.deepEqual(report.writing_rpc_calls.filter((name) => name.startsWith('xacl_') && !name.startsWith('xacl_writing9p_')), []);
+  assert.deepEqual(report.writing_rpc_calls.filter((name) => name !== 'xacl_writing9p_annotation_health'), []);
   await assertOldRecoveryUntouched(healthPage, annotatorId + '_HEALTH');
   await healthContext.close();
-  report.checks.push('Missing writing health locks registration and workspace without falling back to an older RPC namespace.');
+  report.checks.push('Missing writing health locks registration and workspace without falling back to an older RPC namespace or touching archived recovery copies.');
 
   const contextA = await freshContext(annotatorId, { label: 'primary-profile' });
   const pageA = await fresh(contextA);
@@ -572,6 +584,10 @@ async function auditFocusLayout(page, width, height, sampleId, compiledPage, off
   await renderedTarget(pageA, 'RL01');
   assert.match((await pageA.locator('#protocol-banner').innerText()).toLowerCase(), /writing/);
   assert.equal(await pageA.locator('#completion-count').innerText(), '0 / 30');
+  const publicationScope = (await pageA.locator('#publication-notice').innerText()).toLowerCase();
+  assert.match(publicationScope, /physical pages 1–9/);
+  assert.match(publicationScope, /appendix and reference sections are auxiliary/);
+  assert.match((await pageA.locator('#reviewed-full-scope').locator('xpath=..').innerText()).toLowerCase(), /physical pdf pages 1–9/);
   assert.deepEqual(await pageA.locator('[data-score-key]').evaluateAll((nodes) => [...new Set(nodes.map((node) => node.dataset.scoreKey))]), scoreKeys);
   assert.equal(await pageA.locator('.score-card').count(), 5);
   assert.equal(await pageA.locator('.score-card .score-scale-details[open]').count(), 5, 'All five core definitions start open.');
@@ -617,8 +633,28 @@ async function auditFocusLayout(page, width, height, sampleId, compiledPage, off
   await targetFocusLayout(pageA, 1600, 1050);
   await pageA.locator('[data-exit-focus]').click();
   await pageA.setViewportSize({ width: 1600, height: 1050 });
+  const targetPageCount = manifest.papers.find((paper) => paper.sample_id === 'RL01').compiled_pdf.pages;
+  assert.ok(targetPageCount > 9, 'The PDF navigation regression requires a sample with auxiliary pages.');
+  assert.equal(await pageA.locator('[data-page-count="compiled"]').innerText(), String(targetPageCount), 'The viewer reports the actual full PDF page count.');
+  await setPageInput(pageA, 'compiled', 9);
+  assert.equal(await pageA.locator('#assessment-page-scope').isVisible(), true);
+  assert.match((await pageA.locator('#assessment-page-scope').innerText()).toLowerCase(), /within the core scoring window/);
+  await pageA.locator('[data-viewer-action="next"][data-viewer="compiled"]').click();
+  await renderedTargetPage(pageA, 'RL01', 10);
+  assert.match((await pageA.locator('#assessment-page-scope').innerText()).toLowerCase(), /auxiliary reference material/);
+  await pageA.locator('#focus-viewers').click();
+  await setPageInput(pageA, 'compiled', 9);
+  assert.equal(await pageA.locator('#assessment-page-scope').isVisible(), true, 'The page-scope status must remain visible in expanded target-viewer mode.');
+  await pageA.locator('[data-viewer-action="next"][data-viewer="compiled"]').click();
+  await renderedTargetPage(pageA, 'RL01', 10);
+  assert.match((await pageA.locator('#assessment-page-scope').innerText()).toLowerCase(), /auxiliary reference material/);
+  await setPageInput(pageA, 'compiled', targetPageCount);
+  await renderedTargetPage(pageA, 'RL01', targetPageCount);
+  assert.equal(await pageA.locator('[data-page-input="compiled"]').inputValue(), String(targetPageCount));
+  await pageA.locator('[data-exit-focus]').click();
+  await setPageInput(pageA, 'compiled', 1);
   await assertNoOfficial(contextA, 'Expanding the target viewer must never request the official PDF.');
-  report.checks.push('Target-only expanded viewer remains within 390px, 712px, and 1600px widths with a hittable return control and no hidden-reference fetch.');
+  report.checks.push('Target-only expanded viewer remains within 390px, 712px, and 1600px widths with a hittable return control and no hidden-reference fetch. Physical page 9→10 remains navigable in normal and expanded modes, later pages are marked auxiliary, and the full PDF page count is preserved.');
 
   await setCoreScores(pageA, Object.fromEntries(scoreKeys.map((key) => [key, 5])));
   await setScope(pageA, true);
@@ -639,9 +675,9 @@ async function auditFocusLayout(page, width, height, sampleId, compiledPage, off
   assert.equal(await pageA.locator('#version-audit-toggle').isDisabled(), false);
   const recoveryCalls = await pageA.evaluate(() => window.__writingNewStorageCalls || []);
   assert.ok(recoveryCalls.some((call) => call[0] === 'set'), 'Unsaved edits must be written to the new writing recovery namespace.');
-  assert.ok(recoveryCalls.every((call) => call[1].startsWith('xacl.latex-writing-quality-v1.recovery:')));
+  assert.ok(recoveryCalls.every((call) => call[1].startsWith('xacl.latex-writing-quality-9p-v1.recovery:')));
   await assertOldRecoveryUntouched(pageA, annotatorId);
-  report.checks.push('Five core 5s plus full-scope confirmation complete without auxiliary scores or version observations; the new profile uses only writing recovery storage.');
+  report.checks.push('Five core 5s plus assigned-window confirmation complete without auxiliary scores or version observations; the new profile uses only writing recovery storage.');
 
   for (const key of visualIssueKeys) assert.equal(await pageA.locator('[data-visual-issue-key="' + key + '"]').isDisabled(), true);
   await pageA.locator('[data-visual-score="1"]').click();
@@ -865,7 +901,7 @@ async function auditFocusLayout(page, width, height, sampleId, compiledPage, off
   attemptedClear.annotations.RL01.reference_exposed = false;
   attemptedClear.annotations.RL01.updated_at = new Date().toISOString();
   attemptedClear.updated_at = attemptedClear.annotations.RL01.updated_at;
-  const clearResponse = await rawRpc(contextB, 'xacl_writing_save_annotations', {
+  const clearResponse = await rawRpc(contextB, 'xacl_writing9p_save_annotations', {
     p_annotator_id: annotatorId,
     p_record: attemptedClear,
     p_guidance_version: config.guidance_version,
@@ -908,10 +944,10 @@ async function auditFocusLayout(page, width, height, sampleId, compiledPage, off
   const recoveryDownloadPromise = pageC.waitForEvent('download');
   await pageC.locator('[data-download-recovery]').click();
   const recoveryDownload = await recoveryDownloadPromise;
-  assert.match(recoveryDownload.suggestedFilename(), /^latex-writing-quality-v1-.*-recovery\.json$/);
+  assert.match(recoveryDownload.suggestedFilename(), /^latex-writing-quality-9p-v1-.*-recovery\.json$/);
   const recoveryFile = JSON.parse(fs.readFileSync(await recoveryDownload.path(), 'utf8'));
   assert.equal(recoveryFile.protocol_id, contract.protocol_id);
-  assert.equal(recoveryFile.schema, 'xacl.latex-writing-quality-recovery.v1');
+  assert.equal(recoveryFile.schema, 'xacl.latex-writing-quality-9p-recovery.v1');
   assert.equal(recoveryFile.record.annotations.RL03.scores.language_clarity, 4);
   assert.equal(recoveryFile.unsaved, true);
   await assertOldRecoveryUntouched(pageB, annotatorId);
@@ -942,10 +978,10 @@ async function auditFocusLayout(page, width, height, sampleId, compiledPage, off
 
   assert.deepEqual(report.page_errors, [], 'No uncaught browser errors are permitted.');
   assert.deepEqual(report.unexpected_requests, [], 'The browser must not contact unexpected origins.');
-  assert.deepEqual(report.writing_rpc_calls.filter((name) => !name.startsWith('xacl_writing_')), [], 'The active writing app must use only its writing RPC namespace.');
-  assert.ok(report.writing_rpc_calls.includes('xacl_writing_register_annotator'));
-  assert.ok(report.writing_rpc_calls.includes('xacl_writing_resume_annotator'));
-  assert.ok(report.writing_rpc_calls.includes('xacl_writing_save_annotations'));
+  assert.deepEqual(report.writing_rpc_calls.filter((name) => !name.startsWith('xacl_writing9p_')), [], 'The active writing app must use only its writing RPC namespace.');
+  assert.ok(report.writing_rpc_calls.includes('xacl_writing9p_register_annotator'));
+  assert.ok(report.writing_rpc_calls.includes('xacl_writing9p_resume_annotator'));
+  assert.ok(report.writing_rpc_calls.includes('xacl_writing9p_save_annotations'));
   report.status = 'passed';
   console.log(JSON.stringify(report, null, 2));
 })().catch((error) => {

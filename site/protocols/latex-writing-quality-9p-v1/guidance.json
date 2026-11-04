@@ -1,0 +1,107 @@
+{
+  "schema": "xacl.latex-writing-quality-guidance.v1",
+  "version": "latex-writing-quality-9p-guidance-20261104-v1",
+  "protocol_id": "latex-writing-quality-9p-v1",
+  "title": {
+    "en": "Quick guidance",
+    "zh": "快速说明"
+  },
+  "scope": {
+    "en": "Score main-paper writing on physical PDF pages 1–9, or all pages if shorter. The complete appendix is available only as auxiliary reference.",
+    "zh": "核心评分针对目标 PDF 第1–9个物理页面中的正文；不足9页则全部提供。完整附录可浏览，仅作辅助参考。"
+  },
+  "quick_rules": [
+    {
+      "en": "Review physical pages 1–9, or all pages if the PDF is shorter. Score the main-paper writing in that window using the five shared 1–5 scales or Uncertain.",
+      "zh": "阅读第1–9个物理页面，不足9页则全部阅读；只评价此窗口内正文，使用五项共同的1–5分或“无法判断”。"
+    },
+    {
+      "en": "You may browse the full PDF and appendix for auxiliary reference. References, appendices and later pages are not core-scored; reading the complete appendix is not required.",
+      "zh": "可浏览完整 PDF 和附录辅助理解。参考文献、附录及后续页面不计核心分；无需读完整附录才能完成。"
+    },
+    {
+      "en": "Do not penalize text, a table or an equation continuing beyond page 9, a later conclusion, or details reasonably deferred to the appendix. Judge structure within the assigned window.",
+      "zh": "第9页之后续写的文字、表格、公式，窗口外结论，以及合理放入附录的细节不扣分；仅判断窗口内组织与叙述。"
+    },
+    {
+      "en": "Judge Overall directly. PDF visual quality and optional conference-version observations are separate and never cap writing scores. Use Uncertain if a display/input problem prevents judgment.",
+      "zh": "总体直接判断。PDF 视觉质量和可选会议版本观察单列，不限制写作分数；显示或输入问题确实妨碍判断时选“无法判断”。"
+    }
+  ],
+  "publication_notice": {
+    "title": {
+      "en": "Scoring window: first 9 pages",
+      "zh": "评分窗口：前至多9页"
+    },
+    "text": {
+      "en": "The complete target PDF remains available. Core scores concern main-paper writing within physical pages 1–9 (all pages if shorter). Appendix and reference sections are auxiliary material, even if they begin inside this window.",
+      "zh": "目标 PDF 可完整浏览。核心分只针对第1–9个物理页面内正文；不足9页则全部提供。附录和参考文献即使提前出现，也仅作辅助材料。"
+    }
+  },
+  "details_title": {
+    "en": "Detailed guidance",
+    "zh": "详细说明"
+  },
+  "details": [
+    {
+      "title": {
+        "en": "Reading scope and page numbers",
+        "zh": "阅读范围与页码"
+      },
+      "text": {
+        "en": "Count pages from the beginning of this PDF, including the title page, not printed proceedings numbers. The score applies to the main-paper content inside this window, not a claim about the complete article. Pages after the window remain accessible for context.",
+        "zh": "从 PDF 首页开始计数（含标题页），不使用印刷的论文集页码。评分只描述窗口内正文，不代表全文结论；窗口之后页面仍可用于辅助理解。"
+      }
+    },
+    {
+      "title": {
+        "en": "Appendix as auxiliary reference",
+        "zh": "附录仅作辅助参考"
+      },
+      "text": {
+        "en": "Consult an appendix when it helps explain an in-scope definition, method or reference. Do not score appendix prose, length or organization. Reasonable appendix deferral is not a structural defect; missing out-of-scope material is not proof of poor writing.",
+        "zh": "可按需查阅附录以理解窗口内定义、方法或引用，不评价附录文字、长度或组织。合理放入附录不等于结构缺陷，未观察范围外材料也不证明写作差。"
+      }
+    },
+    {
+      "title": {
+        "en": "Writing and technical expression",
+        "zh": "写作与技术表达"
+      },
+      "text": {
+        "en": "Assess clarity, flow, in-window organization and technical explanation. Do not demand a fixed section template or figures/equations. Do not rate novelty, acceptance merit, scientific correctness, code elegance or image aesthetics.",
+        "zh": "评价清晰度、连贯性、窗口内组织与技术解释。不要求固定章节模板或必须有图表公式，不评价创新性、录用价值、科学正确性、代码风格或图片美观。"
+      }
+    },
+    {
+      "title": {
+        "en": "Scope boundary versus an input failure",
+        "zh": "范围边界与输入失败"
+      },
+      "text": {
+        "en": "The planned page-nine boundary is not a defect and does not itself require Uncertain. Unexpected missing/unreadable pages or a source-display failure are input limitations. Use a readable representation of the same source, or choose Uncertain for affected dimensions.",
+        "zh": "预设第9页边界不是缺陷，也不必因此选“无法判断”。非预期缺页、页面不可读或源码呈现失败属于输入限制；查阅同源可读内容，仍受阻时相关项选“无法判断”。"
+      }
+    },
+    {
+      "title": {
+        "en": "Separate optional checks",
+        "zh": "独立的选填检查"
+      },
+      "text": {
+        "en": "Rate PDF visual integrity only for pages actually inspected. After core completion, you may reveal the official PDF for a separate version audit. Neither check changes core scores automatically. Evidence and private-note panels remain absent.",
+        "zh": "仅对实际检查页面评价 PDF 视觉质量。核心完成后可显示官方 PDF 单独核查版本；两者均不自动改变核心分数。不增加证据或个人备注必填框。"
+      }
+    },
+    {
+      "title": {
+        "en": "Fresh ratings for the nine-page scope",
+        "zh": "九页范围重新评分"
+      },
+      "text": {
+        "en": "Earlier full-scope writing, alignment and document-quality records remain separately archived. No previous scores are copied into this page-window protocol. Complete the five ratings and confirm the assigned window; no full-appendix review is required.",
+        "zh": "此前全文写作、对齐和文档质量记录单独保留，不复制为本协议评分。完成五项评分并确认已检查分配窗口即可，无需读完整附录。"
+      }
+    }
+  ]
+}

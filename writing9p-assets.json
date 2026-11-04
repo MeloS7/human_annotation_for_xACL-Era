@@ -1,0 +1,10 @@
+{
+  "schema": "xacl.writing9p-assets.v1",
+  "protocol_id": "latex-writing-quality-9p-v1",
+  "files": {
+    "protocols/latex-writing-quality-9p-v1/rubric.json": "02e538e65740f9aa27ea69cdaede14625ca755447162f3641be4d69fcdfa8db0",
+    "protocols/latex-writing-quality-9p-v1/guidance.json": "4ea4026501ff23bb3b209bf8815ed8209b15cdd5675f82c0aa9fce2ab866f58f",
+    "protocols/latex-writing-quality-9p-v1/protocol.json": "a80d44d1e6c753356a7528d4c78813dce1d69db9c315ec495f6b151b03ef400d",
+    "protocols/latex-writing-quality-v1/config.json": "fa8e39aa95adc7ca637ed9fe4d9a4438452f1adffeb0d1f6ced5b782e8b54f7e"
+  }
+}

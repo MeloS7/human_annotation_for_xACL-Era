@@ -23,7 +23,7 @@ import {
 const siteRoot = new URL("../site/", import.meta.url);
 const protocolRoot = new URL("protocols/latex-writing-quality-v1/", siteRoot);
 const fileBytes = new Map([
-  ["config.json", new Uint8Array(await readFile(new URL("config.json", siteRoot)))],
+  ["config.json", new Uint8Array(await readFile(new URL("protocols/latex-writing-quality-v1/config.json", siteRoot)))],
   ["manifest.json", new Uint8Array(await readFile(new URL("manifest.json", siteRoot)))],
   ["protocols/latex-writing-quality-v1/rubric.json", new Uint8Array(await readFile(new URL("rubric.json", protocolRoot)))],
   ["protocols/latex-writing-quality-v1/guidance.json", new Uint8Array(await readFile(new URL("guidance.json", protocolRoot)))],
