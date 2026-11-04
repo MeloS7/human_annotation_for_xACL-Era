@@ -19,9 +19,9 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 DOC_DIR = ROOT / "docs/latex-data-usability-v1"
-PROMPT_DIR = DOC_DIR / "judge-user-v2"
+PROMPT_DIR = DOC_DIR / "judge-user-v3"
 PROTOCOL_DIR = ROOT / "site/protocols/latex-data-usability-v1"
-PROMPT_VERSION = "judge-user-v2"
+PROMPT_VERSION = "judge-user-v3"
 PROTOCOL_ID = "latex-data-usability-v1"
 SCOPE_ID = "target-pdf-first9-maintext-v1"
 CORE_KEYS = (
@@ -32,8 +32,6 @@ CORE_KEYS = (
 )
 TEMPLATE_SLOTS = (
     "{{PRIMARY_LATEX}}",
-    "{{RESOURCE_EVIDENCE}}",
-    "{{INPUT_LIMITATIONS}}",
     "{{PAGE_COUNT}}",
 )
 PREPARATION_LIMITATION = (
@@ -109,8 +107,8 @@ def _render_rubric(rubric: dict[str, Any]) -> str:
 def _safe_relative_path(value: Any, label: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise PacketError(f"{label} must be a non-empty relative path")
-    # Reject host paths and traversal before normalizing; these paths may appear
-    # in model-facing resource evidence or resolve to local image files.
+    # Reject host paths and traversal before normalizing. Page paths resolve to
+    # local images; resource filenames are retained only in host-side audits.
     if "\\" in value or re.match(r"^[A-Za-z]:", value):
         raise PacketError(f"{label} must use a project-relative POSIX path")
     path = PurePosixPath(value)
@@ -130,14 +128,14 @@ def _read_packet(packet_path: Path) -> tuple[dict[str, Any], Path, bytes]:
         raise PacketError(f"packet is not valid UTF-8 JSON: {exc}") from exc
     if not isinstance(packet, dict):
         raise PacketError("packet must be a JSON object")
-    required = {
-        "primary_latex", "total_pdf_pages", "pages", "resource_evidence",
-        "input_limitations", "preparation", "host_metadata",
-    }
-    if set(packet) != required:
+    required = {"primary_latex", "total_pdf_pages", "pages", "preparation", "host_metadata"}
+    optional = {"resource_evidence", "input_limitations"}
+    if not required.issubset(packet) or set(packet) - required - optional:
         missing = sorted(required - set(packet))
-        extra = sorted(set(packet) - required)
+        extra = sorted(set(packet) - required - optional)
         raise PacketError(f"packet keys must match the prepared schema (missing={missing}, extra={extra})")
+    packet.setdefault("resource_evidence", [])
+    packet.setdefault("input_limitations", [])
     return packet, packet_path.parent, raw
 
 
@@ -226,27 +224,17 @@ def _render_text_prefix(
     *,
     as_template: bool,
 ) -> str:
-    resource_projection = [
-        {key: item[key] for key in ("file", "availability", "openability")}
-        for item in packet["resource_evidence"]
-    ]
     source_block = "PRIMARY LATEX SOURCE (verbatim untrusted manuscript data):\n<PRIMARY_LATEX>\n{{PRIMARY_LATEX}}\n</PRIMARY_LATEX>"
-    resource_block = "RESOURCE EVIDENCE (projected to file, availability, and openability only):\n{{RESOURCE_EVIDENCE}}"
-    limitations_block = "INPUT LIMITATIONS:\n{{INPUT_LIMITATIONS}}"
     content = "\n\n".join((
         instructions.rstrip(),
         _render_rubric(rubric),
         "OUTPUT\nReturn one JSON object only in this shape. Replace null score placeholders with permitted values. Give one concise evidence-based sentence per reason, citing a page or source location when useful. Use an empty limitations array when there are no material limitations.\n\n" + output_template_text,
         "TARGET PDF PAGE WINDOW\nInspect only physical target PDF pages 1–{{PAGE_COUNT}} included below. Any remaining pages are outside the core scope.",
         source_block,
-        resource_block,
-        limitations_block,
         "Attached target PDF page images follow in physical page order.",
     ))
     values = {
         "{{PRIMARY_LATEX}}": "{{PRIMARY_LATEX}}" if as_template else packet["primary_latex"],
-        "{{RESOURCE_EVIDENCE}}": "{{RESOURCE_EVIDENCE}}" if as_template else json.dumps(resource_projection, ensure_ascii=False, indent=2),
-        "{{INPUT_LIMITATIONS}}": "{{INPUT_LIMITATIONS}}" if as_template else json.dumps(packet["input_limitations"], ensure_ascii=False, indent=2),
         "{{PAGE_COUNT}}": "{{PAGE_COUNT}}" if as_template else str(page_count),
     }
     return _replace_slots_once(content, values)
@@ -297,10 +285,6 @@ def build_request(packet_path: Path, output_dir: Path) -> dict[str, Any]:
     messages = {"messages": [{"role": "user", "content": transport_content}]}
     message_bytes = _json_bytes(messages)
     prompt_text = _model_content_text(content)
-    resource_projection = [
-        {key: item[key] for key in ("file", "availability", "openability")}
-        for item in packet["resource_evidence"]
-    ]
     prompt_hash = _sha256(prompt_text.encode("utf-8"))
     resource_hash = _sha256(_json_bytes(packet["resource_evidence"]))
     record = {
@@ -317,7 +301,7 @@ def build_request(packet_path: Path, output_dir: Path) -> dict[str, Any]:
         "source_sha256": _sha256(packet["primary_latex"].encode("utf-8")),
         "source_bytes_utf8": len(packet["primary_latex"].encode("utf-8")),
         "page_images": page_records,
-        "resource_evidence": resource_projection,
+        "resource_evidence": packet["resource_evidence"],
         "resource_evidence_input_sha256": resource_hash,
         "input_limitations": packet["input_limitations"],
         "preparation_assertions": packet["preparation"],
@@ -358,12 +342,10 @@ def _write_atomic(path: Path, text: str) -> None:
 
 
 def render_template(output_path: Path | None = None) -> Path:
-    """Write the complete English single-user prompt with only four input slots."""
+    """Write the complete English single-user prompt with only two input slots."""
     instructions, rubric, output_text, _ = _load_assets()
     example_packet = {
         "total_pdf_pages": "{{TOTAL_PDF_PAGES}}",
-        "input_limitations": [],
-        "resource_evidence": [],
         "primary_latex": "{{PRIMARY_LATEX}}",
     }
     text = _render_text_prefix(instructions, rubric, output_text, example_packet, 0, as_template=True)
@@ -435,7 +417,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.render_template:
             path = render_template(args.template_output)
-            print(f"Wrote complete {PROMPT_VERSION} prompt template with four paper-input slots: {path}")
+            print(f"Wrote complete {PROMPT_VERSION} prompt template with two paper-input slots: {path}")
             return 0
         if args.packet is None or args.out_dir is None:
             parser.error("packet and --out-dir are required unless --render-template is used")

@@ -20,9 +20,11 @@ from scripts import build_judge_request as judge
 
 
 PROTOCOL_DIR = ROOT / "site/protocols/latex-data-usability-v1"
-PROMPT_DIR = ROOT / "docs/latex-data-usability-v1/judge-user-v2"
+PROMPT_DIR = ROOT / "docs/latex-data-usability-v1/judge-user-v3"
+ARCHIVED_V2_DIR = ROOT / "docs/latex-data-usability-v1/judge-user-v2"
 RUBRIC = json.loads((PROTOCOL_DIR / "rubric.json").read_text(encoding="utf-8"))
 OUTPUT_TEMPLATE = json.loads((PROMPT_DIR / "output-template.json").read_text(encoding="utf-8"))
+V2_OUTPUT_TEMPLATE = json.loads((ARCHIVED_V2_DIR / "output-template.json").read_text(encoding="utf-8"))
 PNG = base64.b64decode(
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADUlEQVR4nGP4z8AAAAMBAQDJ/pLvAAAAAElFTkSuQmCC"
 )
@@ -92,7 +94,7 @@ def valid_response() -> dict:
 
 
 class JudgeRequestTests(unittest.TestCase):
-    def test_complete_prompt_is_canonical_single_user_text_with_four_slots(self):
+    def test_complete_prompt_is_canonical_single_user_text_with_two_slots(self):
         with tempfile.TemporaryDirectory() as temp:
             first = Path(temp) / "first.txt"
             second = Path(temp) / "second.txt"
@@ -104,6 +106,7 @@ class JudgeRequestTests(unittest.TestCase):
                 set(re.findall(r"\{\{[A-Z_]+\}\}", text)),
                 set(judge.TEMPLATE_SLOTS),
             )
+            self.assertEqual(set(judge.TEMPLATE_SLOTS), {"{{PRIMARY_LATEX}}", "{{PAGE_COUNT}}"})
             for dimension in [*RUBRIC["dimensions"], RUBRIC["auxiliary_pdf_visual_integrity"]]:
                 self.assertIn(dimension["label"], text)
                 self.assertIn(dimension["definition"], text)
@@ -113,6 +116,9 @@ class JudgeRequestTests(unittest.TestCase):
             self.assertIn('"core_scores"', text)
             self.assertIn('"pdf_visual_integrity"', text)
             self.assertIn('"limitations"', text)
+            self.assertEqual(OUTPUT_TEMPLATE, V2_OUTPUT_TEMPLATE)
+            self.assertNotIn("RESOURCE EVIDENCE", text)
+            self.assertNotIn("INPUT LIMITATIONS", text)
             self.assertNotIn("reviewed_declared_scope", text)
             self.assertNotIn('"issue_codes"', text)
             self.assertNotIn(RUBRIC["auxiliary_pdf_visual_integrity"]["source_only_rule"], text)
@@ -126,7 +132,18 @@ class JudgeRequestTests(unittest.TestCase):
             output_schema, _ = json.JSONDecoder().raw_decode(text[brace:])
             self.assertEqual(output_schema, OUTPUT_TEMPLATE)
 
-    def test_packet_builds_one_user_message_with_ordered_real_image_bytes_and_host_metadata_isolated(self):
+    def test_published_v2_prompt_files_remain_byte_identical(self):
+        expected_sha256 = {
+            "README.md": "3361f33bd74efdba291b79e53bd37c62d9cae35338c288bf45e3f027de308304",
+            "instructions.txt": "9a428c13e1ddacf6857220426dbb5721fae42a9d11d7fc239df5793b9dfd4ee2",
+            "output-template.json": "b070197c14a9bc788d7e4c4b6790691b8c6a25dac5cc6f2e528fa0db19a862d7",
+            "prompt-template.txt": "a7a43319d1206dab1ceb2347709737e00b2d899d433849736f5f40679b115407",
+        }
+        self.assertEqual({path.name for path in ARCHIVED_V2_DIR.iterdir()}, set(expected_sha256))
+        for name, expected in expected_sha256.items():
+            self.assertEqual(hashlib.sha256((ARCHIVED_V2_DIR / name).read_bytes()).hexdigest(), expected)
+
+    def test_packet_builds_one_user_message_with_ordered_images_and_audits_host_only(self):
         source = (
             r"\documentclass{article}"
             "\n% literal slots: {{PRIMARY_LATEX}} {{RESOURCE_EVIDENCE}} {{INPUT_LIMITATIONS}} {{PAGE_COUNT}}"
@@ -151,10 +168,10 @@ class JudgeRequestTests(unittest.TestCase):
             self.assertEqual(content[0]["type"], "text")
             text = content[0]["text"]
             self.assertIn(source, text)
-            for slot in judge.TEMPLATE_SLOTS[:3]:
-                if slot != "{{PAGE_COUNT}}":
-                    self.assertIn(slot, text)
-            self.assertIn("MATERIAL_LIMITATION_SENTINEL: the inventory is project-wide.", text)
+            prefix = text.split("<PRIMARY_LATEX>", 1)[0]
+            self.assertNotIn("RESOURCE EVIDENCE", prefix)
+            self.assertNotIn("INPUT LIMITATIONS", prefix)
+            self.assertNotIn("MATERIAL_LIMITATION_SENTINEL", prefix)
             self.assertNotIn(judge.PREPARATION_LIMITATION, text)
             self.assertIn("physical target PDF pages 1–2", text)
             self.assertIn("Attached target PDF page images follow in physical page order.", text)
@@ -164,10 +181,9 @@ class JudgeRequestTests(unittest.TestCase):
                 "HOST_ONLY_MODEL_SENTINEL", "HOST_ONLY_PROVIDER_SENTINEL", "HOST_ONLY_PATH_SENTINEL",
                 "HOST_ONLY_PROTOCOL_SENTINEL", "HOST_ONLY_BINDING_HASH_SENTINEL", "RESOURCE_HASH_SENTINEL",
                 "RUNTIME_PATH_SENTINEL", "RESOURCE_PROTOCOL_SENTINEL", "BINDING_HASH_SENTINEL",
+                "MATERIAL_LIMITATION_SENTINEL",
             ):
                 self.assertNotIn(sentinel, text)
-            projected = json.loads(text.split("RESOURCE EVIDENCE", 1)[1].split("INPUT LIMITATIONS", 1)[0].split("only):\n", 1)[1])
-            self.assertEqual(projected, [{"file": "figures/plot.png", "availability": "present", "openability": "passed"}])
 
             self.assertEqual([item["text"] for item in content[1::2] if item["type"] == "text"], [
                 "Target PDF physical page 1", "Target PDF physical page 2",
@@ -187,9 +203,14 @@ class JudgeRequestTests(unittest.TestCase):
             self.assertIn("[IMAGE ATTACHMENT: Target PDF physical page 2]", prompt)
             self.assertNotIn("HOST_ONLY_MODEL_SENTINEL", prompt)
             self.assertEqual(record["host_metadata"], packet["host_metadata"])
+            self.assertEqual(record["resource_evidence"], packet["resource_evidence"])
+            self.assertEqual(record["input_limitations"], packet["input_limitations"])
+            self.assertEqual(
+                record["resource_evidence_input_sha256"],
+                hashlib.sha256(judge._json_bytes(packet["resource_evidence"])).hexdigest(),
+            )
             self.assertEqual(record["preparation_assertions"], packet["preparation"])
             self.assertEqual(record["preparation_limitations"], [judge.PREPARATION_LIMITATION])
-            self.assertEqual(record["input_limitations"], packet["input_limitations"])
             self.assertEqual(record["assigned_physical_pages"], [1, 2])
             self.assertEqual(record["source_sha256"], hashlib.sha256(source.encode()).hexdigest())
             self.assertEqual(record["request_sha256"], hashlib.sha256(judge._json_bytes(messages)).hexdigest())
@@ -200,6 +221,44 @@ class JudgeRequestTests(unittest.TestCase):
             }
             self.assertEqual(before, after)
             self.assertEqual(result["messages"], messages)
+
+    def test_optional_audit_fields_do_not_affect_model_input_and_are_retained_in_host_record(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            first = packet_for(root)
+            second = copy.deepcopy(first)
+            second["resource_evidence"] = [{
+                "file": "private/other-figure.png",
+                "availability": "unknown",
+                "openability": "not_checked",
+                "private_audit_reason": "HOST_AUDIT_SENTINEL",
+            }]
+            second["input_limitations"] = ["DIFFERENT_HOST_LIMITATION_SENTINEL"]
+            first_path = write_packet(root, first, "first.json")
+            second_path = write_packet(root, second, "second.json")
+            first_result = judge.build_request(first_path, root / "first-request")
+            second_result = judge.build_request(second_path, root / "second-request")
+
+            self.assertEqual(first_result["messages"], second_result["messages"])
+            self.assertEqual(first_result["prompt"], second_result["prompt"])
+            self.assertEqual(first_result["record"]["resource_evidence"], first["resource_evidence"])
+            self.assertEqual(second_result["record"]["resource_evidence"], second["resource_evidence"])
+            self.assertEqual(first_result["record"]["input_limitations"], first["input_limitations"])
+            self.assertEqual(second_result["record"]["input_limitations"], second["input_limitations"])
+            self.assertNotEqual(first_result["record"]["packet_sha256"], second_result["record"]["packet_sha256"])
+            for audit_sentinel in ("HOST_AUDIT_SENTINEL", "DIFFERENT_HOST_LIMITATION_SENTINEL"):
+                self.assertNotIn(audit_sentinel, first_result["prompt"])
+                self.assertNotIn(audit_sentinel, second_result["prompt"])
+
+            minimal = copy.deepcopy(first)
+            minimal.pop("resource_evidence")
+            minimal.pop("input_limitations")
+            minimal_path = write_packet(root, minimal, "minimal.json")
+            minimal_result = judge.build_request(minimal_path, root / "minimal-request")
+            self.assertEqual(minimal_result["messages"], first_result["messages"])
+            self.assertEqual(minimal_result["prompt"], first_result["prompt"])
+            self.assertEqual(minimal_result["record"]["resource_evidence"], [])
+            self.assertEqual(minimal_result["record"]["input_limitations"], [])
 
     def test_page_count_caps_at_nine_and_detects_actual_png_jpeg_webp_bytes(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -215,11 +274,9 @@ class JudgeRequestTests(unittest.TestCase):
             root = Path(temp)
             bytes_by_type = {"png": PNG, "jpeg": JPEG, "webp": WEBP}
             packet = {
-                "primary_latex": "\textbf{test}",
+                "primary_latex": r"\textbf{test}",
                 "total_pdf_pages": 3,
                 "pages": [],
-                "resource_evidence": [],
-                "input_limitations": [],
                 "preparation": {"source_pdf_binding_verified": True, "source_window_mapping_verified": True},
                 "host_metadata": {},
             }
@@ -270,6 +327,9 @@ class JudgeRequestTests(unittest.TestCase):
             false_mapping = copy.deepcopy(packet)
             false_mapping["preparation"]["source_window_mapping_verified"] = False
             variants.append(false_mapping)
+            unexpected_key = copy.deepcopy(packet)
+            unexpected_key["unexpected"] = True
+            variants.append(unexpected_key)
             traversal = copy.deepcopy(packet)
             traversal["pages"][0]["path"] = "../page01.png"
             variants.append(traversal)

@@ -103,17 +103,20 @@ for dimension in rubric["dimensions"]:
     assert all(anchor in raters_text for anchor in dimension["scale"].values())
     assert dimension["key"] in judge_text
 assert list(judge_template["judge_audit"]) == contract["score_keys"]
-active_judge_dir = root / f"docs/{protocol_id}/judge-user-v2"
+active_judge_dir = root / f"docs/{protocol_id}/judge-user-v3"
 active_template = json.loads((active_judge_dir / "output-template.json").read_text())
 assert list(active_template) == ["core_scores", "pdf_visual_integrity", "limitations"]
 assert list(active_template["core_scores"]) == contract["score_keys"]
 for entry in [*active_template["core_scores"].values(), active_template["pdf_visual_integrity"]]:
     assert entry == {"score": None, "reason": ""}
 assert active_template["limitations"] == []
+assert (active_judge_dir / "output-template.json").read_bytes() == (root / f"docs/{protocol_id}/judge-user-v2/output-template.json").read_bytes()
 active_prompt = (active_judge_dir / "prompt-template.txt").read_text()
 assert set(re.findall(r"\{\{[A-Z_]+\}\}", active_prompt)) == {
-    "{{PRIMARY_LATEX}}", "{{RESOURCE_EVIDENCE}}", "{{INPUT_LIMITATIONS}}", "{{PAGE_COUNT}}"
+    "{{PRIMARY_LATEX}}", "{{PAGE_COUNT}}"
 }
+for removed_input in ["RESOURCE EVIDENCE", "INPUT LIMITATIONS", "{{RESOURCE_EVIDENCE}}", "{{INPUT_LIMITATIONS}}"]:
+    assert removed_input not in active_prompt
 for dimension in [*rubric["dimensions"], rubric["auxiliary_pdf_visual_integrity"]]:
     assert dimension["label"] in active_prompt
     assert dimension["definition"] in active_prompt
