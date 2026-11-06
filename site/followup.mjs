@@ -53,8 +53,16 @@ const isObject = (value) => Boolean(value && typeof value === "object" && !Array
 const owns = (value, key) => Object.prototype.hasOwnProperty.call(value || {}, key);
 const sha256Pattern = /^[a-f0-9]{64}$/;
 const idPattern = /^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/;
-const validTimestamp = (value) => typeof value === "string" && value.length <= 64 &&
-  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})$/.test(value) && Number.isFinite(Date.parse(value));
+function validTimestamp(value) {
+  if (typeof value !== "string" || value.length > 64) return false;
+  const match = /^(\d{4})-(\d{2})-(\d{2})T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})$/.exec(value);
+  if (!match || !Number.isFinite(Date.parse(value))) return false;
+  const [, year, month, day] = match.map(Number);
+  const date = new Date(0);
+  date.setUTCFullYear(year, month - 1, day);
+  date.setUTCHours(0, 0, 0, 0);
+  return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
+}
 
 function exactlyKeys(value, keys) {
   return isObject(value) && Object.keys(value).length === keys.length && keys.every((key) => owns(value, key));
@@ -226,12 +234,12 @@ async function fetchJsonWithBytes(path) {
 }
 
 const state = {
-  initialized: false, config: null, apiConfig: null, manifest: null, guidance: null,
+  config: null, apiConfig: null, manifest: null, guidance: null,
   client: null, record: null, annotatorId: "", activeSampleId: "", authMode: "create",
-  currentProfile: "", currentProfileRecord: null, pendingRegistration: null,
-  orderedPapers: [], fileIndex: new Map(), evidence: null, pdfUrl: "", pdfLoadReady: false,
+  currentProfile: "", pendingRegistration: null,
+  orderedPapers: [], evidence: null, pdfUrl: "", pdfLoadReady: false,
   verifiedThisSession: new Set(), dirty: false, saving: false, savePromise: null,
-  editVersion: 0, saveTimer: 0, toastTimer: 0, modeSwitchLocked: false,
+  editVersion: 0, saveTimer: 0, toastTimer: 0,
   bundleGeneration: 0, pdfRequestSerial: 0,
 };
 
@@ -309,22 +317,6 @@ function validateRecordOrThrow(record, annotatorId = undefined) {
   return record;
 }
 
-function newRecord(annotatorId, revision = 0) {
-  const stamp = new Date().toISOString();
-  return {
-    schema: state.config.record_schema,
-    protocol_id: state.config.protocol_id,
-    dataset_id: state.config.dataset_id,
-    manifest_sha256: state.config.manifest_sha256,
-    rubric_version: state.config.rubric_version,
-    annotator_id: annotatorId,
-    revision,
-    created_at: stamp,
-    updated_at: stamp,
-    annotations: {},
-  };
-}
-
 function sortFromRecord() {
   return sortFollowupPapers(state.manifest.papers);
 }
@@ -377,7 +369,6 @@ async function initialize() {
       if (record) {
         validateRecordOrThrow(record);
         state.currentProfile = record.annotator_id;
-        state.currentProfileRecord = record;
         $("#current-nickname").textContent = record.annotator_id;
         $("#current-profile").classList.remove("hidden");
         $("#profile-actions").classList.add("hidden");
@@ -396,7 +387,7 @@ function bindLoginEvents() {
   if (state.loginEventsBound) return;
   state.loginEventsBound = true;
   document.querySelectorAll("[data-mode]").forEach((button) => button.addEventListener("click", () => {
-    if (state.pendingRegistration || state.modeSwitchLocked) return;
+    if (state.pendingRegistration) return;
     state.authMode = button.dataset.mode;
     document.querySelectorAll("[data-mode]").forEach((item) => {
       const selected = item === button;
@@ -426,6 +417,7 @@ function bindLoginEvents() {
     const { record, annotatorId } = state.pendingRegistration;
     state.pendingRegistration = null;
     $("#recovery-reveal").classList.add("hidden");
+    $("#new-recovery-code").textContent = "—";
     enterReview(record, annotatorId);
   });
 }
@@ -464,9 +456,7 @@ async function submitProfile() {
       $("#recovery-reveal").classList.remove("hidden");
     } else {
       const payload = await rpc(RPC.resume, { p_annotator_id: annotatorId, p_recovery_code: recoveryCode });
-      const resumed = validateRecordOrThrow(unwrapRecord(payload), annotatorId);
-      const loaded = unwrapRecord(await rpc(RPC.load, { p_annotator_id: annotatorId }));
-      const record = validateRecordOrThrow(loaded || resumed, annotatorId);
+      const record = validateRecordOrThrow(unwrapRecord(payload), annotatorId);
       enterReview(record, annotatorId);
     }
   } catch (error) {
@@ -485,8 +475,7 @@ async function continueCurrentProfile() {
   try {
     const payload = await rpc(RPC.current);
     const record = validateRecordOrThrow(unwrapRecord(payload), state.currentProfile);
-    const loaded = unwrapRecord(await rpc(RPC.load, { p_annotator_id: state.currentProfile }));
-    enterReview(validateRecordOrThrow(loaded || record, state.currentProfile), state.currentProfile);
+    enterReview(record, state.currentProfile);
   } catch (error) {
     setLoginError(errorText(error, "Could not load the profile on this device. Restore it with the recovery code."));
     $("#continue-profile").disabled = false;
@@ -503,7 +492,6 @@ async function switchProfile() {
   const result = await state.client.auth.signOut({ scope: "local" });
   if (result?.error) { toast("Could not safely switch profiles. Try again."); return; }
   state.currentProfile = "";
-  state.currentProfileRecord = null;
   state.pendingRegistration = null;
   $("#current-profile").classList.add("hidden");
   $("#profile-actions").classList.remove("hidden");
@@ -792,7 +780,9 @@ async function selectPaper(sampleId, { allowUnsaved = false } = {}) {
   $("#priority-tag").classList.toggle("secondary", paper.priority !== "priority");
   $("#paper-meta").textContent = `${paper.total_pdf_pages} physical PDF pages · Assigned review pages: ${paper.assigned_physical_pages.join(", ")}`;
   $("#pdf-page").max = String(paper.total_pdf_pages);
-  $("#pdf-page").value = String(paper.assigned_physical_pages[0] || 1);
+  const firstPage = paper.issues.some((issue) => issue.id === "page_9_coverage")
+    ? 9 : (paper.assigned_physical_pages[0] || 1);
+  $("#pdf-page").value = String(firstPage);
   setPdfStatusForPaper(paper);
   renderGuidance();
   renderIssues(paper);
@@ -804,7 +794,6 @@ async function selectPaper(sampleId, { allowUnsaved = false } = {}) {
   const nextDisabled = index === state.orderedPapers.length - 1;
   for (const id of ["previous-paper", "previous-bottom"]) $("#" + id).disabled = prevDisabled;
   for (const id of ["next-paper", "next-bottom"]) $("#" + id).disabled = nextDisabled;
-  $("#inspection-ack").onchange = () => updateCompletionState(paper);
   $("#complete-paper").onclick = () => void toggleComplete(paper);
   $("#jump-page").onclick = () => jumpToPage(paper);
   $("#previous-paper").onclick = $("#previous-bottom").onclick = () => {
@@ -870,7 +859,9 @@ async function verifyAndOpenPdf() {
       status.textContent = "The browser could not open this PDF. Try the new-tab link or another PDF-capable browser.";
       status.dataset.state = "error";
     };
-    frame.src = `${state.pdfUrl}#page=${paper.assigned_physical_pages[0] || 1}`;
+    const initialPage = paper.issues.some((issue) => issue.id === "page_9_coverage")
+      ? 9 : (paper.assigned_physical_pages[0] || 1);
+    frame.src = `${state.pdfUrl}#page=${initialPage}`;
     frame.classList.remove("hidden");
     $("#pdf-placeholder").classList.add("hidden");
     $("#pdf-actions").classList.remove("hidden");
@@ -901,13 +892,6 @@ function makeBundleIndex(fileList) {
   state.pdfRequestSerial += 1;
   const entries = [...fileList];
   state.fileIndexFiles = entries;
-  state.fileIndex = new Map();
-  for (const file of entries) {
-    const path = normalizeBundlePath(file);
-    if (!path) continue;
-    if (!state.fileIndex.has(path)) state.fileIndex.set(path, []);
-    state.fileIndex.get(path).push(file);
-  }
   state.verifiedThisSession.clear();
   if (state.pdfUrl) URL.revokeObjectURL(state.pdfUrl);
   state.pdfUrl = "";
@@ -923,22 +907,35 @@ function makeBundleIndex(fileList) {
 async function loadPrivateBundle(fileList) {
   const files = [...fileList];
   makeBundleIndex(files);
+  const bundleGeneration = state.bundleGeneration;
   const status = $("#bundle-status");
   const evidenceMatches = files.filter((file) => normalizeBundlePath(file) === "review-evidence.json");
   state.evidence = null;
+  status.textContent = "Checking the local folder and verifying private evidence…";
+  status.dataset.state = "";
+  if (state.activeSampleId) {
+    const active = state.orderedPapers.find((paper) => paper.sample_id === state.activeSampleId);
+    setPdfStatusForPaper(active);
+    renderIssues(active);
+  }
   let evidenceMessage = "Model observations are not available; PDF-based review is still possible.";
   if (evidenceMatches.length === 1) {
     try {
       const file = evidenceMatches[0];
       const bytes = await file.arrayBuffer();
+      if (bundleGeneration !== state.bundleGeneration) return;
       if (await sha256Hex(bytes) !== state.config.evidence_sha256) throw new Error("The private review-evidence checksum does not match this dataset.");
       const parsed = JSON.parse(new TextDecoder().decode(bytes));
+      if (bundleGeneration !== state.bundleGeneration) return;
       state.evidence = validateFollowupEvidence(parsed, state.manifest);
       evidenceMessage = "Private model observations verified locally.";
     } catch (error) {
+      if (bundleGeneration !== state.bundleGeneration) return;
       evidenceMessage = error?.message || "Private review evidence could not be verified.";
     }
   } else if (evidenceMatches.length > 1) evidenceMessage = "More than one review-evidence.json file was found; model observations are disabled.";
+
+  if (bundleGeneration !== state.bundleGeneration) return;
 
   const availableCount = state.manifest.papers.filter((paper) => findBundleFiles(files, paper.compiled_pdf.file).count === 1).length;
   const duplicateCount = state.manifest.papers.filter((paper) => findBundleFiles(files, paper.compiled_pdf.file).count > 1).length;
@@ -1006,8 +1003,12 @@ async function toggleComplete(paper) {
     row.updated_at = new Date().toISOString();
     markDirty();
     updateCompletionState(paper);
-    await saveChanges().catch(() => {});
-    toast("Paper reopened as a draft.");
+    try {
+      await saveChanges();
+      toast("Paper reopened as a draft.");
+    } catch {
+      toast("Paper reopened locally; saving failed. Your changes remain on this page.");
+    }
     return;
   }
   if (!state.verifiedThisSession.has(paper.sample_id) || !state.pdfLoadReady || !$("#inspection-ack").checked) {
@@ -1051,6 +1052,9 @@ function bindReviewEvents() {
   window.addEventListener("beforeunload", (event) => {
     if (state.dirty || state.saving) { event.preventDefault(); event.returnValue = ""; }
   });
+  window.addEventListener("pagehide", () => {
+    if (state.pdfUrl) URL.revokeObjectURL(state.pdfUrl);
+  }, { once: true });
 }
 
 async function switchProfileFromReview() {
@@ -1062,6 +1066,7 @@ async function switchProfileFromReview() {
   }
   const result = await state.client.auth.signOut({ scope: "local" });
   if (result?.error) { toast("Could not safely switch profiles. Try again."); return; }
+  clearPrivateBundle();
   state.record = null;
   state.annotatorId = "";
   state.activeSampleId = "";
@@ -1072,6 +1077,25 @@ async function switchProfileFromReview() {
   $("#profile-actions").classList.remove("hidden");
   state.pendingRegistration = null;
   setLoginError();
+}
+
+function clearPrivateBundle() {
+  state.bundleGeneration += 1;
+  state.pdfRequestSerial += 1;
+  state.fileIndexFiles = null;
+  state.evidence = null;
+  state.verifiedThisSession.clear();
+  state.pdfLoadReady = false;
+  if (state.pdfUrl) URL.revokeObjectURL(state.pdfUrl);
+  state.pdfUrl = "";
+  $("#bundle-input").value = "";
+  $("#bundle-status").textContent = "No local folder selected.";
+  $("#bundle-status").dataset.state = "";
+  $("#pdf-frame").classList.add("hidden");
+  $("#pdf-frame").removeAttribute("src");
+  $("#pdf-placeholder").classList.remove("hidden");
+  $("#inspection-ack-label").classList.add("hidden");
+  $("#inspection-ack").checked = false;
 }
 
 function bindReviewStartupEvents() {
