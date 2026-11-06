@@ -63,7 +63,12 @@ jobs:
       - run: python tests/usability_upgrade.py
         env:
           QA_DATABASE_URL: postgresql://postgres:disposable_ci_password@localhost:5432/postgres
-      - run: node --test tests/frontend*.mjs
+      - run: python tests/followup49_backend_setup.py
+      - run: python tests/followup49_backend.py
+        env:
+          QA_DATABASE_URL: postgresql://postgres:disposable_ci_password@localhost:5432/postgres
+      - run: node --check site/followup.mjs
+      - run: node --test tests/frontend*.mjs tests/followup49_frontend.mjs
       - run: npm install --prefix .runtime/browser-deps --no-save playwright@1.62.1
       - run: .runtime/browser-deps/node_modules/.bin/playwright install --with-deps chromium
       - run: node tests/browser_usability.cjs

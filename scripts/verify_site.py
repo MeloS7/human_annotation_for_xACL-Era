@@ -2,6 +2,8 @@
 """Verify the unchanged frozen cohort and runtime assets before deployment."""
 import hashlib
 import json
+import re
+from collections import Counter
 from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
@@ -122,3 +124,41 @@ for name in ["index.html", "app.js", "cloud.mjs", "score-protocol.mjs", "quality
     assert (site / name).is_file(), name
 assert not (site / "outputs").exists()
 print("Verified frozen cohort and 60 PDFs, archived protocols, four shared data-usability ratings, independent visual check and bound source-resource inventory.")
+
+followup = site / "followup49"
+followup_config = json.loads((followup / "config.json").read_bytes())
+followup_manifest = json.loads((followup / "manifest.json").read_bytes())
+followup_guidance = json.loads((followup / "guidance.json").read_bytes())
+assert followup_config["study_id"] == config["study_id"]
+assert followup_config["dataset_id"] == followup_manifest["dataset_id"] == "revisionlens-low-score49-v1"
+assert followup_config["protocol_id"] == "latex-data-usability-followup49-v1"
+assert followup_config["record_schema"] == "xacl.low-score-followup-annotations.v1"
+assert followup_config["guidance_version"] == followup_guidance["version"]
+assert followup_config["rubric_version"] == config["rubric_version"]
+assert followup_config["rubric_sha256"] == config["rubric_sha256"]
+for name in ("manifest", "guidance"):
+    assert hashlib.sha256((followup / f"{name}.json").read_bytes()).hexdigest() == followup_config[f"{name}_sha256"]
+assert re.fullmatch(r"[a-f0-9]{64}", followup_config["evidence_sha256"])
+papers = followup_manifest["papers"]
+assert len(papers) == len({p["sample_id"] for p in papers}) == len({p["paper_id"] for p in papers}) == 49
+assert {p["sample_id"] for p in papers}.isdisjoint({p["sample_id"] for p in manifest["papers"]})
+assert Counter(p["priority"] for p in papers) == {"priority": 29, "secondary": 20}
+assert papers == sorted(papers, key=lambda p: (p["priority"] != "priority", p["sample_id"]))
+issue_counts = Counter()
+for paper in papers:
+    sid = paper["sample_id"]
+    pdf = paper["compiled_pdf"]
+    issues = [item["id"] for item in paper["issues"]]
+    assert re.fullmatch(r"J[0-9]{3}", sid) and pdf["file"] == f"{sid}.pdf"
+    assert re.fullmatch(r"[a-f0-9]{64}", pdf["sha256"]) and pdf["bytes"] > 0
+    assert paper["assigned_physical_pages"] == list(range(1, min(9, paper["total_pdf_pages"]) + 1))
+    assert issues and len(issues) == len(set(issues))
+    issue_counts.update(issues)
+assert issue_counts == {"document_structural_integrity": 1, "nontext_asset_integrity": 6,
+                        "pdf_visual_integrity": 45, "page_9_coverage": 11}
+assert not list(site.rglob("J[0-9][0-9][0-9].pdf"))
+assert not list(site.rglob("review-evidence.json"))
+assert 'href="./followup.html"' in (site / "index.html").read_text()
+for name in ("followup.html", "followup.mjs"):
+    assert (site / name).is_file()
+print("Verified 49 separate follow-up entries, 63 issue prompts, and absence of private review files in the site artifact.")

@@ -1,0 +1,17 @@
+{
+  "schema": "xacl.low-score-followup-guidance.v1",
+  "version": "low-score-followup-guidance-v1",
+  "purpose": "Review the specific issues flagged in the 49-paper follow-up sample.",
+  "instructions": [
+    "Open the version-matched compiled PDF. Check the relevant physical pages, counting from the first PDF page.",
+    "Use the target paper and the cited figure, table, equation, or source evidence to judge each listed issue. Model observations are optional leads.",
+    "Record Confirmed when the problem is present, Not found when the available evidence resolves the concern, or Insufficient evidence when you cannot decide.",
+    "Record the physical page and affected element in a short note when useful. Later-page material can resolve a suspected omission from the first nine pages."
+  ],
+  "scope_note": "For a page 9 coverage item, inspect that page directly and record any material problem or reason you cannot assess it.",
+  "verdicts": {
+    "confirmed": "The evidence shows the issue.",
+    "not_found": "The available evidence resolves the concern.",
+    "insufficient_evidence": "The available evidence cannot resolve the concern."
+  }
+}

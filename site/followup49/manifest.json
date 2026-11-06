@@ -1,0 +1,1469 @@
+{
+  "dataset_id": "revisionlens-low-score49-v1",
+  "papers": [
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 568975,
+        "file": "J007.pdf",
+        "sha256": "1e0595e6ee4ce49b790de2d89e81654dbae7cc672680650f20d523f5d4f9ce59"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        },
+        {
+          "id": "page_9_coverage"
+        }
+      ],
+      "paper_id": "2020.emnlp-main.365",
+      "priority": "priority",
+      "sample_id": "J007",
+      "selected_vN": "2004.09813v2",
+      "title": "Making Monolingual Sentence Embeddings Multilingual using Knowledge Distillation",
+      "total_pdf_pages": 15
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 826800,
+        "file": "J015.pdf",
+        "sha256": "c2c23ed32321fee16fa9fd9c9ef7551142b2e63a968ffc2c0688c4d80880399a"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        }
+      ],
+      "paper_id": "2021.acl-long.368",
+      "priority": "priority",
+      "sample_id": "J015",
+      "selected_vN": "2105.14802v1",
+      "title": "On Compositional Generalization of Neural Machine Translation",
+      "total_pdf_pages": 15
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 494841,
+        "file": "J026.pdf",
+        "sha256": "bcfe809fdaa38130116a841b4453f6ed8b17f64af2b47a2ffcef8f3b8a3c14a5"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        }
+      ],
+      "paper_id": "P18-1118",
+      "priority": "priority",
+      "sample_id": "J026",
+      "selected_vN": "1711.03688v2",
+      "title": "Document Context Neural Machine Translation with Memory Networks",
+      "total_pdf_pages": 11
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 217534,
+        "file": "J028.pdf",
+        "sha256": "0fa16205d9c9616feed48cbcd8e3ddd0342a0261e48eb70090cf0da47a8b8109"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        }
+      ],
+      "paper_id": "P18-1164",
+      "priority": "priority",
+      "sample_id": "J028",
+      "selected_vN": "1711.05380v4",
+      "title": "Attention Focusing for Neural Machine Translation by Bridging Source and Target Embeddings",
+      "total_pdf_pages": 10
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 218247,
+        "file": "J054.pdf",
+        "sha256": "eb125ed1aae8adc1741ceb153ffbad1503200f859d43de1b77450b33c13355fe"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        },
+        {
+          "id": "page_9_coverage"
+        }
+      ],
+      "paper_id": "P18-1050",
+      "priority": "priority",
+      "sample_id": "J054",
+      "selected_vN": "1805.10956v1",
+      "title": "Temporal Event Knowledge Acquisition via Identifying Narratives",
+      "total_pdf_pages": 12
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 259855,
+        "file": "J056.pdf",
+        "sha256": "8ed201b87681864aa510b205b9955e4517c702fa7f1197bb891f7b4aa19b737e"
+      },
+      "issues": [
+        {
+          "id": "document_structural_integrity"
+        },
+        {
+          "id": "pdf_visual_integrity"
+        },
+        {
+          "id": "page_9_coverage"
+        }
+      ],
+      "paper_id": "P18-1144",
+      "priority": "priority",
+      "sample_id": "J056",
+      "selected_vN": "1805.02023v4",
+      "title": "Chinese NER Using Lattice LSTM",
+      "total_pdf_pages": 12
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 733141,
+        "file": "J081.pdf",
+        "sha256": "01cf7f5376c2b1351441004b33e1adcc38eaffacea590f82057fc8e625a0351b"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        },
+        {
+          "id": "page_9_coverage"
+        }
+      ],
+      "paper_id": "P18-1076",
+      "priority": "priority",
+      "sample_id": "J081",
+      "selected_vN": "1805.07858v1",
+      "title": "Knowledgeable Reader: Enhancing Cloze-Style Reading Comprehension with External Commonsense Knowledge",
+      "total_pdf_pages": 21
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 990964,
+        "file": "J087.pdf",
+        "sha256": "64d96abe073c496a4acd469de44a4403d06410320620fecd01b5af3da7c8e0c9"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        },
+        {
+          "id": "page_9_coverage"
+        }
+      ],
+      "paper_id": "P18-1160",
+      "priority": "priority",
+      "sample_id": "J087",
+      "selected_vN": "1805.08092v1",
+      "title": "Efficient and Robust Question Answering from Minimal Context over Documents",
+      "total_pdf_pages": 16
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 606988,
+        "file": "J106.pdf",
+        "sha256": "79b60586ca2bc0c23c3fb743a953d4de89a9591bae9dc1f5d6979e61be0057b2"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        }
+      ],
+      "paper_id": "2021.acl-long.499",
+      "priority": "priority",
+      "sample_id": "J106",
+      "selected_vN": "2105.08963v1",
+      "title": "Long Text Generation by Modeling Sentence-Level and Discourse-Level Coherence",
+      "total_pdf_pages": 16
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 233212,
+        "file": "J125.pdf",
+        "sha256": "4b58c7eecdd39d50c071eff40aba940503c65a95cbbb0ade5bea533911b16baf"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        },
+        {
+          "id": "page_9_coverage"
+        }
+      ],
+      "paper_id": "2020.emnlp-main.539",
+      "priority": "priority",
+      "sample_id": "J125",
+      "selected_vN": "2009.09680v5",
+      "title": "Profile Consistency Identification for Open-domain Dialogue Agents",
+      "total_pdf_pages": 12
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 4581903,
+        "file": "J157.pdf",
+        "sha256": "ccf2f5946b2ed0b345f7a0ed041d696c0d71ecde02f810ce8cb6f89ce31381b2"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        },
+        {
+          "id": "page_9_coverage"
+        }
+      ],
+      "paper_id": "2020.emnlp-main.356",
+      "priority": "priority",
+      "sample_id": "J157",
+      "selected_vN": "2010.07954v1",
+      "title": "Room-Across-Room: Multilingual Vision-and-Language Navigation with Dense Spatiotemporal Grounding",
+      "total_pdf_pages": 23
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 1954964,
+        "file": "J185.pdf",
+        "sha256": "61e9aacfd618d7e6cf6c40101416c0cc7f33462d2f8b37a71282e1f835a67949"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        },
+        {
+          "id": "page_9_coverage"
+        }
+      ],
+      "paper_id": "2020.emnlp-main.335",
+      "priority": "priority",
+      "sample_id": "J185",
+      "selected_vN": "2010.02976v2",
+      "title": "Are “Undocumented Workers” the Same as “Illegal Aliens”? Disentangling Denotation and Connotation in Vector Spaces",
+      "total_pdf_pages": 17
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 733524,
+        "file": "J194.pdf",
+        "sha256": "a0b122bc7a4dd2b861a69f4a6ad59b49ba372d7df7af7186551249e695a7bb28"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        }
+      ],
+      "paper_id": "2021.acl-long.197",
+      "priority": "priority",
+      "sample_id": "J194",
+      "selected_vN": "2106.07345v1",
+      "title": "Self-Guided Contrastive Learning for BERT Sentence Representations",
+      "total_pdf_pages": 14
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 320737,
+        "file": "J203.pdf",
+        "sha256": "15489632b93c17af0d13e7d2297b1c7fb318db5cc4df82c5c314c5f4e7542d44"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        },
+        {
+          "id": "page_9_coverage"
+        }
+      ],
+      "paper_id": "P18-1044",
+      "priority": "priority",
+      "sample_id": "J203",
+      "selected_vN": "1806.00971v2",
+      "title": "Neural Adversarial Training for Semi-supervised Japanese Predicate-argument Structure Analysis",
+      "total_pdf_pages": 11
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 144777,
+        "file": "J205.pdf",
+        "sha256": "fb19306eeae07ba1916060cea59eecdc57d339000f34b67b96e11309becb81a9"
+      },
+      "issues": [
+        {
+          "id": "nontext_asset_integrity"
+        },
+        {
+          "id": "pdf_visual_integrity"
+        }
+      ],
+      "paper_id": "P18-1111",
+      "priority": "priority",
+      "sample_id": "J205",
+      "selected_vN": "1805.02442v1",
+      "title": "Paraphrase to Explicate: Revealing Implicit Noun-Compound Relations",
+      "total_pdf_pages": 13
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 8377497,
+        "file": "J229.pdf",
+        "sha256": "cf252d177a3a81a1c651dc1eee4b04a84d36b1f5b3ca3ae38b59d368d092cdf8"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        }
+      ],
+      "paper_id": "2021.acl-long.513",
+      "priority": "priority",
+      "sample_id": "J229",
+      "selected_vN": "2106.05221v1",
+      "title": "Multi-hop Graph Convolutional Network with High-order Chebyshev Approximation for Text Reasoning",
+      "total_pdf_pages": 12
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 240931,
+        "file": "J246.pdf",
+        "sha256": "656cddfe45cef74b759de3a08a7d26f692fdfe40984cfd6780e55066242f099c"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        },
+        {
+          "id": "page_9_coverage"
+        }
+      ],
+      "paper_id": "2021.acl-long.213",
+      "priority": "priority",
+      "sample_id": "J246",
+      "selected_vN": "2105.07903v1",
+      "title": "Factoring Statutory Reasoning as Language Understanding Challenges",
+      "total_pdf_pages": 19
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 754357,
+        "file": "J262.pdf",
+        "sha256": "bdf06df4163a34647c30ebd9ef657a7f9f8c7c0d046ba18035219bfd1627fcb9"
+      },
+      "issues": [
+        {
+          "id": "nontext_asset_integrity"
+        }
+      ],
+      "paper_id": "P18-1020",
+      "priority": "priority",
+      "sample_id": "J262",
+      "selected_vN": "1806.01170v1",
+      "title": "Efficient Online Scalar Annotation with Bounded Support",
+      "total_pdf_pages": 13
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 497692,
+        "file": "J311.pdf",
+        "sha256": "38dbae6eb0f37c21ce522acbf6cc3f69da56fee2ed208cf041ee96e366b3a569"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        }
+      ],
+      "paper_id": "2025.acl-long.166",
+      "priority": "priority",
+      "sample_id": "J311",
+      "selected_vN": "2505.21816v1",
+      "title": "Revisiting Common Assumptions about Arabic Dialects in NLP",
+      "total_pdf_pages": 19
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 343847,
+        "file": "J323.pdf",
+        "sha256": "75e60ea6310fcf9a90dfd0d290b36bfc89e7085c90dcebc543d65505a37b297f"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        }
+      ],
+      "paper_id": "2025.naacl-long.294",
+      "priority": "priority",
+      "sample_id": "J323",
+      "selected_vN": "2502.06394v1",
+      "title": "SynthDetoxM: Modern LLMs are Few-Shot Parallel Detoxification Data Annotators",
+      "total_pdf_pages": 21
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 1811767,
+        "file": "J338.pdf",
+        "sha256": "62b0116575721330f70bef141ec4cd82a5896360b243c466d533fb516b9b1fc6"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        },
+        {
+          "id": "page_9_coverage"
+        }
+      ],
+      "paper_id": "2024.eacl-long.91",
+      "priority": "priority",
+      "sample_id": "J338",
+      "selected_vN": "2309.01606v2",
+      "title": "Geo-Encoder: A Chunk-Argument Bi-Encoder Framework for Chinese Geographic Re-Ranking",
+      "total_pdf_pages": 16
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 379066,
+        "file": "J363.pdf",
+        "sha256": "dc4f89d91d9538852fa6e7b049b2410e92ba1510ae58c5420cda2b415b1099b3"
+      },
+      "issues": [
+        {
+          "id": "nontext_asset_integrity"
+        },
+        {
+          "id": "pdf_visual_integrity"
+        }
+      ],
+      "paper_id": "2025.acl-long.1313",
+      "priority": "priority",
+      "sample_id": "J363",
+      "selected_vN": "2406.10834v1",
+      "title": "Exposing the Achilles’ Heel: Evaluating LLMs Ability to Handle Mistakes in Mathematical Reasoning",
+      "total_pdf_pages": 21
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 1000401,
+        "file": "J427.pdf",
+        "sha256": "3aaabc18208cbd61a41dc784ca1f87d5df10d3dc00b0c4044d4ce44ed5937103"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        }
+      ],
+      "paper_id": "2025.acl-long.1393",
+      "priority": "priority",
+      "sample_id": "J427",
+      "selected_vN": "2506.00622v2",
+      "title": "Improving Dialogue State Tracking through Combinatorial Search for In-Context Examples",
+      "total_pdf_pages": 22
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 1392410,
+        "file": "J429.pdf",
+        "sha256": "3706ad1b79b250b521a2a9115470f202acf7ce188e709ac16f088ca4d4382613"
+      },
+      "issues": [
+        {
+          "id": "nontext_asset_integrity"
+        }
+      ],
+      "paper_id": "2025.acl-long.293",
+      "priority": "priority",
+      "sample_id": "J429",
+      "selected_vN": "2408.09853v2",
+      "title": "X-TURING: Towards an Enhanced and Efficient Turing Test for Long-Term Dialogue Agents",
+      "total_pdf_pages": 17
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 9332150,
+        "file": "J472.pdf",
+        "sha256": "076d9c2ade8b977aa72bdd4339f06feb57ab07a2cffc3df331540528c6886790"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        }
+      ],
+      "paper_id": "2025.acl-long.864",
+      "priority": "priority",
+      "sample_id": "J472",
+      "selected_vN": "2502.09447v1",
+      "title": "Pixel-Level Reasoning Segmentation via Multi-turn Conversations",
+      "total_pdf_pages": 19
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 3741111,
+        "file": "J480.pdf",
+        "sha256": "0ac5cb334b7c31146e3895019ae2b04411294dde8c93da0bb5bff1ca1ce27a73"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        }
+      ],
+      "paper_id": "2026.acl-long.2003",
+      "priority": "priority",
+      "sample_id": "J480",
+      "selected_vN": "2604.12148v1",
+      "title": "ViLL-E: Video LLM Embeddings for Retrieval",
+      "total_pdf_pages": 21
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 323501,
+        "file": "J556.pdf",
+        "sha256": "53f96a76e84a853ba04ff52836ec6a929812e391dce5db9586cb9a977904314e"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        }
+      ],
+      "paper_id": "2025.acl-long.690",
+      "priority": "priority",
+      "sample_id": "J556",
+      "selected_vN": "2410.16633v1",
+      "title": "Graph-Structured Trajectory Extraction from Travelogues",
+      "total_pdf_pages": 16
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 540609,
+        "file": "J561.pdf",
+        "sha256": "7f7d2937aef202a09802ba790075fb345b28ae56e3bc5496f4fad1403ebcbcd1"
+      },
+      "issues": [
+        {
+          "id": "nontext_asset_integrity"
+        }
+      ],
+      "paper_id": "2025.naacl-long.193",
+      "priority": "priority",
+      "sample_id": "J561",
+      "selected_vN": "2406.02804v2",
+      "title": "ACCORD: Closing the Commonsense Measurability Gap",
+      "total_pdf_pages": 34
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 15551344,
+        "file": "J591.pdf",
+        "sha256": "65b54b496f57231d38ef9a02befd6e19e3844de1edaab1b7d8c614997ea9e343"
+      },
+      "issues": [
+        {
+          "id": "nontext_asset_integrity"
+        }
+      ],
+      "paper_id": "2025.naacl-long.390",
+      "priority": "priority",
+      "sample_id": "J591",
+      "selected_vN": "2502.06653v1",
+      "title": "In-Context Learning (and Unlearning) of Length Biases",
+      "total_pdf_pages": 40
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 1540101,
+        "file": "J042.pdf",
+        "sha256": "0724fc2b57841f7a6c1b96b5ab6693a5bbd7a2244cb6d43151591c878c59d1eb"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        }
+      ],
+      "paper_id": "2021.acl-long.140",
+      "priority": "secondary",
+      "sample_id": "J042",
+      "selected_vN": "2106.08977v2",
+      "title": "Named Entity Recognition with Small Strongly Labeled and Large Weakly Labeled Data",
+      "total_pdf_pages": 16
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 358832,
+        "file": "J045.pdf",
+        "sha256": "007d7bc6bfa7b02c95090b53d0395506ca9b6e1f68a38ccf41047227ceacb0e1"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        }
+      ],
+      "paper_id": "2021.acl-long.361",
+      "priority": "secondary",
+      "sample_id": "J045",
+      "selected_vN": "2106.09558v1",
+      "title": "Element Intervention for Open Relation Extraction",
+      "total_pdf_pages": 12
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 169044,
+        "file": "J047.pdf",
+        "sha256": "c034f3cb79665bf93bc1171687052187df7e31d400fd9bc10da6c06a3d0db1af"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        }
+      ],
+      "paper_id": "2021.acl-long.373",
+      "priority": "secondary",
+      "sample_id": "J047",
+      "selected_vN": "2105.09458v3",
+      "title": "MLBiNet: A Cross-Sentence Collective Event Detection Network",
+      "total_pdf_pages": 11
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 122709,
+        "file": "J063.pdf",
+        "sha256": "703472427aa0cd9627d5691b9b4fafa769fb74954eecef6211362ad2de37cce0"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        }
+      ],
+      "paper_id": "2020.emnlp-main.190",
+      "priority": "secondary",
+      "sample_id": "J063",
+      "selected_vN": "2004.03490v2",
+      "title": "What do Models Learn from Question Answering Datasets?",
+      "total_pdf_pages": 11
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 488953,
+        "file": "J075.pdf",
+        "sha256": "fb0521f435a1950876913fa566c7e9050c142a2b49a18583151ff6752abb43e6"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        }
+      ],
+      "paper_id": "2021.acl-long.251",
+      "priority": "secondary",
+      "sample_id": "J075",
+      "selected_vN": "2106.01561v1",
+      "title": "Can Generative Pre-trained Language Models Serve As Knowledge Bases for Closed-book QA?",
+      "total_pdf_pages": 12
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 218963,
+        "file": "J086.pdf",
+        "sha256": "f7b79c103898dba168bf24b6a8ce5495bb4a4e6a11a00ede779e93c489b23116"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        }
+      ],
+      "paper_id": "P18-1159",
+      "priority": "secondary",
+      "sample_id": "J086",
+      "selected_vN": "1805.06145v1",
+      "title": "Joint Training of Candidate Extraction and Answer Selection for Reading Comprehension",
+      "total_pdf_pages": 11
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 1134419,
+        "file": "J099.pdf",
+        "sha256": "5066c3d96c95837e5ffb0ad1ff4bc929d866d17b9c9d76470e3357b40dea2ccd"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        }
+      ],
+      "paper_id": "2020.emnlp-main.547",
+      "priority": "secondary",
+      "sample_id": "J099",
+      "selected_vN": "2010.03738v1",
+      "title": "Multi-hop Inference for Question-driven Summarization",
+      "total_pdf_pages": 12
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 371869,
+        "file": "J114.pdf",
+        "sha256": "648fdf1d62149d4e0d9a971bf08171206cd8ab8f23a81e39f0addd5c96647fb7"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        }
+      ],
+      "paper_id": "P18-1016",
+      "priority": "secondary",
+      "sample_id": "J114",
+      "selected_vN": "1810.05104v1",
+      "title": "Simple and Effective Text Simplification Using Semantic and Neural Methods",
+      "total_pdf_pages": 12
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 4749726,
+        "file": "J132.pdf",
+        "sha256": "c8eda2c7de0be40bb650c645dbe7c34a54b9c89ab7afff858a5db8e06490c14e"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        }
+      ],
+      "paper_id": "2021.acl-long.134",
+      "priority": "secondary",
+      "sample_id": "J132",
+      "selected_vN": "2012.13391v2",
+      "title": "I like fish, especially dolphins: Addressing Contradictions in Dialogue Modeling",
+      "total_pdf_pages": 16
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 1655238,
+        "file": "J152.pdf",
+        "sha256": "ee0d9ca67e9fa12187788bf9a7131a4d1e2c20cac8e83ec5c522b7e7d0aa29c2"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        }
+      ],
+      "paper_id": "2020.emnlp-main.158",
+      "priority": "secondary",
+      "sample_id": "J152",
+      "selected_vN": "2005.00785v5",
+      "title": "Visually Grounded Continual Learning of Compositional Phrases",
+      "total_pdf_pages": 14
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 2002300,
+        "file": "J156.pdf",
+        "sha256": "8c83551971c83fa85eae8747f06deadef82740b928c04f3be0716974fa976705"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        }
+      ],
+      "paper_id": "2020.emnlp-main.355",
+      "priority": "secondary",
+      "sample_id": "J156",
+      "selected_vN": "2009.10259v1",
+      "title": "ALICE: Active Learning with Contrastive Natural Language Explanations",
+      "total_pdf_pages": 13
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 2023795,
+        "file": "J191.pdf",
+        "sha256": "5faa01caaae25020d82b80a685d83ad5617ab4832bb0c31847a3715c0a772781"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        }
+      ],
+      "paper_id": "2021.acl-long.123",
+      "priority": "secondary",
+      "sample_id": "J191",
+      "selected_vN": "2105.12907v2",
+      "title": "Directed Acyclic Graph Network for Conversational Emotion Recognition",
+      "total_pdf_pages": 11
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 434273,
+        "file": "J192.pdf",
+        "sha256": "d0b04b4b7aeb43b6144a69ddf9472edd6372cd0091404eee3ccb43f09db39f3c"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        }
+      ],
+      "paper_id": "2021.acl-long.125",
+      "priority": "secondary",
+      "sample_id": "J192",
+      "selected_vN": "2106.01071v1",
+      "title": "Topic-Driven and Knowledge-Aware Transformer for Dialogue Emotion Detection",
+      "total_pdf_pages": 13
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 196863,
+        "file": "J243.pdf",
+        "sha256": "d230d12f2016cd8ed21a6e7a92672d3d98ec1fe165d479265ff1ea0bfe3ffba2"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        }
+      ],
+      "paper_id": "2021.acl-long.178",
+      "priority": "secondary",
+      "sample_id": "J243",
+      "selected_vN": "2106.09204v1",
+      "title": "An Empirical Study on Hyperparameter Optimization for Fine-Tuning Pre-trained Language Models",
+      "total_pdf_pages": 17
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 910019,
+        "file": "J248.pdf",
+        "sha256": "2fafe31345ff7d1059162d948a1c981a0629fe330437bd251ccf429f8b1df51a"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        }
+      ],
+      "paper_id": "2021.acl-long.314",
+      "priority": "secondary",
+      "sample_id": "J248",
+      "selected_vN": "2105.14815v1",
+      "title": "Supporting Cognitive and Emotional Empathic Writing of Students",
+      "total_pdf_pages": 17
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 442801,
+        "file": "J252.pdf",
+        "sha256": "38416163e75d27d9f4bf55bd0ab87a6562c8f31d84c407b2ba195c58d5438933"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        }
+      ],
+      "paper_id": "2021.acl-long.532",
+      "priority": "secondary",
+      "sample_id": "J252",
+      "selected_vN": "2004.11131v1",
+      "title": "Privacy at Scale: Introducing the PrivaSeer Corpus of Web Privacy Policies",
+      "total_pdf_pages": 10
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 311795,
+        "file": "J282.pdf",
+        "sha256": "54d5ec05d95f00ea00d3523ba6bcf0e3ee71cc14cb86a7bccff847cf80b6f2fb"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        }
+      ],
+      "paper_id": "2020.emnlp-main.554",
+      "priority": "secondary",
+      "sample_id": "J282",
+      "selected_vN": "2004.14601v3",
+      "title": "Learning Music Helps You Read: Using Transfer to Study Linguistic Structure in Language Models",
+      "total_pdf_pages": 12
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 419944,
+        "file": "J330.pdf",
+        "sha256": "b3f837a16e25441028ec73003ab967f8162009cb31f672a1601f9147d97f8e21"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        }
+      ],
+      "paper_id": "2026.acl-long.1657",
+      "priority": "secondary",
+      "sample_id": "J330",
+      "selected_vN": "2601.10925v3",
+      "title": "Massively Multilingual Joint Segmentation and Glossing",
+      "total_pdf_pages": 15
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 5058588,
+        "file": "J468.pdf",
+        "sha256": "c488052b51ae385a74c4294a2f05c7ac7ffc5911708ad05f984e87fd32d3382f"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        }
+      ],
+      "paper_id": "2025.acl-long.547",
+      "priority": "secondary",
+      "sample_id": "J468",
+      "selected_vN": "2505.11726v2",
+      "title": "Disambiguating Reference in Visually Grounded Dialogues through Joint Modeling of Textual and Multimodal Semantic Structures",
+      "total_pdf_pages": 18
+    },
+    {
+      "assigned_physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "compiled_pdf": {
+        "bytes": 997416,
+        "file": "J549.pdf",
+        "sha256": "100b20585f91f9edc2d89b2fc69174dc016c3107434d33753b7a0293237e1fa7"
+      },
+      "issues": [
+        {
+          "id": "pdf_visual_integrity"
+        }
+      ],
+      "paper_id": "2025.acl-long.1587",
+      "priority": "secondary",
+      "sample_id": "J549",
+      "selected_vN": "2410.22257v2",
+      "title": "FactBench: A Dynamic Benchmark for In-the-Wild Language Model Factuality Evaluation",
+      "total_pdf_pages": 24
+    }
+  ],
+  "schema": "xacl.low-score-followup-manifest.v1"
+}

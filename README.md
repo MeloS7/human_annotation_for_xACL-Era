@@ -45,3 +45,11 @@ ORDER BY annotator_id;
 ## Before model evaluation
 
 This repository does not call paid models, choose a provider, prepare source/page packets or certify source-to-page mappings. Those judge implementation tasks belong in the private RevisionLens working repo linked above. A scoped integrity audit supports evidence of dataset usability, not an exhaustive guarantee of intrinsic writing quality or author-version equivalence. Do not put API keys or recovery codes in Git.
+
+## Low-score follow-up · 49 papers
+
+The representative 30-paper sample stays at the original URL. The same site also provides a separate [49-paper follow-up](site/followup.html) for the union of GPT core scores at or below 3 or Uncertain and PDF visual scores at or below 3. Use the 30-paper ratings for representative human and model comparison and the 49-paper findings for targeted adjudication. Four exact paper versions appear in both sets and have separate review records.
+
+Open the follow-up and continue with the same annotation profile. Select the extracted private review folder when prompted. The browser checks the supplied PDFs against the frozen manifest and opens them locally. The private folder also supplies optional GPT and Gemini observations. For each listed issue, record Confirmed, Not found, or Insufficient evidence, with an optional category and page note. Select the folder again when you return to the page.
+
+The 49-paper page uses `latex-data-usability-followup49-v1` and a distinct manifest and record schema. Apply [migration 006](supabase/006_followup49.sql) after migration 005 and verify both public health RPCs before deploying. Export adjudications separately by filtering `xacl_private.quality_annotation_records` on `protocol_id = 'latex-data-usability-followup49-v1'`.

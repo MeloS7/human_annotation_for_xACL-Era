@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>xACL-Era · targeted review of 49 papers</title>
+  <link rel="stylesheet" href="./followup.css?v=20261106-followup49-v1">
+  <script src="./vendor/supabase/supabase.js"></script>
+  <script type="module" src="./followup.mjs?v=20261106-followup49-v1"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./index.html" aria-label="Back to xACL-Era annotation study">
+      <span class="brand-mark" aria-hidden="true">R</span>
+      <span><span class="eyebrow">RESEARCH ANNOTATION</span><strong>xACL-Era</strong></span>
+    </a>
+    <div class="study-name"><span>Follow-up sample</span><strong>Targeted review · 49 papers</strong></div>
+    <div id="connection-status" class="connection-status" role="status" aria-live="polite">Connecting…</div>
+  </header>
+
+  <main id="login-screen" class="login-screen" aria-labelledby="login-title">
+    <section class="login-card">
+      <p class="eyebrow">LOW-SCORE FOLLOW-UP</p>
+      <h1 id="login-title">Review flagged issues in 49 papers</h1>
+      <p>This is a separate review set. It does not change your original 30-paper responses. Continue with the profile already on this device, create a profile, or restore one with your nickname and recovery code.</p>
+      <div id="current-profile" class="current-profile hidden">
+        <p>Your existing profile: <strong id="current-nickname">—</strong></p>
+        <button id="continue-profile" class="button primary" type="button">Continue on this device</button>
+        <button id="switch-profile" class="button secondary" type="button">Use another profile</button>
+      </div>
+      <div id="profile-actions">
+        <div class="mode-switch" role="group" aria-label="Profile action">
+          <button type="button" class="mode selected" data-mode="create" aria-pressed="true">Create profile</button>
+          <button type="button" class="mode" data-mode="restore" aria-pressed="false">Restore profile</button>
+        </div>
+        <form id="profile-form">
+          <label for="nickname">Pseudonymous nickname</label>
+          <input id="nickname" maxlength="64" autocomplete="off" autocapitalize="off" spellcheck="false" required>
+          <label id="recovery-label" class="hidden" for="recovery-code">Personal recovery code</label>
+          <input id="recovery-code" class="hidden" type="password" maxlength="64" autocomplete="off" autocapitalize="off" spellcheck="false">
+          <p id="recovery-hint" class="hint hidden">Enter the 64-character recovery code saved when you created your profile.</p>
+          <button id="profile-submit" class="button primary" type="submit">Create profile</button>
+        </form>
+      </div>
+      <section id="recovery-reveal" class="recovery-reveal hidden" aria-live="polite">
+        <h2>Save your recovery code</h2>
+        <p>This code is shown once. Store it privately so you can resume this profile on another device.</p>
+        <p>Nickname: <strong id="new-nickname">—</strong></p>
+        <code id="new-recovery-code">—</code>
+        <div class="button-row">
+          <button id="copy-recovery" class="button secondary" type="button">Copy code</button>
+          <button id="download-recovery" class="button secondary" type="button">Download code</button>
+        </div>
+        <label class="ack"><input id="recovery-ack" type="checkbox"> I saved this code somewhere private.</label>
+        <button id="continue-after-recovery" class="button primary" type="button" disabled>Continue to review</button>
+      </section>
+      <p id="login-error" class="error hidden" role="alert"></p>
+      <p class="privacy-note">Only review findings are sent to the database. The PDFs and model observations remain in this browser and are never uploaded.</p>
+    </section>
+  </main>
+
+  <main id="review-app" class="review-app hidden">
+    <aside class="sidebar" aria-label="Paper list">
+      <div class="sidebar-title">
+        <div><p class="eyebrow">FOLLOW-UP SAMPLE</p><h1>Papers <span class="count" id="paper-count">49</span></h1></div>
+        <span id="progress-count" class="progress-count">0 / 49</span>
+      </div>
+      <div class="progress-track" role="progressbar" aria-label="Completed paper reviews" aria-valuemin="0" aria-valuemax="49" aria-valuenow="0"><span id="progress-fill"></span></div>
+      <p class="priority-legend"><span class="priority-dot"></span> Priority papers are listed first.</p>
+      <nav id="paper-list" class="paper-list" aria-label="Select a paper"></nav>
+      <div class="sidebar-footer"><span class="private-dot">●</span> Ratings are saved privately.</div>
+    </aside>
+
+    <section class="workspace">
+      <div class="toolbar">
+        <div><p class="eyebrow">CURRENT PAPER</p><span id="active-counter">—</span><span id="active-annotator" class="profile-chip">—</span></div>
+        <div class="toolbar-actions"><span id="save-status" role="status" aria-live="polite">Not saved</span><button id="save-now" class="button primary" type="button">Save now</button><button id="switch-annotator" class="button secondary" type="button">Switch profile</button></div>
+      </div>
+      <div id="startup-error" class="banner error-banner hidden" role="alert"></div>
+      <section class="local-bundle banner" aria-labelledby="bundle-title">
+        <div class="bundle-copy"><p class="eyebrow">PRIVATE LOCAL FILES</p><h2 id="bundle-title">Choose the 49-paper review folder</h2><p>Select the folder containing the matching <code>JNNN.pdf</code> files and <code>review-evidence.json</code>. Files are checked locally in your browser and are never sent to the annotation service.</p></div>
+        <div class="bundle-actions"><label class="button secondary file-picker">Choose folder<input id="bundle-input" type="file" webkitdirectory directory multiple accept=".pdf,.json,application/pdf,application/json"></label><span id="bundle-status" class="bundle-status" role="status" aria-live="polite">No local folder selected.</span></div>
+      </section>
+      <div id="no-paper" class="empty-state">Sign in to load your follow-up review.</div>
+      <article id="paper-panel" class="paper-panel hidden">
+        <header class="paper-heading">
+          <div><div class="paper-tags"><span id="priority-tag" class="priority-tag">—</span><span id="paper-id" class="paper-id">—</span><span id="version-tag" class="paper-id">—</span></div><h1 id="paper-title">—</h1><p id="paper-meta">—</p></div>
+          <div class="paper-navigation"><button id="previous-paper" class="button secondary" type="button">← Previous</button><button id="next-paper" class="button secondary" type="button">Next →</button></div>
+        </header>
+        <section class="guidance-box" aria-labelledby="guidance-heading">
+          <h2 id="guidance-heading">Review instructions</h2>
+          <ul id="guidance-list"></ul>
+          <p id="scope-note" class="scope-note"></p>
+        </section>
+        <section class="pdf-section" aria-labelledby="pdf-heading">
+          <div class="section-header"><div><p class="eyebrow">VERSION-MATCHED COMPILED PDF</p><h2 id="pdf-heading">Inspect the paper</h2></div><span id="pdf-status" class="pdf-status">Choose the private folder to begin.</span></div>
+          <div class="pdf-actions"><button id="verify-open-pdf" class="button secondary" type="button" disabled>Verify and open local PDF</button></div>
+          <div id="pdf-actions" class="pdf-actions hidden">
+            <label>Jump to physical page <input id="pdf-page" type="number" min="1" step="1" value="1"></label>
+            <button id="jump-page" class="button secondary" type="button">Go to page</button>
+            <a id="open-pdf-tab" class="button quiet" target="_blank" rel="noopener">Open PDF in new tab</a>
+          </div>
+          <div class="pdf-frame-wrap"><iframe id="pdf-frame" title="Locally loaded compiled paper PDF" class="hidden"></iframe><div id="pdf-placeholder" class="pdf-placeholder">The verified local PDF will appear here.</div></div>
+          <label id="inspection-ack-label" class="inspection-ack hidden"><input id="inspection-ack" type="checkbox"> I opened and inspected the flagged material in this PDF during this session.</label>
+        </section>
+        <section id="issues-section" class="issues-section" aria-labelledby="issues-title">
+          <div class="section-header"><div><p class="eyebrow">TARGETED FOLLOW-UP</p><h2 id="issues-title">Flagged issues</h2></div><span id="issue-count" class="count">—</span></div>
+          <p class="issues-intro">Model flags are leads for review, not confirmed defects. Decide each item from the paper and record a brief explanation when useful.</p>
+          <div id="issue-list" class="issue-list"></div>
+        </section>
+        <div class="completion-card">
+          <div><strong id="completion-heading">Review status</strong><p id="completion-help">Open and inspect the matching PDF, then give a verdict for every listed issue. Partial responses can be saved as a draft.</p></div>
+          <button id="complete-paper" class="button primary" type="button">Mark paper complete</button>
+        </div>
+        <div class="bottom-navigation"><button id="previous-bottom" class="button secondary" type="button">← Previous paper</button><span id="bottom-counter">—</span><button id="next-bottom" class="button primary" type="button">Next paper →</button></div>
+      </article>
+    </section>
+  </main>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

@@ -7,7 +7,7 @@
   <title>xACL-Era · dataset integrity review</title>
   <link rel="stylesheet" href="./styles.css?v=20261104-data-usability-v1">
   <script src="./vendor/supabase/supabase.js"></script>
-  <script type="module" src="./app.js?v=20261104-data-usability-v1"></script>
+  <script type="module" src="./app.js?v=20261106-followup-link"></script>
 </head>
 <body>
   <div class="app-shell" id="top">
@@ -41,6 +41,7 @@
         <p class="login-eyebrow" data-i18n="loginKicker">RESEARCH ANNOTATION</p>
         <h1 id="login-title" data-i18n="loginTitle">Create or resume your annotation profile</h1>
         <p class="login-description" data-i18n="loginDescription">Choose a pseudonymous nickname. A private recovery code lets you resume on another device.</p>
+        <p><a href="./followup.html" data-i18n="followupLink">Low-score follow-up · 49 papers</a></p>
         <section id="current-profile-panel" class="current-profile-panel is-hidden" aria-labelledby="current-profile-title">
           <p id="current-profile-title" class="current-profile-title" data-i18n="currentProfileTitle">A profile is already available on this device</p>
           <p class="current-profile-name"><span data-i18n="currentProfileLabel">Continue as</span> <strong id="current-profile-nickname">—</strong></p>
@@ -112,6 +113,7 @@
         <nav id="paper-list" class="paper-list" aria-label="Papers"></nav>
         <div class="sidebar-footer">
           <p class="privacy-note"><span aria-hidden="true">●</span> <span data-i18n="privateNote">Quality ratings are stored privately in the project database.</span></p>
+          <a href="./followup.html" data-i18n="followupLink">Low-score follow-up · 49 papers</a>
         </div>
       </aside>
 

@@ -1,0 +1,13 @@
+{
+  "schema": "xacl.followup49-config.v1",
+  "study_id": "revisionlens-alignment30-v1",
+  "dataset_id": "revisionlens-low-score49-v1",
+  "protocol_id": "latex-data-usability-followup49-v1",
+  "record_schema": "xacl.low-score-followup-annotations.v1",
+  "manifest_sha256": "52cc838fe1e2ad4dc1f5b40beb972913492902cacdc8edae206fc2c1606d652f",
+  "rubric_version": "latex-data-usability-rubric-v1",
+  "rubric_sha256": "25936187e5e55acdc4783b6cf597b7792fba7efe3ea4a093e03c40caaf0e86c0",
+  "guidance_version": "low-score-followup-guidance-v1",
+  "guidance_sha256": "e5d3da508ae113a86114ba365c8fca3878d2fbe5f7f0efa26a1a6efa56ef218d",
+  "evidence_sha256": "93d67a9d33eef582587d6f02ed3f9e1bbc3d4daa2594c1e955bdec0475689e2a"
+}

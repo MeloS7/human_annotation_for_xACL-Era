@@ -20,7 +20,8 @@ const WEB_BASE_URL = PACKAGE_BASE_URL;
 
 const STRINGS = {
   en: {
-    eyebrow: "RESEARCH ANNOTATION", studyLabel: "Study", studyTitle: "xACL-Era · dataset integrity review", loading: "Loading study…", connecting: "Connecting…",
+    eyebrow: "RESEARCH ANNOTATION", studyLabel: "Study", studyTitle: "xACL-Era · representative sample (30)", loading: "Loading study…", connecting: "Connecting…",
+    followupLink: "Low-score follow-up · 49 papers",
     sampleSet: "SAMPLE SET", papers: "Papers", searchPapers: "Search papers", searchPlaceholder: "Search title or ID",
     period: "Period", allPeriods: "All periods", early: "Early", late: "Late", reviewStatus: "Review status",
     allStatuses: "All status", notStarted: "Not started", draft: "Draft", completed: "Completed",
@@ -95,7 +96,8 @@ const STRINGS = {
     renderingPage: "Rendering page…", noStatus: "Not started", statusDraft: "Draft", statusCompleted: "Complete", genericError: "Something went wrong.",
   },
   zh: {
-    eyebrow: "研究标注", studyLabel: "研究项目", studyTitle: "xACL-Era · 数据完整性审查", loading: "正在加载项目…", connecting: "正在连接…",
+    eyebrow: "研究标注", studyLabel: "研究项目", studyTitle: "xACL-Era · 代表性样本（30 篇）", loading: "正在加载项目…", connecting: "正在连接…",
+    followupLink: "低分复核 · 49 篇",
     sampleSet: "论文样本", papers: "论文", searchPapers: "搜索论文", searchPlaceholder: "按标题或 ID 搜索",
     period: "时期", allPeriods: "全部时期", early: "早期", late: "晚期", reviewStatus: "标注状态",
     allStatuses: "所有状态", notStarted: "未开始", draft: "草稿", completed: "已完成",
