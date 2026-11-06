@@ -1,4 +1,4 @@
-import { randomRecoveryCode, stripPublishableKeyBearer } from "./cloud.mjs?v=20261106-followup49-v1";
+import { randomRecoveryCode, stripPublishableKeyBearer } from "./cloud.mjs?v=20261106-followup49-v2";
 
 export const FOLLOWUP_CONFIG_SCHEMA = "xacl.followup49-config.v1";
 export const FOLLOWUP_MANIFEST_SCHEMA = "xacl.low-score-followup-manifest.v1";
@@ -105,6 +105,7 @@ export function validateFollowupManifest(manifest, config) {
         !paper.assigned_physical_pages.every((page) => Number.isInteger(page) && page >= 1 && page <= paper.total_pdf_pages) ||
         new Set(paper.assigned_physical_pages).size !== paper.assigned_physical_pages.length ||
         !isObject(paper.compiled_pdf) || typeof paper.compiled_pdf.file !== "string" ||
+        paper.compiled_pdf.file !== `${paper.sample_id}.pdf` ||
         paper.compiled_pdf.file.startsWith("/") || paper.compiled_pdf.file.split(/[\\/]/).includes("..") ||
         !/\.pdf$/i.test(paper.compiled_pdf.file) || !Number.isSafeInteger(paper.compiled_pdf.bytes) || paper.compiled_pdf.bytes < 1 ||
         !sha256Pattern.test(paper.compiled_pdf.sha256 || "") || !Array.isArray(paper.issues) || paper.issues.length < 1) {
@@ -170,19 +171,6 @@ export function validateFollowupEvidence(evidence, manifest) {
   return evidence;
 }
 
-export function normalizeBundlePath(file) {
-  const path = typeof file?.webkitRelativePath === "string" && file.webkitRelativePath ? file.webkitRelativePath : file?.name;
-  if (typeof path !== "string" || !path) return "";
-  const parts = path.replaceAll("\\", "/").split("/").filter(Boolean);
-  return (parts.length > 1 ? parts.slice(1) : parts).join("/");
-}
-
-export function findBundleFiles(fileList, expectedPath) {
-  const expected = String(expectedPath || "").replaceAll("\\", "/");
-  const candidates = [...fileList].filter((file) => normalizeBundlePath(file) === expected);
-  return { file: candidates.length === 1 ? candidates[0] : null, count: candidates.length };
-}
-
 export function followupRecordIssue(record, config, manifest, annotatorId = undefined) {
   if (!exactlyKeys(record, RECORD_KEYS)) return "record_shape_invalid";
   if (record.schema !== config.record_schema || record.protocol_id !== config.protocol_id ||
@@ -233,14 +221,28 @@ async function fetchJsonWithBytes(path) {
   catch { throw new Error("A required review file is not valid JSON."); }
 }
 
+async function fetchBytes(path, { signal } = {}) {
+  const response = await fetch(path, { cache: "no-store", credentials: "same-origin", signal });
+  if (!response.ok) throw new Error(`The hosted file could not be loaded (${response.status}).`);
+  return response.arrayBuffer();
+}
+
+function followupPdfPath(paper) {
+  const filename = paper?.compiled_pdf?.file;
+  if (typeof filename !== "string" || !/^J\d{3}\.pdf$/.test(filename)) {
+    throw new Error("The manifest has an unsafe or invalid PDF filename.");
+  }
+  return `./followup49/pdfs/${filename}`;
+}
+
 const state = {
   config: null, apiConfig: null, manifest: null, guidance: null,
   client: null, record: null, annotatorId: "", activeSampleId: "", authMode: "create",
   currentProfile: "", pendingRegistration: null,
-  orderedPapers: [], evidence: null, pdfUrl: "", pdfLoadReady: false,
+  orderedPapers: [], evidence: null, evidenceStatus: "Loading optional model observations…", pdfUrl: "", pdfLoadReady: false,
   verifiedThisSession: new Set(), dirty: false, saving: false, savePromise: null,
   editVersion: 0, saveTimer: 0, toastTimer: 0,
-  bundleGeneration: 0, pdfRequestSerial: 0,
+  pdfRequestSerial: 0, pdfAbortController: null,
 };
 
 function errorText(error, fallback) {
@@ -337,6 +339,7 @@ async function initialize() {
         await sha256Hex(guidanceFile.bytes) !== state.config.guidance_sha256) {
       throw new Error("A static follow-up file failed its integrity check.");
     }
+    void loadReviewEvidence();
     state.apiConfig = apiFile.value;
     if (!isObject(state.apiConfig) || typeof state.apiConfig.supabase_url !== "string" ||
         typeof state.apiConfig.supabase_publishable_key !== "string") throw new Error("The public annotation-service settings are unavailable.");
@@ -598,6 +601,7 @@ function renderIssues(paper) {
     const finding = row?.findings?.[issue.id] || null;
     const card = document.createElement("article");
     card.className = "issue-card";
+    card.dataset.issueId = issue.id;
     const header = document.createElement("div");
     header.className = "issue-title";
     const heading = document.createElement("div");
@@ -635,40 +639,69 @@ function renderIssues(paper) {
     noteField.control.disabled = !finding;
     fields.append(verdictField.wrap, categoryField.wrap, noteField.wrap);
     card.append(header, fields);
-    const evidence = state.evidence?.papers?.[paper.sample_id]?.[issue.id];
-    const details = document.createElement("details");
-    details.className = "evidence";
-    const summary = document.createElement("summary");
-    summary.textContent = "Show model observations (optional)";
-    details.append(summary);
-    if (evidence) {
-      const grid = document.createElement("div");
-      grid.className = "evidence-grid";
-      for (const [label, value] of [["GPT observation", evidence.gpt_reason], ["Gemini observation", evidence.gemini_reason], ["Scope note", evidence.scope_note]]) {
-        if (!value) continue;
-        const evidenceCard = document.createElement("div");
-        evidenceCard.className = "evidence-card";
-        const name = document.createElement("strong");
-        name.textContent = label;
-        const body = document.createElement("p");
-        body.textContent = value;
-        evidenceCard.append(name, body);
-        grid.append(evidenceCard);
-      }
-      details.append(grid);
-    } else {
-      const unavailable = document.createElement("p");
-      unavailable.className = "hint";
-      unavailable.textContent = "Model observations are not loaded from a verified private evidence file.";
-      details.append(unavailable);
-    }
-    card.append(details);
+    card.append(makeIssueEvidenceDetails(paper, issue));
     root.append(card);
   }
   root.querySelectorAll("[data-finding-field]").forEach((control) => {
     const eventType = control.dataset.findingField === "note" ? "input" : "change";
     control.addEventListener(eventType, () => updateFinding(control, paper));
   });
+}
+
+function makeIssueEvidenceDetails(paper, issue) {
+  const evidence = state.evidence?.papers?.[paper.sample_id]?.[issue.id];
+  const details = document.createElement("details");
+  details.className = "evidence";
+  const summary = document.createElement("summary");
+  summary.textContent = "Show model observations (optional)";
+  details.append(summary);
+  if (evidence) {
+    const grid = document.createElement("div");
+    grid.className = "evidence-grid";
+    for (const [label, value] of [["GPT observation", evidence.gpt_reason], ["Gemini observation", evidence.gemini_reason], ["Scope note", evidence.scope_note]]) {
+      if (!value) continue;
+      const evidenceCard = document.createElement("div");
+      evidenceCard.className = "evidence-card";
+      const name = document.createElement("strong");
+      name.textContent = label;
+      const body = document.createElement("p");
+      body.textContent = value;
+      evidenceCard.append(name, body);
+      grid.append(evidenceCard);
+    }
+    details.append(grid);
+  } else {
+    const unavailable = document.createElement("p");
+    unavailable.className = "hint";
+    unavailable.textContent = state.evidenceStatus;
+    details.append(unavailable);
+  }
+  return details;
+}
+
+function refreshIssueEvidence(paper) {
+  const root = $("#issue-list");
+  for (const issue of paper.issues) {
+    const card = [...root.children].find((item) => item.dataset.issueId === issue.id);
+    const existing = card?.querySelector(".evidence");
+    if (existing) existing.replaceWith(makeIssueEvidenceDetails(paper, issue));
+  }
+}
+
+async function loadReviewEvidence() {
+  state.evidenceStatus = "Optional model observations are loading…";
+  try {
+    const bytes = await fetchBytes("./followup49/review-evidence.json");
+    if (await sha256Hex(bytes) !== state.config.evidence_sha256) throw new Error("The optional evidence checksum does not match.");
+    const parsed = JSON.parse(new TextDecoder().decode(bytes));
+    state.evidence = validateFollowupEvidence(parsed, state.manifest);
+    state.evidenceStatus = "Model observations are available.";
+  } catch {
+    state.evidence = null;
+    state.evidenceStatus = "Optional model observations are unavailable; continue using the PDF.";
+  }
+  const activePaper = state.orderedPapers.find((paper) => paper.sample_id === state.activeSampleId);
+  if (activePaper) refreshIssueEvidence(activePaper);
 }
 
 function makeField(labelText, controlName) {
@@ -757,17 +790,13 @@ async function selectPaper(sampleId, { allowUnsaved = false } = {}) {
   }
   const paper = state.orderedPapers.find((item) => item.sample_id === sampleId);
   if (!paper) return;
-  state.pdfRequestSerial += 1;
+  resetPdfViewer();
   state.activeSampleId = sampleId;
-  if (state.pdfUrl) URL.revokeObjectURL(state.pdfUrl);
-  state.pdfUrl = "";
-  state.pdfLoadReady = false;
-  $("#pdf-frame").classList.add("hidden");
-  $("#pdf-frame").removeAttribute("src");
   $("#pdf-placeholder").classList.remove("hidden");
-  $("#pdf-placeholder").textContent = "Verify and open the exact PDF from your private local folder.";
+  $("#pdf-placeholder").textContent = "Loading PDF…";
   $("#pdf-actions").classList.add("hidden");
-  $("#verify-open-pdf").disabled = !state.fileIndexFiles;
+  $("#verify-open-pdf").classList.add("hidden");
+  $("#verify-open-pdf").disabled = true;
   $("#inspection-ack-label").classList.add("hidden");
   $("#inspection-ack").checked = false;
   const index = state.orderedPapers.findIndex((item) => item.sample_id === sampleId);
@@ -783,7 +812,8 @@ async function selectPaper(sampleId, { allowUnsaved = false } = {}) {
   const firstPage = paper.issues.some((issue) => issue.id === "page_9_coverage")
     ? 9 : (paper.assigned_physical_pages[0] || 1);
   $("#pdf-page").value = String(firstPage);
-  setPdfStatusForPaper(paper);
+  $("#pdf-status").textContent = "Loading PDF…";
+  $("#pdf-status").dataset.state = "";
   renderGuidance();
   renderIssues(paper);
   renderPaperList();
@@ -802,62 +832,48 @@ async function selectPaper(sampleId, { allowUnsaved = false } = {}) {
   $("#next-paper").onclick = $("#next-bottom").onclick = () => {
     if (index < state.orderedPapers.length - 1) void selectPaper(state.orderedPapers[index + 1].sample_id);
   };
-}
-
-function setPdfStatusForPaper(paper) {
-  const status = $("#pdf-status");
-  const match = findBundleFiles(state.fileIndexFiles || [], paper.compiled_pdf.file);
-  $("#verify-open-pdf").disabled = !state.fileIndexFiles || match.count !== 1 || state.pdfLoadReady;
-  if (!state.fileIndexFiles) {
-    status.textContent = "Choose the private local review folder.";
-    status.dataset.state = "";
-  } else if (match.count === 0) {
-    status.textContent = `Missing ${paper.compiled_pdf.file} in the selected folder.`;
-    status.dataset.state = "error";
-  } else if (match.count > 1) {
-    status.textContent = `More than one file matches ${paper.compiled_pdf.file}; the bundle is ambiguous.`;
-    status.dataset.state = "error";
-  } else if (state.verifiedThisSession.has(paper.sample_id)) {
-    status.textContent = "Exact PDF verified and opened during this session.";
-    status.dataset.state = "ready";
-  } else {
-    status.textContent = `${paper.compiled_pdf.file} is available. Verify its bytes before reviewing.`;
-    status.dataset.state = "";
-  }
+  void verifyAndOpenPdf();
 }
 
 async function verifyAndOpenPdf() {
   const paper = state.orderedPapers.find((item) => item.sample_id === state.activeSampleId);
-  if (!paper || !state.fileIndexFiles) { toast("Choose the private local review folder first."); return; }
-  const result = findBundleFiles(state.fileIndexFiles, paper.compiled_pdf.file);
-  if (result.count !== 1 || !result.file) { setPdfStatusForPaper(paper); return; }
+  if (!paper) return;
   const sampleId = paper.sample_id;
-  const bundleGeneration = state.bundleGeneration;
   const requestSerial = ++state.pdfRequestSerial;
+  const controller = new AbortController();
+  state.pdfAbortController = controller;
   const status = $("#pdf-status");
-  status.textContent = "Checking file size and SHA-256 locally…";
+  status.textContent = "Loading PDF…";
   status.dataset.state = "";
+  $("#verify-open-pdf").classList.add("hidden");
+  $("#verify-open-pdf").disabled = true;
+  $("#pdf-placeholder").classList.remove("hidden");
+  $("#pdf-placeholder").textContent = "Loading PDF…";
+  const isCurrentRequest = () => state.activeSampleId === sampleId && state.pdfRequestSerial === requestSerial;
   try {
-    if (result.file.size !== paper.compiled_pdf.bytes) throw new Error("File size does not match the frozen PDF.");
-    const digest = await sha256Hex(await result.file.arrayBuffer());
-    if (state.activeSampleId !== sampleId || state.bundleGeneration !== bundleGeneration || state.pdfRequestSerial !== requestSerial) return;
-    if (digest !== paper.compiled_pdf.sha256) throw new Error("File checksum does not match the frozen PDF.");
+    const bytes = await fetchBytes(followupPdfPath(paper), { signal: controller.signal });
+    if (!isCurrentRequest()) return;
+    if (bytes.byteLength !== paper.compiled_pdf.bytes) throw new Error("The hosted PDF size does not match the frozen manifest.");
+    const digest = await sha256Hex(bytes);
+    if (!isCurrentRequest()) return;
+    if (digest !== paper.compiled_pdf.sha256) throw new Error("The hosted PDF checksum does not match the frozen manifest.");
     if (state.pdfUrl) URL.revokeObjectURL(state.pdfUrl);
-    state.pdfUrl = URL.createObjectURL(result.file);
+    state.pdfUrl = URL.createObjectURL(new Blob([bytes], { type: "application/pdf" }));
     state.pdfLoadReady = false;
     const frame = $("#pdf-frame");
     frame.onload = () => {
-      if (state.activeSampleId !== sampleId || state.bundleGeneration !== bundleGeneration || state.pdfRequestSerial !== requestSerial) return;
+      if (!isCurrentRequest()) return;
       state.pdfLoadReady = true;
       state.verifiedThisSession.add(paper.sample_id);
-      setPdfStatusForPaper(paper);
+      status.textContent = "PDF ready.";
+      status.dataset.state = "ready";
+      $("#verify-open-pdf").classList.add("hidden");
       $("#inspection-ack-label").classList.remove("hidden");
       updateCompletionState(paper);
     };
     frame.onerror = () => {
-      if (state.activeSampleId !== sampleId || state.bundleGeneration !== bundleGeneration || state.pdfRequestSerial !== requestSerial) return;
-      status.textContent = "The browser could not open this PDF. Try the new-tab link or another PDF-capable browser.";
-      status.dataset.state = "error";
+      if (!isCurrentRequest()) return;
+      showPdfLoadError("The browser could not open this PDF. Retry loading it or try another PDF-capable browser.", paper);
     };
     const initialPage = paper.issues.some((issue) => issue.id === "page_9_coverage")
       ? 9 : (paper.assigned_physical_pages[0] || 1);
@@ -866,16 +882,37 @@ async function verifyAndOpenPdf() {
     $("#pdf-placeholder").classList.add("hidden");
     $("#pdf-actions").classList.remove("hidden");
     $("#open-pdf-tab").href = state.pdfUrl;
-    status.textContent = "Checksum matched. Opening local PDF…";
-    $("#verify-open-pdf").disabled = true;
-    $("#inspection-ack-label").classList.remove("hidden");
+    status.textContent = "Opening verified PDF…";
   } catch (error) {
-    if (state.activeSampleId !== sampleId || state.bundleGeneration !== bundleGeneration || state.pdfRequestSerial !== requestSerial) return;
-    status.textContent = error?.message || "The local PDF could not be verified.";
-    status.dataset.state = "error";
-    state.verifiedThisSession.delete(paper.sample_id);
-    state.pdfLoadReady = false;
+    if (!isCurrentRequest() || error?.name === "AbortError") return;
+    showPdfLoadError(error?.message || "The hosted PDF could not be verified.", paper);
+  } finally {
+    if (isCurrentRequest()) state.pdfAbortController = null;
   }
+}
+
+function showPdfLoadError(message, paper) {
+  const status = $("#pdf-status");
+  status.textContent = message;
+  status.dataset.state = "error";
+  state.verifiedThisSession.delete(paper.sample_id);
+  state.pdfLoadReady = false;
+  const frame = $("#pdf-frame");
+  frame.onload = null;
+  frame.onerror = null;
+  frame.classList.add("hidden");
+  frame.removeAttribute("src");
+  if (state.pdfUrl) URL.revokeObjectURL(state.pdfUrl);
+  state.pdfUrl = "";
+  $("#pdf-placeholder").classList.remove("hidden");
+  $("#pdf-placeholder").textContent = "The PDF could not be loaded or verified. Retry when the connection is available.";
+  $("#open-pdf-tab").removeAttribute("href");
+  $("#pdf-actions").classList.add("hidden");
+  $("#verify-open-pdf").classList.remove("hidden");
+  $("#verify-open-pdf").disabled = false;
+  $("#inspection-ack-label").classList.add("hidden");
+  $("#inspection-ack").checked = false;
+  updateCompletionState(paper);
 }
 
 function jumpToPage(paper) {
@@ -887,71 +924,25 @@ function jumpToPage(paper) {
   $("#pdf-frame").src = `${state.pdfUrl}#page=${page}`;
 }
 
-function makeBundleIndex(fileList) {
-  state.bundleGeneration += 1;
+function resetPdfViewer() {
+  state.pdfAbortController?.abort();
+  state.pdfAbortController = null;
   state.pdfRequestSerial += 1;
-  const entries = [...fileList];
-  state.fileIndexFiles = entries;
-  state.verifiedThisSession.clear();
+  const frame = $("#pdf-frame");
+  frame.onload = null;
+  frame.onerror = null;
+  frame.classList.add("hidden");
+  frame.removeAttribute("src");
   if (state.pdfUrl) URL.revokeObjectURL(state.pdfUrl);
   state.pdfUrl = "";
   state.pdfLoadReady = false;
-  $("#pdf-frame").classList.add("hidden");
-  $("#pdf-frame").removeAttribute("src");
   $("#pdf-placeholder").classList.remove("hidden");
   $("#inspection-ack-label").classList.add("hidden");
   $("#inspection-ack").checked = false;
-  $("#verify-open-pdf").disabled = !state.activeSampleId;
-}
-
-async function loadPrivateBundle(fileList) {
-  const files = [...fileList];
-  makeBundleIndex(files);
-  const bundleGeneration = state.bundleGeneration;
-  const status = $("#bundle-status");
-  const evidenceMatches = files.filter((file) => normalizeBundlePath(file) === "review-evidence.json");
-  state.evidence = null;
-  status.textContent = "Checking the local folder and verifying private evidence…";
-  status.dataset.state = "";
-  if (state.activeSampleId) {
-    const active = state.orderedPapers.find((paper) => paper.sample_id === state.activeSampleId);
-    setPdfStatusForPaper(active);
-    renderIssues(active);
-  }
-  let evidenceMessage = "Model observations are not available; PDF-based review is still possible.";
-  if (evidenceMatches.length === 1) {
-    try {
-      const file = evidenceMatches[0];
-      const bytes = await file.arrayBuffer();
-      if (bundleGeneration !== state.bundleGeneration) return;
-      if (await sha256Hex(bytes) !== state.config.evidence_sha256) throw new Error("The private review-evidence checksum does not match this dataset.");
-      const parsed = JSON.parse(new TextDecoder().decode(bytes));
-      if (bundleGeneration !== state.bundleGeneration) return;
-      state.evidence = validateFollowupEvidence(parsed, state.manifest);
-      evidenceMessage = "Private model observations verified locally.";
-    } catch (error) {
-      if (bundleGeneration !== state.bundleGeneration) return;
-      evidenceMessage = error?.message || "Private review evidence could not be verified.";
-    }
-  } else if (evidenceMatches.length > 1) evidenceMessage = "More than one review-evidence.json file was found; model observations are disabled.";
-
-  if (bundleGeneration !== state.bundleGeneration) return;
-
-  const availableCount = state.manifest.papers.filter((paper) => findBundleFiles(files, paper.compiled_pdf.file).count === 1).length;
-  const duplicateCount = state.manifest.papers.filter((paper) => findBundleFiles(files, paper.compiled_pdf.file).count > 1).length;
-  status.textContent = `${availableCount}/49 PDFs found. ${evidenceMessage}`;
-  status.dataset.state = availableCount === 49 && state.evidence ? "ready" : "";
-  $("#bundle-input").value = "";
-  if (state.activeSampleId) {
-    const paper = state.orderedPapers.find((item) => item.sample_id === state.activeSampleId);
-    setPdfStatusForPaper(paper);
-    renderIssues(paper);
-    updateCompletionState(paper);
-  }
-  if (availableCount !== 49 || duplicateCount) {
-    const details = duplicateCount ? ` ${duplicateCount} ambiguous file match${duplicateCount === 1 ? "" : "es"}.` : "";
-    status.textContent += details;
-  }
+  $("#pdf-actions").classList.add("hidden");
+  $("#open-pdf-tab").removeAttribute("href");
+  $("#verify-open-pdf").classList.add("hidden");
+  $("#verify-open-pdf").disabled = true;
 }
 
 async function saveChanges() {
@@ -1039,9 +1030,6 @@ async function toggleComplete(paper) {
 }
 
 function bindReviewEvents() {
-  $("#bundle-input").addEventListener("change", (event) => {
-    if (event.target.files?.length) void loadPrivateBundle(event.target.files);
-  });
   $("#save-now").addEventListener("click", () => void saveChanges().then(() => toast("All changes are saved.")).catch((error) => toast(errorText(error, "Save failed. Your edits remain in this browser."))));
   $("#switch-annotator").addEventListener("click", () => void switchProfileFromReview());
   $("#verify-open-pdf").addEventListener("click", () => void verifyAndOpenPdf());
@@ -1066,7 +1054,8 @@ async function switchProfileFromReview() {
   }
   const result = await state.client.auth.signOut({ scope: "local" });
   if (result?.error) { toast("Could not safely switch profiles. Try again."); return; }
-  clearPrivateBundle();
+  resetPdfViewer();
+  state.verifiedThisSession.clear();
   state.record = null;
   state.annotatorId = "";
   state.activeSampleId = "";
@@ -1077,25 +1066,6 @@ async function switchProfileFromReview() {
   $("#profile-actions").classList.remove("hidden");
   state.pendingRegistration = null;
   setLoginError();
-}
-
-function clearPrivateBundle() {
-  state.bundleGeneration += 1;
-  state.pdfRequestSerial += 1;
-  state.fileIndexFiles = null;
-  state.evidence = null;
-  state.verifiedThisSession.clear();
-  state.pdfLoadReady = false;
-  if (state.pdfUrl) URL.revokeObjectURL(state.pdfUrl);
-  state.pdfUrl = "";
-  $("#bundle-input").value = "";
-  $("#bundle-status").textContent = "No local folder selected.";
-  $("#bundle-status").dataset.state = "";
-  $("#pdf-frame").classList.add("hidden");
-  $("#pdf-frame").removeAttribute("src");
-  $("#pdf-placeholder").classList.remove("hidden");
-  $("#inspection-ack-label").classList.add("hidden");
-  $("#inspection-ack").checked = false;
 }
 
 function bindReviewStartupEvents() {

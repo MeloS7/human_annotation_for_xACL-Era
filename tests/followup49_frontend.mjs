@@ -4,8 +4,6 @@ import {
   FOLLOWUP_EVIDENCE_SCHEMA,
   followupRecordIssue,
   followupStorageKey,
-  findBundleFiles,
-  normalizeBundlePath,
   sortFollowupPapers,
   validateFollowupEvidence,
   validateFollowupGuidance,
@@ -105,16 +103,6 @@ test("records reject cross-dataset rows, unknown issues, and oversized notes", (
     } },
   });
   assert.equal(followupRecordIssue(oversized, config, manifest), "record_finding_invalid");
-});
-
-test("bundle file matching is exact, local-path based, and reports ambiguity", () => {
-  const first = { name: "J001.pdf", webkitRelativePath: "review/J001.pdf" };
-  const second = { name: "J002.pdf", webkitRelativePath: "review/J002.pdf" };
-  assert.equal(normalizeBundlePath(first), "J001.pdf");
-  assert.deepEqual(findBundleFiles([first, second], "J001.pdf"), { file: first, count: 1 });
-  assert.deepEqual(findBundleFiles([first, { ...first }], "J001.pdf"), { file: null, count: 2 });
-  assert.deepEqual(findBundleFiles([first, second], "J003.pdf"), { file: null, count: 0 });
-  assert.deepEqual(findBundleFiles([{ name: "J001.pdf", webkitRelativePath: "review/pdfs/J001.pdf" }], "J001.pdf"), { file: null, count: 0 });
 });
 
 test("guidance, evidence, and private health must match the follow-up protocol", () => {

@@ -1,0 +1,418 @@
+{
+  "papers": {
+    "J007": {
+      "page_9_coverage": {
+        "gemini_reason": "Only 8 page images were provided in the prompt despite the instructions referencing a 9-page target scope.",
+        "gpt_reason": "",
+        "scope_note": "The archived request contained nine verified images. Inspect physical page 9 for any material issue."
+      },
+      "pdf_visual_integrity": {
+        "gemini_reason": "The rendered PDF pages are visually crisp, correctly formatted, and free of any clipping, overlap, or font artifacts.",
+        "gpt_reason": "On page 8, Table 5 extends into Table 7 and its caption area, locally impeding reading; the other inspected pages remain legible.",
+        "scope_note": ""
+      }
+    },
+    "J015": {
+      "pdf_visual_integrity": {
+        "gemini_reason": "Chinese characters fail to render across several tables and text examples (e.g., Table 1, Table 2, and in-text quotes on pages 3 and 6), leaving blank gaps or isolated punctuation.",
+        "gpt_reason": "Missing Chinese glyphs leave translation entries blank in Tables 1–2 on pages 1–2 and erase quoted translations on pages 3 and 7, making multiple important examples unreadable.",
+        "scope_note": ""
+      }
+    },
+    "J026": {
+      "pdf_visual_integrity": {
+        "gemini_reason": "Localized rendering defects occur on page 7 where text impinges on Table 5, and on page 9 where two paragraphs collide and overlap heavily in the right column.",
+        "gpt_reason": "Tables 4–5 overlap on page 7, plot legends intrude into adjacent prose on page 8, and Table 7 substantially overlaps the right-column text on page 9.",
+        "scope_note": ""
+      }
+    },
+    "J028": {
+      "pdf_visual_integrity": {
+        "gemini_reason": "CJK glyphs fail to render in the PDF, causing empty spaces in Table 7's source column on page 7 and missing Chinese characters in inline text on page 2.",
+        "gpt_reason": "Missing Chinese glyphs interrupt examples in page 2's prose and leave Table 7's source-word column blank on page 8, while remaining content is legible.",
+        "scope_note": ""
+      }
+    },
+    "J042": {
+      "pdf_visual_integrity": {
+        "gemini_reason": "On page 5, Table 1 exhibits minor vertical collision between multirow cell values and horizontal table rules, though text remains legible throughout.",
+        "gpt_reason": "Table 1 overlaps right-column prose on page 5, and left-column tables collide with Table 5 on page 7, making multiple displayed portions difficult to read.",
+        "scope_note": ""
+      }
+    },
+    "J045": {
+      "pdf_visual_integrity": {
+        "gemini_reason": "On page 1, the unbreakable URL in footnote 1 slightly overflows the column width into the column gutter and right-hand column text, though all text remains readable.",
+        "gpt_reason": "On page 1, the code-link footnote extends into the right column and overlaps its bottom text, locally impeding reading; the remaining pages are legible.",
+        "scope_note": ""
+      }
+    },
+    "J047": {
+      "pdf_visual_integrity": {
+        "gemini_reason": "The rendered PDF pages are visually clean, well-typeset according to ACL style guidelines, and free of legibility or clipping defects.",
+        "gpt_reason": "On page 2, Table 1 extends into the right column and overlaps its opening text, locally impeding reading.",
+        "scope_note": ""
+      }
+    },
+    "J054": {
+      "page_9_coverage": {
+        "gemini_reason": "Only 8 page images were provided in the input, preventing visual inspection of target page 9.",
+        "gpt_reason": "",
+        "scope_note": "The archived request contained nine verified images. Inspect physical page 9 for any material issue."
+      },
+      "pdf_visual_integrity": {
+        "gemini_reason": "All inspected PDF pages are visually intact, sharply rendered, and free of text overlap or clipping issues.",
+        "gpt_reason": "On page 8, Table 3 extends into the right column and overlaps the Figure 3 caption and Table 4, locally impeding reading.",
+        "scope_note": ""
+      }
+    },
+    "J056": {
+      "document_structural_integrity": {
+        "gemini_reason": "The structural hierarchy from sections through subsections and paragraphs is properly preserved and ordered logically throughout.",
+        "gpt_reason": "Equation (5) and its following CRF paragraph precede Section 3.2 on page 3, separating them from their introduction ending with a colon on page 4.",
+        "scope_note": ""
+      },
+      "page_9_coverage": {
+        "gemini_reason": "Only 8 target page images were provided in the evaluation bundle, leaving target page 9 unobserved.",
+        "gpt_reason": "",
+        "scope_note": "The archived request contained nine verified images. Inspect physical page 9 for any material issue."
+      },
+      "pdf_visual_integrity": {
+        "gemini_reason": "Chinese character glyphs in the running text, inline examples, and Table 9 failed to render, appearing as blank spaces in the PDF.",
+        "gpt_reason": "Repeated missing Chinese glyphs leave important examples blank on pages 1, 3 and 5 and remove Chinese content from Table 9 and its discussion on page 9.",
+        "scope_note": ""
+      }
+    },
+    "J063": {
+      "pdf_visual_integrity": {
+        "gemini_reason": "The rendered PDF pages are sharp and legible throughout, showing no visual clipping, overlaps, or printing anomalies.",
+        "gpt_reason": "On page 4, Table 5 extends into the right column and overlaps its opening text, locally impeding reading; the remaining pages are legible.",
+        "scope_note": ""
+      }
+    },
+    "J075": {
+      "pdf_visual_integrity": {
+        "gemini_reason": "The target PDF pages 1–9 display crisp typography, clear layouts, and no visual overlapping, clipping, or rendering defects.",
+        "gpt_reason": "Table 9 on page 8 has text overflowing across column boundaries, impeding reading locally, while the remaining pages are generally legible.",
+        "scope_note": ""
+      }
+    },
+    "J081": {
+      "page_9_coverage": {
+        "gemini_reason": "Only 8 physical page images were provided in the bundle instead of the declared 9-page window, preventing visual inspection of physical page 9.",
+        "gpt_reason": "",
+        "scope_note": "The archived request contained nine verified images. Inspect physical page 9 for any material issue."
+      },
+      "pdf_visual_integrity": {
+        "gemini_reason": "The inspected target PDF pages are visually clear, properly typeset, and free of layout collisions or legibility defects.",
+        "gpt_reason": "Pages 1–9 show intact text and tables, but the very small internal labels and formulas in Figure 2 on page 3 impede detailed reading.",
+        "scope_note": ""
+      }
+    },
+    "J086": {
+      "pdf_visual_integrity": {
+        "gemini_reason": "The rendered PDF is clear and legible, with only a minor text overlap at the end of the unhyphenated URL in footnote 1 on page 6.",
+        "gpt_reason": "Table 4 overlaps Table 5 on page 8, obscuring some cells, and the page-7 footnote extends into adjacent-column text.",
+        "scope_note": ""
+      }
+    },
+    "J087": {
+      "page_9_coverage": {
+        "gemini_reason": "Only 8 target page images were provided in the input bundle, limiting visual inspection to pages 1–8.",
+        "gpt_reason": "",
+        "scope_note": "The archived request contained nine verified images. Inspect physical page 9 for any material issue."
+      },
+      "pdf_visual_integrity": {
+        "gemini_reason": "On physical page 5, equations (5) through (8) collide and overlap heavily due to negative vertical spacing, impeding normal reading of the formulas.",
+        "gpt_reason": "Overlapping equations (6)–(8) at the top of page 5 impede reading locally, while the remaining inspected pages are legible.",
+        "scope_note": ""
+      }
+    },
+    "J099": {
+      "pdf_visual_integrity": {
+        "gemini_reason": "The target PDF pages are visually clear and well-formatted with no observed clipping, text overlap, or font defects.",
+        "gpt_reason": "On page 7, Table 1 extends into Table 2, overlapping its model labels and rules and impeding localized reading.",
+        "scope_note": ""
+      }
+    },
+    "J106": {
+      "pdf_visual_integrity": {
+        "gemini_reason": "On page 8, Table 3 exceeds the left column width and visually collides with the right-column text, significantly impeding legibility for that passage.",
+        "gpt_reason": "On page 8, Table 3 extends into the right column and overlaps the manual-evaluation paragraph, impeding reading of both.",
+        "scope_note": ""
+      }
+    },
+    "J114": {
+      "pdf_visual_integrity": {
+        "gemini_reason": "A minor vertical spacing overlap occurs on page 5 where the text following Rule #1 slightly collides with the display equation, though the text remains legible.",
+        "gpt_reason": "On page 5, the Rule 1 display equation overlaps the following paragraph and impedes reading locally, while the remaining pages are legible.",
+        "scope_note": ""
+      }
+    },
+    "J125": {
+      "page_9_coverage": {
+        "gemini_reason": "Only 8 target PDF page images were provided in the evaluation bundle despite the declared 9-page window, leaving physical page 9 uninspected.",
+        "gpt_reason": "",
+        "scope_note": "The archived request contained nine verified images. Inspect physical page 9 for any material issue."
+      },
+      "pdf_visual_integrity": {
+        "gemini_reason": "Chinese character glyphs fail to render in Table 1 on page 4, leaving blank lines or stray punctuation marks in the original text column.",
+        "gpt_reason": "On page 4, Chinese text in multiple Table 1 cells is missing while punctuation remains, although the English translations and other inspected content are legible.",
+        "scope_note": ""
+      }
+    },
+    "J132": {
+      "pdf_visual_integrity": {
+        "gemini_reason": "The inspected target PDF pages are visually intact, cleanly rendered, and completely legible with no clipping or layout errors.",
+        "gpt_reason": "On page 6, the long underlined A2T utterance in Table 3 extends into the right column and overlaps body text, locally impeding reading.",
+        "scope_note": ""
+      }
+    },
+    "J152": {
+      "pdf_visual_integrity": {
+        "gemini_reason": "The rendered PDF pages 1–9 are clear, fully legible, and free of visual clipping or overlapping defects.",
+        "gpt_reason": "On page 4, the displayed CHUNK expression extends into the right column and overlaps prose, locally impeding reading, although its source is intact.",
+        "scope_note": ""
+      }
+    },
+    "J156": {
+      "pdf_visual_integrity": {
+        "gemini_reason": "The inspected PDF pages are visually clean, properly formatted according to conference standards, and free of rendering artifacts or clipping.",
+        "gpt_reason": "Overwide tables collide with neighboring content on page 8, and Figure 6 obscures part of Table 4's rightmost column on page 9.",
+        "scope_note": ""
+      }
+    },
+    "J157": {
+      "page_9_coverage": {
+        "gemini_reason": "Only 8 target page images were provided in the input, preventing visual inspection of physical page 9.",
+        "gpt_reason": "",
+        "scope_note": "The archived request contained nine verified images. Inspect physical page 9 for any material issue."
+      },
+      "pdf_visual_integrity": {
+        "gemini_reason": "Minor visual overlap occurs on page 8 in Tables 5 and 6 where column contents slightly collide, though text remains legible.",
+        "gpt_reason": "Localized table overlap impedes reading, especially the Method and G/F/X columns in Table 5 on page 9, although most displayed content remains legible.",
+        "scope_note": ""
+      }
+    },
+    "J185": {
+      "page_9_coverage": {
+        "gemini_reason": "Only 8 target PDF page images were supplied in the prompt window, limiting visual inspection of page 9.",
+        "gpt_reason": "",
+        "scope_note": "The archived request contained nine verified images. Inspect physical page 9 for any material issue."
+      },
+      "pdf_visual_integrity": {
+        "gemini_reason": "The rendered PDF pages are visually intact, clear, and fully legible with no rendering anomalies, text overlapping, or clipping.",
+        "gpt_reason": "On page 4, the KL-divergence display extends into the right column and overlaps prose, locally impeding reading.",
+        "scope_note": ""
+      }
+    },
+    "J191": {
+      "pdf_visual_integrity": {
+        "gemini_reason": "The target PDF pages are visually clear, sharp, and free of rendering artifacts, overlapping, or clipping.",
+        "gpt_reason": "On page 5, Equation 3 overlaps the preceding prose line and impedes reading locally, while the remaining inspected pages are legible.",
+        "scope_note": ""
+      }
+    },
+    "J192": {
+      "pdf_visual_integrity": {
+        "gemini_reason": "The rendered PDF pages are sharp, legible, and completely free of clipping, overlapping, or visual artifacts.",
+        "gpt_reason": "On page 9, Figure 3(c) extends into the right column and overlaps the relation-type discussion, impeding reading locally.",
+        "scope_note": ""
+      }
+    },
+    "J194": {
+      "pdf_visual_integrity": {
+        "gemini_reason": "On page 8, Table 4 extends far across the column gutter and collides directly over Table 5 at the top of the right column, obscuring text in both tables.",
+        "gpt_reason": "On page 8, Table 4 extends into Table 5's area, crowding and overlapping its average column with neighboring labels and impeding localized reading.",
+        "scope_note": ""
+      }
+    },
+    "J203": {
+      "page_9_coverage": {
+        "gemini_reason": "Only 8 target page images were provided in the input bundle despite the declared 1–9 page target window, leaving the final page visually unverified.",
+        "gpt_reason": "",
+        "scope_note": "The archived request contained nine verified images. Inspect physical page 9 for any material issue."
+      },
+      "pdf_visual_integrity": {
+        "gemini_reason": "Japanese CJK glyphs failed to render across multiple sections and captions, appearing as blank whitespace in the PDF.",
+        "gpt_reason": "Repeated missing Japanese glyphs obscure examples and explanations on pages 2–3, 7 and 9, and Table 2 overlaps the adjacent caption on page 7.",
+        "scope_note": ""
+      }
+    },
+    "J205": {
+      "nontext_asset_integrity": {
+        "gemini_reason": "All display equations, TikZ diagrams, and tables across pages 1–9 are fully specified in the source, correctly referenced, and usable.",
+        "gpt_reason": "Supplied table, equation and diagram source is intact, but Figure 2's overlapping labels on page 6 cannot be checked against an independently supplied asset representation.",
+        "scope_note": ""
+      },
+      "pdf_visual_integrity": {
+        "gemini_reason": "Target pages are clearly legible overall, with only minor label overlap in the Figure 2 t-SNE plot and an intentional column break creating whitespace on page 2.",
+        "gpt_reason": "Page 6 clips Table 1's rightmost content and contains many overlapping Figure 2 labels, while page 8's Table 3 intrudes into the adjacent text column.",
+        "scope_note": ""
+      }
+    },
+    "J229": {
+      "pdf_visual_integrity": {
+        "gemini_reason": "On page 5, Table 1 severely overshoots the column width and collides with text in the right column, and on page 8 Table 5 overlaps with adjacent body text.",
+        "gpt_reason": "Overwide tables on pages 6 and 9 overlap neighboring prose or captions and impede reading of localized content.",
+        "scope_note": ""
+      }
+    },
+    "J243": {
+      "pdf_visual_integrity": {
+        "gemini_reason": "The PDF is mostly clean and legible, though narrow column widths cause minor text collisions in Table 2 headers and Table 4 round 0 data cells.",
+        "gpt_reason": "Table 4 on page 7 has crowded numerical columns and overlapping cell boundaries or shading that impede reading some values.",
+        "scope_note": ""
+      }
+    },
+    "J246": {
+      "page_9_coverage": {
+        "gemini_reason": "Only 8 target page images were supplied in the inspection bundle instead of the stated 9 pages.",
+        "gpt_reason": "",
+        "scope_note": "The archived request contained nine verified images. Inspect physical page 9 for any material issue."
+      },
+      "pdf_visual_integrity": {
+        "gemini_reason": "The supplied target page images show clean, high-quality typesetting with no visual overlap, clipping, or font defects.",
+        "gpt_reason": "On page 5, Table 3 extends into the adjacent column and overlaps Algorithm 1 line numbers, locally impeding reading.",
+        "scope_note": ""
+      }
+    },
+    "J248": {
+      "pdf_visual_integrity": {
+        "gemini_reason": "The rendered PDF is clear and legible overall, with only a minor visual defect where 'ScoreDescription' runs together in the headers of Tables 1 and 2 on page 6.",
+        "gpt_reason": "On page 8, Tables 4 and 5 extend into the right column and overlap prose, impeding reading locally.",
+        "scope_note": ""
+      }
+    },
+    "J252": {
+      "pdf_visual_integrity": {
+        "gemini_reason": "The rendered PDF pages are completely legible with clean typography and no visual defects or clipping.",
+        "gpt_reason": "The university affiliation lines overlap between adjacent author blocks on page 1, locally impeding reading, while the remaining pages are legible.",
+        "scope_note": ""
+      }
+    },
+    "J262": {
+      "nontext_asset_integrity": {
+        "gemini_reason": "While Figure 1, Table 1, Algorithm 1, and all display equations are intact, Figures 2–11 do not render within pages 1–9 due to LaTeX float deferral, precluding visual verification of those external assets.",
+        "gpt_reason": "Figure 1, equations, Algorithm 1 and Table 1 are readable, but Figures 2–11 have active source declarations without visible renderings in pages 1–9 or supplied graphical content.",
+        "scope_note": ""
+      }
+    },
+    "J282": {
+      "pdf_visual_integrity": {
+        "gemini_reason": "The rendered PDF pages 1–9 are clean, fully legible, and free of visual artifacts, overlapping text, or clipping defects.",
+        "gpt_reason": "On page 4, Figure 3's lower-right explanatory text extends beyond the table border and overlaps its caption, impeding localized reading.",
+        "scope_note": ""
+      }
+    },
+    "J311": {
+      "pdf_visual_integrity": {
+        "gemini_reason": "Arabic script characters fail to render across the target PDF pages (e.g., Asm. 3 on page 1, character normalizations on page 4, and the example sentences on page 5), leaving blank spaces.",
+        "gpt_reason": "Repeated missing Arabic and transliteration glyphs affect pages 1, 3 and 6–8, notably making both Arabic example sentences on page 7 unreadable.",
+        "scope_note": ""
+      }
+    },
+    "J323": {
+      "pdf_visual_integrity": {
+        "gemini_reason": "Cyrillic characters in Table 1 on page 1 failed to render, leaving blanks, and unrendered em-dashes on page 6 cause adjacent words to run together.",
+        "gpt_reason": "Page 1's Table 1 loses the Russian glyphs in both example cells, making that row unreadable despite otherwise legible pages.",
+        "scope_note": ""
+      }
+    },
+    "J330": {
+      "pdf_visual_integrity": {
+        "gemini_reason": "A few non-ASCII and diacritic characters fail to render in the PDF font (e.g., the initial 'Ž' on page 2 and macrons in monospace prompt blocks on pages 3–4), but overall legibility is not materially impeded.",
+        "gpt_reason": "Localized glyph omissions impede reading of linguistic examples, particularly the Vera’a text on pages 3–4, where source strings such as “wōlēn” render as “wln”.",
+        "scope_note": ""
+      }
+    },
+    "J338": {
+      "page_9_coverage": {
+        "gemini_reason": "Only 8 target page images were provided in the input bundle, leaving physical page 9 unobserved.",
+        "gpt_reason": "",
+        "scope_note": "The archived request contained nine verified images. Inspect physical page 9 for any material issue."
+      },
+      "pdf_visual_integrity": {
+        "gemini_reason": "Chinese glyphs fail to render in several inline text examples on pages 1, 2, and 4, though accompanying English glosses prevent material impediment to reading.",
+        "gpt_reason": "Chinese characters disappear from inline address examples on pages 1, 2 and 4 despite being present in the source, impeding reading of those examples.",
+        "scope_note": ""
+      }
+    },
+    "J363": {
+      "nontext_asset_integrity": {
+        "gemini_reason": "All figures (Figures 1–4) and tables (Tables 1–4) within the 9-page scope are properly compiled, fully legible, and aligned with their LaTeX source.",
+        "gpt_reason": "Tables and figure associations are preserved, but Figure 4's split numeric axis labels on page 7 impair reading and its underlying graphic is unavailable for source verification.",
+        "scope_note": ""
+      },
+      "pdf_visual_integrity": {
+        "gemini_reason": "Visual rendering across all 9 pages is sharp, clear, and without clipping, overlapping text, or layout defects.",
+        "gpt_reason": "Most content is legible, but Figure 4 on page 7 breaks numeric tick labels across lines, impeding interpretation of its vertical scale.",
+        "scope_note": ""
+      }
+    },
+    "J427": {
+      "pdf_visual_integrity": {
+        "gemini_reason": "Table 5 and Table 6 collide and overlap across the column margin on page 7, and certain Unicode glyphs like the multiplication symbol and dashes are dropped or misrendered on page 1.",
+        "gpt_reason": "Tables 5 and 6 overlap on page 9 and impede reading of some entries, while page 1 also misrenders the multiplication sign in “20×.”",
+        "scope_note": ""
+      }
+    },
+    "J429": {
+      "nontext_asset_integrity": {
+        "gemini_reason": "Figure 4 mistakenly duplicates the performance bar chart from Figure 7 instead of displaying the topic distribution described in Section 4.1.",
+        "gpt_reason": "Figure 4 on page 5 repeats the model-performance chart shown as Figure 7 rather than depicting the topic distribution identified by its caption and source context.",
+        "scope_note": ""
+      }
+    },
+    "J468": {
+      "pdf_visual_integrity": {
+        "gemini_reason": "Inline Japanese characters in Table 1 and qualitative text sections render as empty spaces due to missing CJK font glyphs, but English translations accompany them so overall reading is not materially impeded.",
+        "gpt_reason": "Missing Japanese glyphs leave empty parentheses in Table 1 on page 3 and blank quoted expressions on pages 6 and 8, impeding localized reading.",
+        "scope_note": ""
+      }
+    },
+    "J472": {
+      "pdf_visual_integrity": {
+        "gemini_reason": "On page 8, aggressive negative vertical spacing causes the subsection header '5.3.1 Pixel-level Segmentation' to overlap directly onto the word 'proficiency.' at the top of the left column.",
+        "gpt_reason": "Page 8 has subsection headings overlapping preceding text in both columns, and page 5 displays incorrect glyphs for multiplication signs.",
+        "scope_note": ""
+      }
+    },
+    "J480": {
+      "pdf_visual_integrity": {
+        "gemini_reason": "Aggressive negative vertical spacing causes section heading 5.3 to collide with Table 3's caption on page 7, and section heading 5.4 to overlap Table 7's legend text on page 8.",
+        "gpt_reason": "On pages 7–8, table captions or legends overlap the following subsection headings, impeding localized reading.",
+        "scope_note": ""
+      }
+    },
+    "J549": {
+      "pdf_visual_integrity": {
+        "gemini_reason": "The rendered PDF pages 1–9 are clean, sharp, and free of visual artifacts, clipping, or text overlapping.",
+        "gpt_reason": "On page 2, the third contribution bullet overlaps the final lines of the second bullet, locally impeding reading.",
+        "scope_note": ""
+      }
+    },
+    "J556": {
+      "pdf_visual_integrity": {
+        "gemini_reason": "Japanese CJK glyphs failed to render across the target PDF (visible in Table 7 on page 8, Table 8 on page 9, and footnote 12 on page 5), leaving blank spaces where Japanese text should appear.",
+        "gpt_reason": "Japanese text is missing throughout the original-text columns of Tables 7–8 on pages 8–9 and in the example footnote on page 5, making multiple displayed parts unreadable.",
+        "scope_note": ""
+      }
+    },
+    "J561": {
+      "nontext_asset_integrity": {
+        "gemini_reason": "Crucial figures (Figure 2 and Figure 3) are missing from the main-paper pages 1–9 due to float queue deferral caused by an oversized Figure 2 environment.",
+        "gpt_reason": "Figure 1 and Tables 1–3 have readable renderings and corresponding LaTeX, but the cited Figures 2–3 are not displayed within pages 1–9 and Figure 3's plot contents cannot be verified.",
+        "scope_note": ""
+      }
+    },
+    "J591": {
+      "nontext_asset_integrity": {
+        "gemini_reason": "All tables, multi-panel figures, diagrams, and plots referenced in the manuscript are correctly linked to their includes and render completely.",
+        "gpt_reason": "Figure 8(d) on page 6 is labeled as y2 random sampling but reuses the y1 random-sampling resource from panel (b) in latex/figures/lineplots/examples.tex, requiring correction of this localized panel association.",
+        "scope_note": ""
+      }
+    }
+  },
+  "schema": "xacl.low-score-followup-evidence.v1"
+}

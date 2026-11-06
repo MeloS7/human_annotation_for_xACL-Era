@@ -5,6 +5,7 @@ site/guidance.json -text
 site/selection.json -text
 site/sampling-provenance.json -text
 site/sample-list.csv -text whitespace=cr-at-eol
+site/followup49/review-evidence.json -text
 *.pdf binary
 *.wasm binary
 *.bcmap binary

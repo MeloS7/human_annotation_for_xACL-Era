@@ -144,6 +144,12 @@ assert len(papers) == len({p["sample_id"] for p in papers}) == len({p["paper_id"
 assert {p["sample_id"] for p in papers}.isdisjoint({p["sample_id"] for p in manifest["papers"]})
 assert Counter(p["priority"] for p in papers) == {"priority": 29, "secondary": 20}
 assert papers == sorted(papers, key=lambda p: (p["priority"] != "priority", p["sample_id"]))
+pdf_dir = followup / "pdfs"
+evidence_bytes = (followup / "review-evidence.json").read_bytes()
+assert hashlib.sha256(evidence_bytes).hexdigest() == followup_config["evidence_sha256"]
+evidence = json.loads(evidence_bytes)
+assert evidence["schema"] == "xacl.low-score-followup-evidence.v1"
+assert set(evidence["papers"]) == {p["sample_id"] for p in papers}
 issue_counts = Counter()
 for paper in papers:
     sid = paper["sample_id"]
@@ -151,14 +157,23 @@ for paper in papers:
     issues = [item["id"] for item in paper["issues"]]
     assert re.fullmatch(r"J[0-9]{3}", sid) and pdf["file"] == f"{sid}.pdf"
     assert re.fullmatch(r"[a-f0-9]{64}", pdf["sha256"]) and pdf["bytes"] > 0
+    pdf_bytes = (pdf_dir / pdf["file"]).read_bytes()
+    assert pdf_bytes.startswith(b"%PDF-") and len(pdf_bytes) == pdf["bytes"]
+    assert hashlib.sha256(pdf_bytes).hexdigest() == pdf["sha256"], sid
     assert paper["assigned_physical_pages"] == list(range(1, min(9, paper["total_pdf_pages"]) + 1))
     assert issues and len(issues) == len(set(issues))
+    assert set(evidence["papers"][sid]) == set(issues)
+    for entry in evidence["papers"][sid].values():
+        assert set(entry) == {"gpt_reason", "gemini_reason", "scope_note"}
+        assert all(isinstance(value, str) for value in entry.values())
     issue_counts.update(issues)
 assert issue_counts == {"document_structural_integrity": 1, "nontext_asset_integrity": 6,
                         "pdf_visual_integrity": 45, "page_9_coverage": 11}
-assert not list(site.rglob("J[0-9][0-9][0-9].pdf"))
-assert not list(site.rglob("review-evidence.json"))
+assert {p.relative_to(site) for p in site.rglob("J[0-9][0-9][0-9].pdf")} == {
+    (pdf_dir / p["compiled_pdf"]["file"]).relative_to(site) for p in papers
+}
+assert list(site.rglob("review-evidence.json")) == [followup / "review-evidence.json"]
 assert 'href="./followup.html"' in (site / "index.html").read_text()
 for name in ("followup.html", "followup.mjs"):
     assert (site / name).is_file()
-print("Verified 49 separate follow-up entries, 63 issue prompts, and absence of private review files in the site artifact.")
+print("Verified all 49 hosted follow-up PDFs and 63 evidence entries against their frozen manifest and hashes.")
